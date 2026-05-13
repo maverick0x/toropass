@@ -1,0 +1,49 @@
+name: toropass_workspace
+
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "backend/*"
+
+ignore:
+  - "**/.dart_tool/**"
+  - "**/node_modules/**"
+  - "**/dist/**"
+
+command:
+  bootstrap:
+    hooks:
+      post: pnpm install
+
+scripts:
+  start:backend:
+    run: pnpm run start:dev
+    exec:
+      concurrency: 1
+    packageFilters:
+      dirExists: "src"
+      scope: "toropass_issuer"
+    description: "Start the NestJS Issuer backend in dev mode."
+
+  build:verifier:
+    run: pnpm run build
+    exec:
+      concurrency: 1
+    packageFilters:
+      scope: "toropass_verifier"
+    description: "Build the NestJS middleware package."
+
+  analyze:dart:
+    run: dart analyze .
+    exec:
+      concurrency: 5
+    packageFilters:
+      flutter: true
+    description: "Run Dart analyzer in all Flutter packages."
+
+  clean:all:
+    run: |
+      flutter clean && rm -rf node_modules package-lock.json pnpm-lock.yaml dist
+    exec:
+      concurrency: 5
+    description: "Deep clean Dart caches and Node modules."

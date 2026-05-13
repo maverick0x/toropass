@@ -1,0 +1,21 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Melos / Dart
+.dart_tool/
+.packages
+pubspec.lock
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
