@@ -1,4 +1,4 @@
-name: toropass_workspace
+name: toropass
 environment:
   sdk: ">=3.0.0 <4.0.0"
 dev_dependencies:

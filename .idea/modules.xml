@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/packages/toropass_client/melos_toropass_client.iml" filepath="$PROJECT_DIR$/packages/toropass_client/melos_toropass_client.iml" />
       <module fileurl="file://$PROJECT_DIR$/apps/toropass_wallet/melos_toropass_wallet.iml" filepath="$PROJECT_DIR$/apps/toropass_wallet/melos_toropass_wallet.iml" />
-      <module fileurl="file://$PROJECT_DIR$/melos_toropass_workspace.iml" filepath="$PROJECT_DIR$/melos_toropass_workspace.iml" />
+      <module fileurl="file://$PROJECT_DIR$/melos_toropass.iml" filepath="$PROJECT_DIR$/melos_toropass.iml" />
     </modules>
   </component>
 </project>
