@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../features/auth/presentation/screens/intro.dart';
+import '../../../features/auth/presentation/screens/signin.dart';
 import '../../../features/splash/presentation/screens/splash.dart';
 import '../../network/token/token_notifier.dart';
 import 'observer.dart';
@@ -23,7 +25,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final observer = ref.read(observerProvider);
   final navigatorKey = ref.watch(navKeyProvider);
 
-  final authRoutes = [];
+  final authRoutes = [AppRoutes.INTRO_SCREEN, AppRoutes.SIGNIN_SCREEN];
 
   final router = GoRouter(
     observers: [observer],
@@ -47,22 +49,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           final isLoggedIn = m.refreshToken?.isNotEmpty ?? false;
           if (state.matchedLocation == AppRoutes.SPLASH_SCREEN) {
             // Auto redirect from splash based when ready is true
-            // final route = isLoggedIn
-            //     ? AppRoutes.HOME_SCREEN
-            //     : AppRoutes.INTRO_SCREEN;
+            final route = isLoggedIn
+                ? AppRoutes.HOME_SCREEN
+                : AppRoutes.INTRO_SCREEN;
 
-            return AppRoutes.SPLASH_SCREEN; // route;
+            return route;
           }
 
           /// AUTH GUARD LOGIC
           // User is not logged in and trying to access a protected route
-          // if (!isLoggedIn && !isGoingToAuth) {
-          //   return AppRoutes.INTRO_SCREEN; // Redirect to intro
-          // }
-          // // User is logged in and trying to access an auth route
-          // if (isLoggedIn && isGoingToAuth) {
-          //   return AppRoutes.HOME_SCREEN; // Redirect to home
-          // }
+          if (!isLoggedIn && !isGoingToAuth) {
+            return AppRoutes.INTRO_SCREEN; // Redirect to intro
+          }
+          // User is logged in and trying to access an auth route
+          if (isLoggedIn && isGoingToAuth) {
+            return AppRoutes.HOME_SCREEN; // Redirect to home
+          }
 
           return null; // Allow navigation to pass normally
         },
@@ -73,6 +75,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.SPLASH_SCREEN,
         path: AppRoutes.SPLASH_SCREEN,
         builder: ((context, state) => const SplashScreen()),
+      ),
+      GoRoute(
+        name: AppRoutes.INTRO_SCREEN,
+        path: AppRoutes.INTRO_SCREEN,
+        builder: ((context, state) => const IntroScreen()),
+      ),
+      GoRoute(
+        name: AppRoutes.SIGNIN_SCREEN,
+        path: AppRoutes.SIGNIN_SCREEN,
+        builder: ((context, state) => const SigninScreen()),
       ),
     ],
   );

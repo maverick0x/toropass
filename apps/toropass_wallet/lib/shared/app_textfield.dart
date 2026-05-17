@@ -1,0 +1,145 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../core/config/themes/colors.dart';
+import '../../core/config/themes/styles.dart';
+import '../../core/utilities/animations.dart';
+import '../../core/utilities/extensions/numbers.dart';
+
+class AppTextfield extends StatefulWidget {
+  final TextEditingController? controller;
+  final TextInputAction? textInputAction;
+  final TextInputType keyboardType;
+  final Function(String)? onChanged;
+  final Color? fillColor;
+  final bool enabled;
+  final bool obscureText;
+  final int minLines;
+  final int maxLines;
+  final String hint;
+  final int? maxLength;
+  final String? error;
+  final Widget? prefix;
+  final Widget? suffix;
+  final double textHeight;
+  final EdgeInsetsGeometry? contentPadding;
+  final List<TextInputFormatter>? inputFormatters;
+  final FocusNode? focusNode;
+
+  const AppTextfield({
+    super.key,
+    this.controller,
+    required this.hint,
+    this.textInputAction = TextInputAction.next,
+    this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+    this.textHeight = 1.5,
+    this.minLines = 1,
+    this.maxLines = 1,
+    this.maxLength,
+    this.fillColor,
+    this.enabled = true,
+    this.contentPadding = const EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 14,
+    ),
+    this.inputFormatters,
+    this.error,
+    this.onChanged,
+    this.prefix,
+    this.suffix,
+    this.focusNode,
+  });
+
+  @override
+  State<AppTextfield> createState() => _AppTextfieldState();
+}
+
+class _AppTextfieldState extends State<AppTextfield> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextFormField(
+        maxLength: widget.maxLength,
+        minLines: widget.minLines,
+        maxLines: widget.maxLines,
+        enabled: widget.enabled,
+        controller: widget.enabled ? widget.controller : null,
+        focusNode: widget.focusNode,
+        obscureText: widget.obscureText,
+        keyboardType: widget.keyboardType,
+        textInputAction: widget.textInputAction,
+        onChanged: widget.onChanged,
+        inputFormatters: widget.inputFormatters,
+        onTapOutside: (_) => FocusScope.of(context).unfocus(),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: widget.fillColor != null,
+          fillColor: widget.fillColor,
+          hintText: widget.hint,
+          errorText: widget.error,
+          prefixIcon: widget.prefix != null
+              ? AnimatedSwitcher(
+                  duration: Animations.duration,
+                  transitionBuilder: Animations.widgetTransition,
+                  child: widget.prefix!,
+                )
+              : null,
+          suffixIcon: widget.suffix != null
+              ? AnimatedSwitcher(
+                  duration: Animations.duration,
+                  transitionBuilder: Animations.widgetTransition,
+                  child: widget.suffix!,
+                )
+              : null,
+          contentPadding: widget.contentPadding,
+          hintStyle: context.appStyles.body.copyWith(
+            color: AppColors.of(context).text.withAlpha(180),
+          ),
+          errorStyle: context.appStyles.caption.copyWith(
+            color: AppColors.of(context).error,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TextfieldLabel extends StatelessWidget {
+  final String label;
+  final double spacing;
+  final bool important;
+
+  const TextfieldLabel({
+    super.key,
+    this.spacing = 10,
+    this.important = false,
+    required this.label,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final appStyles = context.appStyles;
+    final appColors = AppColors.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: spacing.height),
+      child: Row(
+        crossAxisAlignment: .center,
+        children: [
+          5.horizontalSpacer,
+          Text(
+            label,
+            style: appStyles.body.copyWith(
+              color: appColors.text.withAlpha(200),
+            ),
+          ),
+          if (important) ...[
+            5.horizontalSpacer,
+            Text("*", style: appStyles.body.copyWith(color: appColors.error)),
+          ],
+        ],
+      ),
+    );
+  }
+}

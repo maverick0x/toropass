@@ -1,0 +1,23 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../data/model/auth_state_model.dart';
+
+part 'auth_notifier.g.dart';
+
+@riverpod
+class AuthNotifier extends _$AuthNotifier {
+  @override
+  AuthStateModel build() => AuthStateModel();
+
+  void changeUsername(String? username) {
+    state = state.copyWith(username: username);
+  }
+
+  void changePassword(String? password) {
+    state = state.copyWith(password: password);
+  }
+
+  void changePrivateKey(String? privateKey) {
+    state = state.copyWith(privateKey: privateKey);
+  }
+}

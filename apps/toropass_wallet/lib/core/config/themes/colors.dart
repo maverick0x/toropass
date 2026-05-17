@@ -6,7 +6,10 @@ final appColors = AppColors(
   secondary: Color(0xFF9D4EDD),
   tertiary: Color(0xFF00F5FF),
   neutral: Color(0xFF0A0B0D),
+  header: Color(0xFF1B1C1E),
+  text: Color(0xFF434656),
   error: Color(0xFF93000A),
+  shadow: Color(0xFF003EC7),
   success: Color(0xFF2E7D32),
   surface: Color(0xFFFBF9FB),
   surfaceDim: Color(0xFFDBD9DC),
@@ -20,9 +23,12 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color neutral;
   final Color transparent;
   final Color barrier;
+  final Color header;
+  final Color text;
   final Color white;
   final Color black;
   final Color error;
+  final Color shadow;
   final Color success;
   final Color surface;
   final Color surfaceDim;
@@ -33,7 +39,10 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.secondary,
     required this.tertiary,
     required this.neutral,
+    required this.header,
+    required this.text,
     required this.error,
+    required this.shadow,
     required this.success,
     required this.surface,
     required this.surfaceDim,
@@ -56,9 +65,12 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? neutral,
     Color? transparent,
     Color? barrier,
+    Color? header,
+    Color? text,
     Color? white,
     Color? black,
     Color? error,
+    Color? shadow,
     Color? success,
     Color? surface,
     Color? surfaceDim,
@@ -71,9 +83,12 @@ class AppColors extends ThemeExtension<AppColors> {
       neutral: neutral ?? this.neutral,
       transparent: transparent ?? this.transparent,
       barrier: barrier ?? this.barrier,
+      header: header ?? this.header,
+      text: text ?? this.text,
       white: white ?? this.white,
       black: black ?? this.black,
       error: error ?? this.error,
+      shadow: shadow ?? this.shadow,
       success: success ?? this.success,
       surface: surface ?? this.surface,
       surfaceDim: surfaceDim ?? this.surfaceDim,
@@ -91,9 +106,12 @@ class AppColors extends ThemeExtension<AppColors> {
       neutral: Color.lerp(neutral, other.neutral, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
       barrier: Color.lerp(barrier, other.barrier, t)!,
+      header: Color.lerp(header, other.header, t)!,
+      text: Color.lerp(text, other.text, t)!,
       white: Color.lerp(white, other.white, t)!,
       black: Color.lerp(black, other.black, t)!,
       error: Color.lerp(error, other.error, t)!,
+      shadow: Color.lerp(shadow, other.shadow, t)!,
       success: Color.lerp(success, other.success, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
       surfaceDim: Color.lerp(surfaceDim, other.surfaceDim, t)!,
