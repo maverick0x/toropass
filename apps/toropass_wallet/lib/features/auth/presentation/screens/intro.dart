@@ -47,7 +47,7 @@ class IntroScreen extends StatelessWidget {
               ),
               10.verticalSpacer,
               Text(
-                "Experience the future of Web3 identity. Secure, private, and beautifully simple to manage.",
+                "Secure your decentralized identity on the blockchain and take control of your digital presence.",
                 style: appStyles.bodyMedium,
                 textAlign: TextAlign.center,
               ),

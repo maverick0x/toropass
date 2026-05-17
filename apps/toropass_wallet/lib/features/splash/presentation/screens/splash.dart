@@ -21,8 +21,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(splashProvider.notifier).animateSplash();
       ref.read(tokenProvider.notifier).clearTokens();
+      ref.read(splashProvider.notifier).animateSplash();
       Global.precacheAssets(context, Assets.icons.values);
     });
   }

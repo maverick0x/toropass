@@ -31,6 +31,15 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     super.initState();
     hidePassword = true;
     _passwordController = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider.notifier).changePassword("");
+    });
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -69,7 +78,10 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
                 ),
               ),
               20.horizontalSpacer,
-              Icon(Icons.close, color: appColors.header),
+              AppInkWell(
+                callback: context.pop,
+                child: Icon(Icons.close, color: appColors.header),
+              ),
             ],
           ),
           40.verticalSpacer,

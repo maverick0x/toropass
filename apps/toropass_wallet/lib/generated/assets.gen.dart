@@ -74,6 +74,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/plus.svg
   String get plus => 'assets/icons/plus.svg';
 
+  /// File path: assets/icons/settings.svg
+  String get settings => 'assets/icons/settings.svg';
+
   /// File path: assets/icons/universal.svg
   String get universal => 'assets/icons/universal.svg';
 
@@ -85,6 +88,7 @@ class $AssetsIconsGen {
     key,
     lock,
     plus,
+    settings,
     universal,
   ];
 }

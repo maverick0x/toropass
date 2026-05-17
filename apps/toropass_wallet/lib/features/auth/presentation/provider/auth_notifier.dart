@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/network/token/token_model.dart';
+import '../../../../core/network/token/token_notifier.dart';
 import '../../data/model/auth_state_model.dart';
 
 part 'auth_notifier.g.dart';
@@ -20,4 +22,10 @@ class AuthNotifier extends _$AuthNotifier {
   void changePrivateKey(String? privateKey) {
     state = state.copyWith(privateKey: privateKey);
   }
+
+  void login() => ref
+      .read(tokenProvider.notifier)
+      .updateTokens(
+        TokenModel(accessToken: "accessToken", refreshToken: "refreshToken"),
+      );
 }

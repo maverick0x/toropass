@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../features/auth/presentation/screens/intro.dart';
 import '../../../features/auth/presentation/screens/signin.dart';
+import '../../../features/home/presentation/screens/home.dart';
 import '../../../features/splash/presentation/screens/splash.dart';
 import '../../network/token/token_notifier.dart';
 import 'observer.dart';
@@ -85,6 +86,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.SIGNIN_SCREEN,
         path: AppRoutes.SIGNIN_SCREEN,
         builder: ((context, state) => const SigninScreen()),
+      ),
+      GoRoute(
+        name: AppRoutes.HOME_SCREEN,
+        path: AppRoutes.HOME_SCREEN,
+        builder: ((context, state) => const HomeScreen()),
       ),
     ],
   );

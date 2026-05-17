@@ -36,6 +36,12 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
   }
 
   @override
+  void dispose() {
+    _usernameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
@@ -76,7 +82,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
               ),
               10.verticalSpacer,
               Text(
-                "Experience the future of Web3 identity. Secure, private, and beautifully simple to manage.",
+                "Protect your digital identity with a unique username and secure password. Your identity, your control.",
                 style: appStyles.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -134,7 +140,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                     AnimatedSize(
                       duration: Animations.duration,
                       child: Visibility(
-                        visible: username.isNotEmpty && username.length <= 4,
+                        visible: username.length > 4,
                         child: FieldStatus(
                           success: true,
                           message: "Available!",
@@ -149,16 +155,19 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           : appColors.black.withAlpha(100),
                       callback: () async {
                         if (username.length <= 4) return;
-
                         await displayDialog(
                           context,
                           width: 350.width,
                           child: const PasswordDialog(),
                         );
 
+                        final password = ref.read(
+                          authProvider.select((s) => s.password),
+                        );
+                        if (password.isEmpty || password.length <= 7) return;
                         ref.read(loadingProvider.notifier).wrap(() async {
                           await Future.delayed(const Duration(seconds: 5));
-                          if (mounted) {}
+                          ref.read(authProvider.notifier).login();
                         });
                       },
                     ),
@@ -176,7 +185,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                     height: 20.height,
                     color: appColors.text.withAlpha(150),
                   ),
-                  20.horizontalSpacer,
+                  10.horizontalSpacer,
                   Text(
                     "Secure & Decentralized",
                     style: appStyles.bodyMedium.copyWith(

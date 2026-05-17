@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/providers/device_id_provider.dart';
 import 'core/services/storage_service.dart';
 import 'core/utilities/logger.dart';
 
@@ -18,10 +19,13 @@ void main() {
       // Set up your services and dependencies inside the Zone
       // await dotenv.load();
       final storageInstance = await StorageService.getInstance();
+      final String deviceId =
+          "UniqueDeviceId"; // Replace with actual device ID retrieval logic
 
       runApp(
         ProviderScope(
           overrides: [
+            deviceIdProvider.overrideWithValue(deviceId),
             storageServiceProvider.overrideWithValue(storageInstance),
           ],
           child: const ToroPassApp(),
