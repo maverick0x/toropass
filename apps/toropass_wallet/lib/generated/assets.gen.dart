@@ -53,14 +53,31 @@ class $AssetsFontsGen {
   ];
 }
 
+class $AssetsIconsGen {
+  const $AssetsIconsGen();
+
+  /// File path: assets/icons/arrow-right.svg
+  String get arrowRight => 'assets/icons/arrow-right.svg';
+
+  /// List of all assets
+  List<String> get values => [arrowRight];
+}
+
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
   /// File path: assets/images/ToroID.png
   AssetGenImage get toroID => const AssetGenImage('assets/images/ToroID.png');
 
+  /// File path: assets/images/splash.png
+  AssetGenImage get splash => const AssetGenImage('assets/images/splash.png');
+
+  /// File path: assets/images/splash_android12.png
+  AssetGenImage get splashAndroid12 =>
+      const AssetGenImage('assets/images/splash_android12.png');
+
   /// List of all assets
-  List<AssetGenImage> get values => [toroID];
+  List<AssetGenImage> get values => [toroID, splash, splashAndroid12];
 }
 
 class Assets {
@@ -68,6 +85,7 @@ class Assets {
 
   static const String aEnv = '.env';
   static const $AssetsFontsGen fonts = $AssetsFontsGen();
+  static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
 
   /// List of all assets

@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/config/resource/data_state.dart';
 import '../../services/storage_service.dart';
+import '../../utilities/logger.dart';
 import 'token_model.dart';
 import 'token_state_model.dart';
 import 'token_usecase.dart';
@@ -28,6 +29,11 @@ class TokenNotifier extends _$TokenNotifier {
           refreshToken: result.data!.refreshToken,
         );
       } else {
+        AppLogger.log(
+          "Failed to refresh token: ${result is DataFailed ? result.error : 'Unknown error'}",
+          name: "TokenNotifier",
+        );
+
         await storage.clearRefreshToken();
         return const TokenStateModel();
       }

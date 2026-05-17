@@ -17,8 +17,7 @@ abstract class DataState<T> {
 
   @override
   String toString() {
-    // TODO: implement toString
-    return 'Data state';
+    return 'DataState(data: $data, error: $error, progress: $progress, summary: $summary, errorData: $errorData, code: $code)';
   }
 }
 
@@ -27,7 +26,6 @@ class DataLoading<T> extends DataState<T> {
 
   @override
   String toString() {
-    // TODO: implement toString
     return 'Data loading';
   }
 }
@@ -37,8 +35,7 @@ class DataInitial<T> extends DataState<T> {
 
   @override
   String toString() {
-    // TODO: implement toString
-    return 'initial';
+    return 'Data initial';
   }
 }
 
@@ -47,7 +44,6 @@ class DataSuccess<T> extends DataState<T> {
 
   @override
   String toString() {
-    // TODO: implement toString
     return 'Data success';
   }
 }
@@ -57,17 +53,16 @@ class DataProgress<T> extends DataState<T> {
 
   @override
   String toString() {
-    // TODO: implement toString
     return 'Data progress: $progress%';
   }
 }
 
 class DataFailed<T> extends DataState<T> {
-  const DataFailed(String? error, {super.errorData, super.summary}) : super(error: error);
+  const DataFailed(String? error, {super.errorData, super.summary})
+    : super(error: error);
 
   @override
   String toString() {
-    // TODO: implement toString
     return 'Data Failed: $error';
   }
 }

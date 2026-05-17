@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:toropass_wallet/core/config/router/observer.dart';
-import 'package:toropass_wallet/core/network/token/token_notifier.dart';
 
-import '../../../views/modules/splash.dart';
+import '../../../features/splash/presentation/screens/splash.dart';
+import '../../network/token/token_notifier.dart';
+import 'observer.dart';
 import 'routes.dart';
 
 final navKeyProvider = Provider((ref) {
@@ -72,7 +72,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         name: AppRoutes.SPLASH_SCREEN,
         path: AppRoutes.SPLASH_SCREEN,
-        builder: ((context, state) => SplashScreen()),
+        builder: ((context, state) => const SplashScreen()),
       ),
     ],
   );
