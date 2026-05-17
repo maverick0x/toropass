@@ -11,7 +11,7 @@ class AppTextfield extends StatefulWidget {
   final TextInputAction? textInputAction;
   final TextInputType keyboardType;
   final Function(String)? onChanged;
-  final Color? fillColor;
+  final TextStyle? style;
   final bool enabled;
   final bool obscureText;
   final int minLines;
@@ -22,7 +22,6 @@ class AppTextfield extends StatefulWidget {
   final Widget? prefix;
   final Widget? suffix;
   final double textHeight;
-  final EdgeInsetsGeometry? contentPadding;
   final List<TextInputFormatter>? inputFormatters;
   final FocusNode? focusNode;
 
@@ -30,19 +29,15 @@ class AppTextfield extends StatefulWidget {
     super.key,
     this.controller,
     required this.hint,
+    this.style,
     this.textInputAction = TextInputAction.next,
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
-    this.textHeight = 1.5,
+    this.textHeight = 1.2,
     this.minLines = 1,
     this.maxLines = 1,
     this.maxLength,
-    this.fillColor,
     this.enabled = true,
-    this.contentPadding = const EdgeInsets.symmetric(
-      horizontal: 12,
-      vertical: 14,
-    ),
     this.inputFormatters,
     this.error,
     this.onChanged,
@@ -73,10 +68,13 @@ class _AppTextfieldState extends State<AppTextfield> {
         onChanged: widget.onChanged,
         inputFormatters: widget.inputFormatters,
         onTapOutside: (_) => FocusScope.of(context).unfocus(),
+        style:
+            widget.style ??
+            context.appStyles.body.copyWith(height: widget.textHeight),
         decoration: InputDecoration(
+          filled: true,
           isDense: true,
-          filled: widget.fillColor != null,
-          fillColor: widget.fillColor,
+          fillColor: appColors.primary.withAlpha(12),
           hintText: widget.hint,
           errorText: widget.error,
           prefixIcon: widget.prefix != null
@@ -93,7 +91,6 @@ class _AppTextfieldState extends State<AppTextfield> {
                   child: widget.suffix!,
                 )
               : null,
-          contentPadding: widget.contentPadding,
           hintStyle: context.appStyles.body.copyWith(
             color: AppColors.of(context).text.withAlpha(180),
           ),

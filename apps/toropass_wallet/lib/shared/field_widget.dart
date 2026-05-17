@@ -17,8 +17,7 @@ class FieldWidget extends StatelessWidget {
 
     return AnimatedContainer(
       duration: Animations.duration,
-      width: AppDimens.buttonWidth,
-      height: AppDimens.buttonHeight,
+      width: width ?? AppDimens.buttonWidth,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: color ?? appColors.transparent,

@@ -5,9 +5,12 @@ import '../../../../core/config/router/routes.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/styles.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
+import '../../../../generated/assets.gen.dart';
 import '../../../../generated/fonts.gen.dart';
 import '../../../../shared/app_button.dart';
 import '../../../../shared/app_icon.dart';
+import '../../../../shared/app_svg.dart';
+import '../../../../shared/field_widget.dart';
 
 class IntroScreen extends StatelessWidget {
   const IntroScreen({super.key});
@@ -51,6 +54,14 @@ class IntroScreen extends StatelessWidget {
               const Spacer(),
               AppButton(
                 text: "Continue",
+                prefix: FieldWidget(
+                  child: AppSvg(
+                    path: Assets.icons.key,
+                    width: 24.width,
+                    height: 24.height,
+                    color: appColors.white,
+                  ),
+                ),
                 callback: () => context.pushNamed(AppRoutes.SIGNIN_SCREEN),
               ),
               const Spacer(),

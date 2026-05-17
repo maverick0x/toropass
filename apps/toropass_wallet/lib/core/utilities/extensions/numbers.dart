@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-extension ExtInt on int {
+extension ExtNum on num {
   SizedBox get verticalSpacer => SizedBox(height: toDouble().height);
 
   SizedBox get horizontalSpacer => SizedBox(width: toDouble().width);
@@ -17,22 +17,4 @@ extension ExtInt on int {
   double get screenHeight => toDouble().sh;
 
   double get radius => toDouble().r;
-}
-
-extension ExtDouble on double {
-  SizedBox get verticalSpacer => SizedBox(height: this);
-
-  SizedBox get horizontalSpacer => SizedBox(width: this);
-
-  double get height => h;
-
-  double get width => w;
-
-  double get font => sp;
-
-  double get screenWidth => sw;
-
-  double get screenHeight => sh;
-
-  double get radius => r;
 }

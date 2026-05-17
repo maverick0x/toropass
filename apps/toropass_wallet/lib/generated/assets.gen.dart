@@ -59,15 +59,42 @@ class $AssetsIconsGen {
   /// File path: assets/icons/arrow-right.svg
   String get arrowRight => 'assets/icons/arrow-right.svg';
 
+  /// File path: assets/icons/at.svg
+  String get at => 'assets/icons/at.svg';
+
+  /// File path: assets/icons/checkmark-circle.svg
+  String get checkmarkCircle => 'assets/icons/checkmark-circle.svg';
+
+  /// File path: assets/icons/key.svg
+  String get key => 'assets/icons/key.svg';
+
+  /// File path: assets/icons/lock.svg
+  String get lock => 'assets/icons/lock.svg';
+
+  /// File path: assets/icons/plus.svg
+  String get plus => 'assets/icons/plus.svg';
+
+  /// File path: assets/icons/universal.svg
+  String get universal => 'assets/icons/universal.svg';
+
   /// List of all assets
-  List<String> get values => [arrowRight];
+  List<String> get values => [
+    arrowRight,
+    at,
+    checkmarkCircle,
+    key,
+    lock,
+    plus,
+    universal,
+  ];
 }
 
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
-  /// File path: assets/images/ToroID.png
-  AssetGenImage get toroID => const AssetGenImage('assets/images/ToroID.png');
+  /// File path: assets/images/ToroPass.png
+  AssetGenImage get toroPass =>
+      const AssetGenImage('assets/images/ToroPass.png');
 
   /// File path: assets/images/splash.png
   AssetGenImage get splash => const AssetGenImage('assets/images/splash.png');
@@ -77,7 +104,7 @@ class $AssetsImagesGen {
       const AssetGenImage('assets/images/splash_android12.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [toroID, splash, splashAndroid12];
+  List<AssetGenImage> get values => [toroPass, splash, splashAndroid12];
 }
 
 class Assets {

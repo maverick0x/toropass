@@ -1,9 +1,13 @@
 class AuthStateModel {
-  final String? username;
-  final String? privateKey;
-  final String? password;
+  final String username;
+  final String privateKey;
+  final String password;
 
-  AuthStateModel({this.username, this.privateKey, this.password});
+  AuthStateModel({
+    this.username = '',
+    this.privateKey = '',
+    this.password = '',
+  });
 
   AuthStateModel copyWith({
     String? username,

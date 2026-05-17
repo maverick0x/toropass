@@ -149,7 +149,7 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
                   baseColor: appColors.white,
                   highlightColor: appColors.primary,
                   child: Image.asset(
-                    Assets.images.toroID.path,
+                    Assets.images.toroPass.path,
                     width: 150.width,
                     height: 150.width,
                     fit: BoxFit.cover,

@@ -17,7 +17,7 @@ class ToroPassApp extends ConsumerWidget {
       designSize: const Size(390, 884),
       minTextAdapt: true,
       splitScreenMode: true,
-      child: MaterialApp.router(
+      builder: (context, child) => MaterialApp.router(
         title: 'ToroPass',
         theme: AppThemes.light,
         themeMode: ThemeMode.light,

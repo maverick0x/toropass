@@ -51,8 +51,8 @@ class AppStyles {
 
   // Button
   TextStyle get button => TextStyle(
-    fontSize: 16.font,
-    fontFamily: FontFamily.plusJakartaSansSemiBold,
+    fontSize: 17.font,
+    fontFamily: FontFamily.plusJakartaSansBold,
     color: _appColors.text,
   );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Animations {
+  static const Duration shortDuration = Duration(milliseconds: 300);
   static const Duration duration = Duration(milliseconds: 500);
 
   static Widget textTransition(Widget child, Animation<double> animation) {
