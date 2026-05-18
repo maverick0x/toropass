@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
@@ -10,10 +9,10 @@ import '../../../../core/providers/loading_notifier.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
 import '../../../../generated/assets.gen.dart';
 import '../../../../generated/fonts.gen.dart';
-import '../../../../shared/app_icon.dart';
+import '../../../../shared/app_bar.dart';
 import '../../../../shared/app_inkwell.dart';
 import '../../../../shared/app_svg.dart';
-import '../shared/identity_card.dart';
+import '../../../../shared/identity_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -34,33 +33,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           mainAxisSize: .max,
           crossAxisAlignment: .center,
           children: [
-            15.verticalSpacer,
-            Row(
-              mainAxisSize: .max,
-              crossAxisAlignment: .center,
-              children: [
-                20.horizontalSpacer,
-                AppIcon(width: 40.width, height: 40.height),
-                5.horizontalSpacer,
-                Text(
-                  'Settings',
-                  style: appStyles.sectionTitle.copyWith(
-                    color: appColors.primary,
-                  ),
-                ),
-                const Spacer(),
-                AppInkWell(
-                  callback: () => context.pop(),
-                  child: Icon(
-                    Icons.close,
-                    size: 30.width,
-                    color: appColors.primary,
-                  ),
-                ),
-                20.horizontalSpacer,
-              ],
-            ),
-            30.verticalSpacer,
+            TopBar(title: 'Settings'),
+            20.verticalSpacer,
             IdentityCard(),
             _buildSettingsCard(),
             _buildLogout(),

@@ -44,7 +44,7 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
   }
 
   Future<void> _initSecurity() async {
-    // Configure the security parameters
+    // TODO: Configure the security parameters before release.
     final config = TalsecConfig(
       androidConfig: AndroidConfig(
         packageName: 'app.toropass',
@@ -72,7 +72,7 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
     if (debug) return;
 
     if (_isCompromised) return;
-    ref.read(storageProvider).clearAllDataFromDisk();
+    ref.read(storageServiceProvider).clearAllDataFromDisk();
     setState(() => _isCompromised = true);
   }
 

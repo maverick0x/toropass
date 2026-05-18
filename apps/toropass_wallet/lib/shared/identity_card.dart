@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/config/themes/colors.dart';
-import '../../../../core/config/themes/dimens.dart';
-import '../../../../core/config/themes/styles.dart';
-import '../../../../core/utilities/extensions/numbers.dart';
-import '../../../../generated/assets.gen.dart';
-import '../../../../shared/app_svg.dart';
+import '../core/config/themes/colors.dart';
+import '../core/config/themes/dimens.dart';
+import '../core/config/themes/styles.dart';
+import '../core/utilities/extensions/numbers.dart';
+import '../generated/assets.gen.dart';
+import 'app_svg.dart';
 
 class IdentityCard extends StatelessWidget {
   const IdentityCard({super.key});
