@@ -4,8 +4,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freerasp/freerasp.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../core/config/themes/colors.dart';
@@ -40,16 +40,40 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkSecurity();
+    _initSecurity();
   }
 
-  Future<void> _checkSecurity() async {
-    try {
-      final isJailbroken = await FlutterJailbreakDetection.jailbroken;
-      if (!isJailbroken) return;
-      ref.read(storageServiceProvider).clearAllDataFromDisk();
-      setState(() => _isCompromised = true);
-    } catch (_) {}
+  Future<void> _initSecurity() async {
+    // Configure the security parameters
+    final config = TalsecConfig(
+      androidConfig: AndroidConfig(
+        packageName: 'app.toropass',
+        signingCertHashes: ['YOUR_BASE64_CERT_HASH'],
+      ),
+      iosConfig: IOSConfig(bundleIds: ['app.toropass'], teamId: 'YOUR_TEAM_ID'),
+      watcherMail: 'mhiztahymodder@gmail.com',
+      isProd: !kDebugMode,
+    );
+
+    // Define what happens when a threat is detected
+    final callback = ThreatCallback(
+      onPrivilegedAccess: () => _handleThreat(),
+      onHooks: () => _handleThreat(),
+      onAppIntegrity: () => _handleThreat(),
+      onSimulator: () => _handleThreat(debug: kDebugMode),
+    );
+
+    // Attach the listener and start Talsec
+    Talsec.instance.attachListener(callback);
+    await Talsec.instance.start(config);
+  }
+
+  void _handleThreat({bool debug = false}) {
+    if (debug) return;
+
+    if (_isCompromised) return;
+    ref.read(storageProvider).clearAllDataFromDisk();
+    setState(() => _isCompromised = true);
   }
 
   @override
@@ -69,7 +93,6 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
       case AppLifecycleState.resumed:
         if (kDebugMode) return;
         setState(() => _showPrivacyOverlay = false);
-        _checkSecurity();
         break;
 
       default:

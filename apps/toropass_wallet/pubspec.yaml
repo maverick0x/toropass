@@ -32,8 +32,8 @@ dependencies:
   device_info_plus: ^13.1.0
   screen_protector: ^1.5.1
   crypto: ^3.0.7
-  flutter_jailbreak_detection: ^1.10.0
   riverpod_annotation: ^4.0.2
+  freerasp: ^7.5.1
 
 dev_dependencies:
   flutter_test:
