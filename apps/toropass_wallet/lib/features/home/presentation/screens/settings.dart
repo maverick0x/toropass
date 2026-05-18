@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
+import '../../../../core/network/token/token_notifier.dart';
+import '../../../../core/providers/loading_notifier.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
 import '../../../../generated/assets.gen.dart';
 import '../../../../generated/fonts.gen.dart';
@@ -106,7 +108,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _settingsMenu(
             name: "Security",
             iconPath: Assets.icons.lock,
-            description: "Biometrics, and other security settings",
+            description: "Biometrics, and other settings",
             callback: () => {},
           ),
           Divider(
@@ -117,7 +119,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _settingsMenu(
             name: "Backup",
             iconPath: Assets.icons.key,
-            description: "Backup your private keys, seed phrases",
+            description: "Backup your private keys",
             callback: () => {},
           ),
           Divider(
@@ -181,6 +183,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ],
           ),
         ),
+        20.horizontalSpacer,
+        AppSvg(
+          width: 16.width,
+          height: 16.height,
+          color: appColors.primary,
+          path: Assets.icons.downArrow,
+        ),
       ],
     );
   }
@@ -189,24 +198,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
-    return Container(
-      alignment: Alignment.center,
-      margin: EdgeInsets.symmetric(
-        horizontal: AppDimens.horizontalPadding,
-      ).add(EdgeInsets.only(top: 50.height)),
-      padding: EdgeInsets.symmetric(
-        horizontal: AppDimens.horizontalPadding,
-        vertical: 10.height,
-      ),
-      decoration: BoxDecoration(
-        color: appColors.error,
-        borderRadius: BorderRadius.circular(AppDimens.dialogBorderRadius),
-      ),
-      child: Text(
-        "LOG OUT",
-        style: appStyles.body.copyWith(
-          color: appColors.white,
-          fontFamily: FontFamily.interSemiBold,
+    return AppInkWell(
+      callback: () => ref.read(loadingProvider.notifier).wrap(() async {
+        await Future.delayed(const Duration(seconds: 3));
+        ref.read(tokenProvider.notifier).clearTokens();
+      }),
+      child: Container(
+        alignment: Alignment.center,
+        margin: EdgeInsets.symmetric(
+          horizontal: AppDimens.horizontalPadding,
+        ).add(EdgeInsets.only(top: 50.height)),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppDimens.horizontalPadding,
+          vertical: 10.height,
+        ),
+        decoration: BoxDecoration(
+          color: appColors.error,
+          borderRadius: BorderRadius.circular(AppDimens.dialogBorderRadius),
+        ),
+        child: Text(
+          "LOG OUT",
+          style: appStyles.body.copyWith(
+            color: appColors.white,
+            fontFamily: FontFamily.interSemiBold,
+          ),
         ),
       ),
     );
