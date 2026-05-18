@@ -68,6 +68,12 @@ class $AssetsIconsGen {
   /// File path: assets/icons/connection.svg
   String get connection => 'assets/icons/connection.svg';
 
+  /// File path: assets/icons/down-arrow.svg
+  String get downArrow => 'assets/icons/down-arrow.svg';
+
+  /// File path: assets/icons/help-circle.svg
+  String get helpCircle => 'assets/icons/help-circle.svg';
+
   /// File path: assets/icons/key.svg
   String get key => 'assets/icons/key.svg';
 
@@ -95,6 +101,8 @@ class $AssetsIconsGen {
     at,
     checkmarkCircle,
     connection,
+    downArrow,
+    helpCircle,
     key,
     lock,
     marketplace,
