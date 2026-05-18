@@ -6,4 +6,5 @@ class AppRoutes {
   static const String SIGNIN_SCREEN = '/signin';
 
   static const String HOME_SCREEN = '/home';
+  static const String SETTINGS_SCREEN = '/settings';
 }

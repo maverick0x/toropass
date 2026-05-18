@@ -65,14 +65,23 @@ class $AssetsIconsGen {
   /// File path: assets/icons/checkmark-circle.svg
   String get checkmarkCircle => 'assets/icons/checkmark-circle.svg';
 
+  /// File path: assets/icons/connection.svg
+  String get connection => 'assets/icons/connection.svg';
+
   /// File path: assets/icons/key.svg
   String get key => 'assets/icons/key.svg';
 
   /// File path: assets/icons/lock.svg
   String get lock => 'assets/icons/lock.svg';
 
+  /// File path: assets/icons/marketplace.svg
+  String get marketplace => 'assets/icons/marketplace.svg';
+
   /// File path: assets/icons/plus.svg
   String get plus => 'assets/icons/plus.svg';
+
+  /// File path: assets/icons/privacy.svg
+  String get privacy => 'assets/icons/privacy.svg';
 
   /// File path: assets/icons/settings.svg
   String get settings => 'assets/icons/settings.svg';
@@ -85,9 +94,12 @@ class $AssetsIconsGen {
     arrowRight,
     at,
     checkmarkCircle,
+    connection,
     key,
     lock,
+    marketplace,
     plus,
+    privacy,
     settings,
     universal,
   ];

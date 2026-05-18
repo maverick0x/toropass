@@ -181,14 +181,14 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                 children: [
                   AppSvg(
                     path: Assets.icons.lock,
-                    width: 20.width,
-                    height: 20.height,
+                    width: 15.width,
+                    height: 15.height,
                     color: appColors.text.withAlpha(150),
                   ),
                   10.horizontalSpacer,
                   Text(
                     "Secure & Decentralized",
-                    style: appStyles.bodyMedium.copyWith(
+                    style: appStyles.caption.copyWith(
                       color: appColors.text.withAlpha(150),
                     ),
                   ),
