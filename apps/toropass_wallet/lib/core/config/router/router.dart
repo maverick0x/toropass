@@ -6,6 +6,8 @@ import '../../../features/auth/presentation/screens/intro.dart';
 import '../../../features/auth/presentation/screens/signin.dart';
 import '../../../features/home/presentation/screens/connections.dart';
 import '../../../features/home/presentation/screens/home.dart';
+import '../../../features/home/presentation/screens/permission.dart';
+import '../../../features/home/presentation/screens/success.dart';
 import '../../../features/home/presentation/screens/verification.dart';
 import '../../../features/settings/presentation/screens/settings.dart';
 import '../../../features/splash/presentation/screens/splash.dart';
@@ -109,6 +111,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.VERIFICATION_SCREEN,
         path: AppRoutes.VERIFICATION_SCREEN,
         builder: (context, state) => const VerificationScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.SUCCESS_SCREEN,
+        path: AppRoutes.SUCCESS_SCREEN,
+        builder: (context, state) => const SuccessScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.PERMISSION_SCREEN,
+        path: AppRoutes.PERMISSION_SCREEN,
+        builder: (context, state) => const PermissionScreen(),
       ),
     ],
   );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/router/routes.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
@@ -171,7 +173,11 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
                     padding: EdgeInsets.symmetric(
                       horizontal: AppDimens.horizontalPadding,
                     ),
-                    child: AppButton(text: "Verify", callback: () async {}),
+                    child: AppButton(
+                      text: "Verify",
+                      callback: () =>
+                          context.pushNamed(AppRoutes.SUCCESS_SCREEN),
+                    ),
                   ),
                   30.verticalSpacer,
                   Align(
