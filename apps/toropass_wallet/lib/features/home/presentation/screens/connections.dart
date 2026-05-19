@@ -26,6 +26,83 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
+    final List<Widget> children = [
+      20.verticalSpacer,
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 25.width),
+        child: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: .start,
+          children: [
+            Text("Active Connections", style: appStyles.cardTitle),
+            5.verticalSpacer,
+            Text(
+              "Manage who has access to your verified status.",
+              style: appStyles.caption.copyWith(
+                color: appColors.text.withAlpha(200),
+              ),
+            ),
+          ],
+        ),
+      ),
+      15.verticalSpacer,
+      _buildConnectedApp(
+        name: "ToroRealEstate",
+        connectionDate: "Connected Oct 24, 2024",
+        scopes: [
+          ScopeEntity(
+            name: "KYC Status",
+            icon: Assets.icons.checkmarkOutlined,
+            color: appColors.success,
+          ),
+          ScopeEntity(
+            name: ".toro Name",
+            icon: Assets.icons.idCard,
+            color: appColors.primary,
+          ),
+        ],
+      ),
+      _buildConnectedApp(
+        name: "ToroDeFi",
+        connectionDate: "Connected Sep 12, 2024",
+        scopes: [
+          ScopeEntity(
+            name: "KYC Status",
+            icon: Assets.icons.checkmarkOutlined,
+            color: appColors.success,
+          ),
+          ScopeEntity(
+            name: "Address",
+            icon: Assets.icons.idCard,
+            color: appColors.secondary,
+          ),
+        ],
+      ),
+      _buildConnectedApp(
+        name: "ToroMarket",
+        connectionDate: "Connected Aug 05, 2024",
+        scopes: [
+          ScopeEntity(
+            name: ".toro Name",
+            icon: Assets.icons.checkmarkOutlined,
+            color: appColors.primary,
+          ),
+        ],
+      ),
+      _buildConnectedApp(
+        name: "ToroGames",
+        connectionDate: "Connected Aug 05, 2024",
+        scopes: [
+          ScopeEntity(
+            name: "Wallet Address",
+            icon: Assets.icons.checkmarkOutlined,
+            color: appColors.secondary,
+          ),
+        ],
+      ),
+      30.verticalSpacer,
+    ];
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -34,84 +111,10 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
           children: [
             TopBar(title: "Connections"),
             Expanded(
-              child: ListView(
+              child: ListView.builder(
+                itemCount: children.length,
                 physics: const BouncingScrollPhysics(),
-                children: [
-                  20.verticalSpacer,
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25.width),
-                    child: Column(
-                      mainAxisSize: .min,
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text("Active Connections", style: appStyles.cardTitle),
-                        5.verticalSpacer,
-                        Text(
-                          "Manage who has access to your verified status.",
-                          style: appStyles.caption.copyWith(
-                            color: appColors.text.withAlpha(200),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  15.verticalSpacer,
-                  _buildConnectedApp(
-                    name: "ToroRealEstate",
-                    connectionDate: "Connected Oct 24, 2024",
-                    scopes: [
-                      ScopeEntity(
-                        name: "KYC Status",
-                        icon: Assets.icons.checkmarkOutlined,
-                        color: appColors.success,
-                      ),
-                      ScopeEntity(
-                        name: ".toro Name",
-                        icon: Assets.icons.idCard,
-                        color: appColors.primary,
-                      ),
-                    ],
-                  ),
-                  _buildConnectedApp(
-                    name: "ToroDeFi",
-                    connectionDate: "Connected Sep 12, 2024",
-                    scopes: [
-                      ScopeEntity(
-                        name: "KYC Status",
-                        icon: Assets.icons.checkmarkOutlined,
-                        color: appColors.success,
-                      ),
-                      ScopeEntity(
-                        name: "Address",
-                        icon: Assets.icons.idCard,
-                        color: appColors.secondary,
-                      ),
-                    ],
-                  ),
-                  _buildConnectedApp(
-                    name: "ToroMarket",
-                    connectionDate: "Connected Aug 05, 2024",
-                    scopes: [
-                      ScopeEntity(
-                        name: ".toro Name",
-                        icon: Assets.icons.checkmarkOutlined,
-                        color: appColors.primary,
-                      ),
-                    ],
-                  ),
-                  _buildConnectedApp(
-                    name: "ToroGames",
-                    connectionDate: "Connected Aug 05, 2024",
-                    scopes: [
-                      ScopeEntity(
-                        name: "Wallet Address",
-                        icon: Assets.icons.checkmarkOutlined,
-                        color: appColors.secondary,
-                      ),
-                    ],
-                  ),
-                  30.verticalSpacer,
-                ],
+                itemBuilder: (context, index) => children[index],
               ),
             ),
           ],

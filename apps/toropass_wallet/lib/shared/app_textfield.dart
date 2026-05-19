@@ -92,10 +92,7 @@ class _AppTextfieldState extends State<AppTextfield> {
                 )
               : null,
           hintStyle: context.appStyles.body.copyWith(
-            color: AppColors.of(context).text.withAlpha(180),
-          ),
-          errorStyle: context.appStyles.caption.copyWith(
-            color: AppColors.of(context).error,
+            color: AppColors.of(context).text.withAlpha(70),
           ),
         ),
       ),
@@ -110,7 +107,7 @@ class TextfieldLabel extends StatelessWidget {
 
   const TextfieldLabel({
     super.key,
-    this.spacing = 10,
+    this.spacing = 7,
     this.important = false,
     required this.label,
   });
@@ -127,13 +124,16 @@ class TextfieldLabel extends StatelessWidget {
           5.horizontalSpacer,
           Text(
             label,
-            style: appStyles.body.copyWith(
+            style: appStyles.caption.copyWith(
               color: appColors.text.withAlpha(200),
             ),
           ),
           if (important) ...[
             5.horizontalSpacer,
-            Text("*", style: appStyles.body.copyWith(color: appColors.error)),
+            Text(
+              "*",
+              style: appStyles.caption.copyWith(color: appColors.error),
+            ),
           ],
         ],
       ),
