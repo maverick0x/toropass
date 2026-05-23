@@ -21,15 +21,14 @@ class TopBar extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: 10.height,
         horizontal: AppDimens.horizontalPadding,
-      ),
+      ).add(EdgeInsets.only(bottom: 10.height)),
       child: Row(
         mainAxisSize: .max,
         crossAxisAlignment: .center,
         children: [
           AppIcon(width: 40.width, height: 40.height),
-          5.horizontalSpacer,
+          10.horizontalSpacer,
           Text(
             title,
             style: appStyles.sectionTitle.copyWith(color: appColors.primary),
