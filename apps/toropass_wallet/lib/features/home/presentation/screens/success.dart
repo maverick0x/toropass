@@ -76,7 +76,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen> {
                 mainAxisSize: .min,
                 crossAxisAlignment: .center,
                 children: [
-                  Text("Identity Verified!", style: appStyles.sectionTitle),
+                  Text("Identity Verified!", style: appStyles.pageTitle),
                   15.verticalSpacer,
                   RichText(
                     textAlign: TextAlign.center,
