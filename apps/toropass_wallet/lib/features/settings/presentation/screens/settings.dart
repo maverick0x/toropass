@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/router/routes.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
@@ -22,6 +24,8 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  int _tapCount = 0;
+
   @override
   Widget build(BuildContext context) {
     final appStyles = context.appStyles;
@@ -39,10 +43,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildSettingsCard(),
             _buildLogout(),
             const Spacer(),
-            Text(
-              "v1.0.0 (Build 42)",
-              style: appStyles.body.copyWith(
-                color: appColors.text.withAlpha(100),
+            AppInkWell(
+              callback: () {
+                setState(() {
+                  _tapCount++;
+                  if (_tapCount > 5) {
+                    _tapCount = 0;
+                  }
+                });
+                if (_tapCount >= 5) {
+                  context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
+                }
+              },
+              child: Text(
+                "v1.0.0 (Build 42)",
+                style: appStyles.body.copyWith(
+                  color: appColors.text.withAlpha(100),
+                ),
               ),
             ),
             30.verticalSpacer,
