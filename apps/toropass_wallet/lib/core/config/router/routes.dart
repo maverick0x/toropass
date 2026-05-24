@@ -11,4 +11,5 @@ class AppRoutes {
   static const String VERIFICATION_SCREEN = '/verification';
 
   static const String SETTINGS_SCREEN = '/settings';
+  static const String DEVELOPER_SCREEN = '/developer';
 }

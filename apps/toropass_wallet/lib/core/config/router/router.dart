@@ -9,6 +9,7 @@ import '../../../features/home/presentation/screens/home.dart';
 import '../../../features/home/presentation/screens/permission.dart';
 import '../../../features/home/presentation/screens/success.dart';
 import '../../../features/home/presentation/screens/verification.dart';
+import '../../../features/settings/presentation/screens/developer.dart';
 import '../../../features/settings/presentation/screens/settings.dart';
 import '../../../features/splash/presentation/screens/splash.dart';
 import '../../network/token/token_notifier.dart';
@@ -97,11 +98,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.HOME_SCREEN,
         builder: ((context, state) => const HomeScreen()),
       ),
-      GoRoute(
-        name: AppRoutes.SETTINGS_SCREEN,
-        path: AppRoutes.SETTINGS_SCREEN,
-        builder: ((context, state) => const SettingsScreen()),
-      ),
+
       GoRoute(
         name: AppRoutes.CONNECTION_SCREEN,
         path: AppRoutes.CONNECTION_SCREEN,
@@ -121,6 +118,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.PERMISSION_SCREEN,
         path: AppRoutes.PERMISSION_SCREEN,
         builder: (context, state) => const PermissionScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.SETTINGS_SCREEN,
+        path: AppRoutes.SETTINGS_SCREEN,
+        builder: ((context, state) => const SettingsScreen()),
+      ),
+      GoRoute(
+        name: AppRoutes.DEVELOPER_SCREEN,
+        path: AppRoutes.DEVELOPER_SCREEN,
+        builder: ((context, state) => const DeveloperScreen()),
       ),
     ],
   );
