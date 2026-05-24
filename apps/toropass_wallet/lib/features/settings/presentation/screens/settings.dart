@@ -43,8 +43,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildSettingsCard(),
             _buildLogout(),
             const Spacer(),
-            AppInkWell(
-              callback: () {
+            GestureDetector(
+              onTap: () {
                 setState(() {
                   _tapCount++;
                   if (_tapCount > 5) {
@@ -55,10 +55,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
                 }
               },
-              child: Text(
-                "v1.0.0 (Build 42)",
-                style: appStyles.body.copyWith(
-                  color: appColors.text.withAlpha(100),
+              child: Container(
+                alignment: Alignment.center,
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 10.height),
+                child: Text(
+                  "v1.0.0 (Build 42)",
+                  style: appStyles.body.copyWith(
+                    color: appColors.text.withAlpha(100),
+                  ),
                 ),
               ),
             ),

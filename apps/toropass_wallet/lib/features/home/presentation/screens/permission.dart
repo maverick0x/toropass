@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
+import '../../../../core/providers/loading_notifier.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
 import '../../../../generated/assets.gen.dart';
 import '../../../../generated/fonts.gen.dart';
@@ -174,7 +175,15 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
                         Expanded(
                           child: AppButton(
                             text: "Allow",
-                            callback: () => context.pop(),
+                            callback: () => ref
+                                .read(loadingProvider.notifier)
+                                .wrap(() async {
+                                  await Future.delayed(
+                                    const Duration(seconds: 3),
+                                  );
+                                  if (!mounted || !context.mounted) return;
+                                  context.pop();
+                                }),
                           ),
                         ),
                       ],
