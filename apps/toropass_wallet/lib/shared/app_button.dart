@@ -44,24 +44,25 @@ class AppButton extends StatelessWidget {
         duration: Animations.duration,
         width: double.infinity,
         alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(vertical: 15.height),
+        padding: EdgeInsets.symmetric(vertical: 12.height),
         decoration: BoxDecoration(
           border: Border.all(
             color: (color ?? appColors.primary).withAlpha(hollow ? 150 : 0),
             width: 1,
           ),
           borderRadius: BorderRadius.circular(AppDimens.borderRadius),
-          color: hollow ? appColors.transparent : color ?? appColors.primary,
-          boxShadow:
-              shadows ??
-              [
-                BoxShadow(
-                  color: appColors.shadow.withAlpha(20),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+          color: hollow ? appColors.white : color ?? appColors.primary,
+          boxShadow: hollow
+              ? null
+              : shadows ??
+                    [
+                      BoxShadow(
+                        color: appColors.shadow.withAlpha(20),
+                        blurRadius: 15,
+                        spreadRadius: 10,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
         ),
         child: Row(
           mainAxisSize: .min,

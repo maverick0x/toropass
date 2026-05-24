@@ -95,7 +95,6 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen> {
                           text:
                               " identity is now fully verified. You've unlocked all "
                               "network features and secure access to partner apps.",
-                          style: appStyles.body,
                         ),
                       ],
                     ),

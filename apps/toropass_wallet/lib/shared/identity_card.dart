@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../core/config/router/routes.dart';
 import '../core/config/themes/colors.dart';
 import '../core/config/themes/dimens.dart';
 import '../core/config/themes/styles.dart';
 import '../core/utilities/extensions/numbers.dart';
 import '../generated/assets.gen.dart';
+import 'app_inkwell.dart';
 import 'app_svg.dart';
 
 class IdentityCard extends StatelessWidget {
@@ -105,11 +108,15 @@ class IdentityCard extends StatelessWidget {
                     ),
                   ),
                   20.horizontalSpacer,
-                  AppSvg(
-                    path: Assets.icons.universal,
-                    width: 50.width,
-                    height: 50.height,
-                    color: appColors.primary,
+                  AppInkWell(
+                    callback: () =>
+                        context.pushNamed(AppRoutes.PERMISSION_SCREEN),
+                    child: AppSvg(
+                      path: Assets.icons.universal,
+                      width: 50.width,
+                      height: 50.height,
+                      color: appColors.primary,
+                    ),
                   ),
                 ],
               ),

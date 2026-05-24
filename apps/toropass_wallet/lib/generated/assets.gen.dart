@@ -62,11 +62,17 @@ class $AssetsIconsGen {
   /// File path: assets/icons/at.svg
   String get at => 'assets/icons/at.svg';
 
+  /// File path: assets/icons/cancel.svg
+  String get cancel => 'assets/icons/cancel.svg';
+
   /// File path: assets/icons/checkmark-circle.svg
   String get checkmarkCircle => 'assets/icons/checkmark-circle.svg';
 
   /// File path: assets/icons/checkmark-outlined.svg
   String get checkmarkOutlined => 'assets/icons/checkmark-outlined.svg';
+
+  /// File path: assets/icons/checkmark.svg
+  String get checkmark => 'assets/icons/checkmark.svg';
 
   /// File path: assets/icons/clipboard.svg
   String get clipboard => 'assets/icons/clipboard.svg';
@@ -114,8 +120,10 @@ class $AssetsIconsGen {
   List<String> get values => [
     arrowRight,
     at,
+    cancel,
     checkmarkCircle,
     checkmarkOutlined,
+    checkmark,
     clipboard,
     connection,
     downArrow,
