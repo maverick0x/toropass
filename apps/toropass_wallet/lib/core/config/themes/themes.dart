@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../generated/fonts.gen.dart';
+import '../../utilities/extensions/numbers.dart';
 import 'colors.dart';
 import 'dimens.dart';
 
@@ -26,9 +27,9 @@ class AppThemes {
       inputDecorationTheme: InputDecorationTheme(
         isDense: true,
         fillColor: colors.primary,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.width,
+          vertical: 16.height,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDimens.borderRadius),

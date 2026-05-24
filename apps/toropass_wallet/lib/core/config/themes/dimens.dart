@@ -1,14 +1,14 @@
 import '../../utilities/extensions/numbers.dart';
 
 class AppDimens {
-  static final double horizontalPadding = 20.width;
-  static final double textfieldHeight = 48.height;
-  static final double textfieldHeightWithError = 64.height;
-  static final double buttonWidth = 48.width;
-  static final double buttonHeight = 48.height;
+  static double get horizontalPadding => 20.width;
+  static double get textfieldHeight => 48.height;
+  static double get textfieldHeightWithError => 64.height;
+  static double get buttonWidth => 48.width;
+  static double get buttonHeight => 48.height;
 
-  static final double miniRadius = 6.radius;
-  static final double borderRadius = 12.radius;
-  static final double largeBorderRadius = 16.radius;
-  static final double dialogBorderRadius = 20.radius;
+  static double get miniRadius => 6.radius;
+  static double get borderRadius => 12.radius;
+  static double get largeBorderRadius => 16.radius;
+  static double get dialogBorderRadius => 20.radius;
 }
