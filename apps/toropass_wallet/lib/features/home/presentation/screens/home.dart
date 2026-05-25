@@ -110,6 +110,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final appColors = AppColors.of(context);
 
     return Container(
+      width: double.infinity,
+      alignment: Alignment.centerLeft,
       margin: EdgeInsets.symmetric(
         horizontal: AppDimens.horizontalPadding,
       ).add(EdgeInsetsGeometry.only(top: 20.height)),
@@ -198,6 +200,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return AppInkWell(
       callback: () => context.pushNamed(AppRoutes.CONNECTION_SCREEN),
       child: Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
         margin: EdgeInsets.symmetric(
           horizontal: AppDimens.horizontalPadding,
         ).add(EdgeInsetsGeometry.only(top: 20.height)),

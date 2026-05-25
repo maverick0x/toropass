@@ -59,7 +59,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
             crossAxisAlignment: .center,
             mainAxisAlignment: .center,
             children: [
-              10.verticalSpacer,
+              20.verticalSpacer,
               Row(
                 mainAxisSize: .min,
                 crossAxisAlignment: .center,
@@ -86,7 +86,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                 style: appStyles.bodyMedium,
                 textAlign: TextAlign.center,
               ),
-              50.verticalSpacer,
+              const Spacer(),
               Container(
                 padding: EdgeInsets.symmetric(
                   vertical: 20.height,

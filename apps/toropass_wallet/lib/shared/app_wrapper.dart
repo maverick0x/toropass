@@ -230,14 +230,11 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
               switchInCurve: Curves.easeInOut,
               switchOutCurve: Curves.easeInOut,
               transitionBuilder: (child, animation) {
-                final slideAnimation = Tween<Offset>(
-                  begin: const Offset(1.0, 0.0),
-                  end: Offset.zero,
-                ).animate(animation);
-                return SlideTransition(
-                  position: slideAnimation,
-                  child: FadeTransition(opacity: animation, child: child),
-                );
+                // final slideAnimation = Tween<Offset>(
+                //   begin: const Offset(1.0, 0.0),
+                //   end: Offset.zero,
+                // ).animate(animation);
+                return FadeTransition(opacity: animation, child: child);
               },
               child: switch (loading || _showPrivacyOverlay) {
                 true => _buildOverlay(),

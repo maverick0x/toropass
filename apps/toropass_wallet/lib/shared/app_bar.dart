@@ -22,7 +22,8 @@ class TopBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: AppDimens.horizontalPadding,
-      ).add(EdgeInsets.only(bottom: 10.height)),
+        vertical: 10.height,
+      ),
       child: Row(
         mainAxisSize: .max,
         crossAxisAlignment: .center,

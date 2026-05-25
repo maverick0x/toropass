@@ -52,7 +52,7 @@ class AppButton extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(AppDimens.borderRadius),
           color: hollow ? appColors.white : color ?? appColors.primary,
-          boxShadow: hollow
+          boxShadow: hollow || color != null
               ? null
               : shadows ??
                     [
