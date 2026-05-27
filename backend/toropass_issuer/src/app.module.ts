@@ -2,7 +2,10 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config/dist/config.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ToronetModule } from './infrastructure/blockchain/toronet.module';
+import { PrismaService } from './infrastructure/database/prisma.service';
 import { HttpLoggerMiddleware } from './infrastructure/logger/http-logger-middleware';
+import { WalletModule } from './infrastructure/modules/wallet.module';
 import { LoggerModule } from './infrastructure/notifications/logger.module';
 import { HealthController } from './presentation/http/health.controller';
 
@@ -17,9 +20,12 @@ import { HealthController } from './presentation/http/health.controller';
       limit: 10,
     }]),
     LoggerModule,
+    ToronetModule,
+    WalletModule,
   ],
   controllers: [HealthController],
   providers: [
+    PrismaService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
