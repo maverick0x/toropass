@@ -13,13 +13,27 @@ export class WalletService {
   constructor(
     private prisma: PrismaService,
     @Inject(LOGGER_PORT) private logger: ILogger,
-  ) {}
+  ) { }
+
+  async checkTnsAvailability(username: string): Promise<boolean> {
+    try {
+      const isAvailable = await isTNSAvailable({ username });
+      return isAvailable;
+    } catch (error) {
+      await this.logger.logAlert({
+        message: `Toronet SDK failed during TNS check for username: ${username}`,
+        error,
+        slack: false
+      });
+      throw new InternalServerErrorException('Failed to communicate with the Toronet network.');
+    }
+  }
 
   async provisionNewWallet(
     username: string,
     password: string,
   ): Promise<{ address: string; tnsName: string }> {
-    const isAvailable = await isTNSAvailable({ username });
+    const isAvailable = await this.checkTnsAvailability(username);
 
     if (!isAvailable) {
       throw new BadRequestException(
