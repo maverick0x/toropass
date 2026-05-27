@@ -47,11 +47,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               onTap: () {
                 setState(() {
                   _tapCount++;
-                  if (_tapCount > 5) {
-                    _tapCount = 0;
-                  }
+                  if (_tapCount > 4) _tapCount = 0;
                 });
-                if (_tapCount >= 5) {
+                if (_tapCount >= 4) {
                   context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
                 }
               },
@@ -108,7 +106,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             callback: () => {},
           ),
           Divider(
-            color: appColors.primary.withAlpha(60),
+            color: appColors.black.withAlpha(60),
             thickness: 1.height,
             height: 40.height,
           ),
@@ -119,7 +117,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             callback: () => {},
           ),
           Divider(
-            color: appColors.primary.withAlpha(60),
+            color: appColors.black.withAlpha(60),
             thickness: 1.height,
             height: 40.height,
           ),

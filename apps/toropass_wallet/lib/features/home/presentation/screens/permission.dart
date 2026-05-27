@@ -188,7 +188,6 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
                         ),
                       ],
                     ),
-                    10.verticalSpacer,
                   ],
                 ),
               ),
