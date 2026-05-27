@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { KycService } from '../../core/application/kyc.service';
 import { VerifyKycDto } from './dto/verify-kyc.dto';
 
-@Controller('v1/kyc')
+@Controller({ path: 'kyc', version: '1' })
 export class KycController {
   constructor(private readonly kycService: KycService) {}
 

@@ -9,7 +9,7 @@ import {
 import { WalletService } from '../../core/application/wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 
-@Controller('v1/wallets')
+@Controller({ path: 'wallets', version: '1' })
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
