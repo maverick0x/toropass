@@ -5,13 +5,16 @@ import {
   Get,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiKeyGuard } from 'src/core/guards/api-key.guard';
 import { WalletService } from '../../core/application/wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 
 @Controller({ path: 'wallets', version: '1' })
+@UseGuards(ApiKeyGuard)
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(private readonly walletService: WalletService) { }
 
   @Get('tns')
   async checkTnsAvailability(@Query('username') username: string) {

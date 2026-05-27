@@ -6,6 +6,7 @@ import { ToronetModule } from './infrastructure/blockchain/toronet.module';
 import { PrismaService } from './infrastructure/database/prisma.service';
 import { HttpLoggerMiddleware } from './infrastructure/logger/http-logger-middleware';
 import { KycModule } from './infrastructure/modules/kyc.module';
+import { OAuthModule } from './infrastructure/modules/oauth.module';
 import { WalletModule } from './infrastructure/modules/wallet.module';
 import { LoggerModule } from './infrastructure/notifications/logger.module';
 import { HealthController } from './presentation/http/health.controller';
@@ -26,6 +27,7 @@ import { HealthController } from './presentation/http/health.controller';
     ToronetModule,
     WalletModule,
     KycModule,
+    OAuthModule,
   ],
   controllers: [HealthController],
   providers: [
