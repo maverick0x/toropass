@@ -93,7 +93,7 @@ jobs:
             npx prisma generate
             
             # Run pending migrations against the database securely using the manual .env
-            npx prisma migrate deploy
+            npx dotenv-cli -e .env -- npx prisma migrate deploy
 
             # Graceful restart (Updated PM2 process name to match the folder)
-            pm2 reload server || pm2 start dist/main.js --name server
+            pm2 reload server || pm2 start dist/src/main.js --name server
