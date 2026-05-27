@@ -11,4 +11,4 @@ import { ToronetAdapter } from './toronet.adapter';
   ],
   exports: [BLOCKCHAIN_PORT],
 })
-export class ToronetModule { }
+export class ToronetModule {}

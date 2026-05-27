@@ -17,11 +17,11 @@ export class HttpLoggerMiddleware implements NestMiddleware {
 
       if (statusCode >= 400) {
         this.logger.error(
-          `${method} ${originalUrl} ${statusCode} ${contentLength}b - ${userAgent} ${ip} [${duration}ms]`
+          `${method} ${originalUrl} ${statusCode} ${contentLength}b - ${userAgent} ${ip} [${duration}ms]`,
         );
       } else {
         this.logger.log(
-          `${method} ${originalUrl} ${statusCode} ${contentLength}b - ${userAgent} ${ip} [${duration}ms]`
+          `${method} ${originalUrl} ${statusCode} ${contentLength}b - ${userAgent} ${ip} [${duration}ms]`,
         );
       }
     });

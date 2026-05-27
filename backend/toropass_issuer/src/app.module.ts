@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ToronetModule } from './infrastructure/blockchain/toronet.module';
 import { PrismaService } from './infrastructure/database/prisma.service';
 import { HttpLoggerMiddleware } from './infrastructure/logger/http-logger-middleware';
+import { KycModule } from './infrastructure/modules/kyc.module';
 import { WalletModule } from './infrastructure/modules/wallet.module';
 import { LoggerModule } from './infrastructure/notifications/logger.module';
 import { HealthController } from './presentation/http/health.controller';
@@ -15,13 +16,16 @@ import { HealthController } from './presentation/http/health.controller';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     LoggerModule,
     ToronetModule,
     WalletModule,
+    KycModule,
   ],
   controllers: [HealthController],
   providers: [

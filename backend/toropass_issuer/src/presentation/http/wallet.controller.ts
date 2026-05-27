@@ -4,13 +4,13 @@ import { CreateWalletDto } from './dto/create-wallet.dto';
 
 @Controller('v1/wallets')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) { }
+  constructor(private readonly walletService: WalletService) {}
 
   @Post('create')
   async createWallet(@Body() payload: CreateWalletDto) {
     const result = await this.walletService.provisionNewWallet(
       payload.username,
-      payload.password
+      payload.password,
     );
 
     return {

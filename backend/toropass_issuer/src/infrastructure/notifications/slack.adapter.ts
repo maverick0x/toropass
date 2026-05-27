@@ -11,24 +11,46 @@ export class SlackLoggerAdapter implements ILogger {
 
   constructor(private configService: ConfigService) {
     this.webhookUrl = this.configService.get<string>('SLACK_WEBHOOK_URL');
-    this.environment = this.configService.get<string>('NODE_ENV') || 'development';
+    this.environment =
+      this.configService.get<string>('NODE_ENV') || 'development';
   }
 
-  async logInfo({ message, slack = false }: { message: string; slack?: boolean }): Promise<void> {
+  async logInfo({
+    message,
+    slack = false,
+  }: {
+    message: string;
+    slack?: boolean;
+  }): Promise<void> {
     this.nestLogger.log(message);
 
     if (slack) {
-      await this.sendToSlack(`🟢 *[INFO]*\n\`${this.environment}\`\n*Message:* ${message}`);
+      await this.sendToSlack(
+        `🟢 *[INFO]*\n\`${this.environment}\`\n*Message:* ${message}`,
+      );
     }
   }
 
-  async logAlert({ message, error, slack = true }: { message: string; error?: any; slack?: boolean }): Promise<void> {
-    const errorDetail = error instanceof Error ? (error.stack || error.message) : String(error || 'N/A');
+  async logAlert({
+    message,
+    error,
+    slack = true,
+  }: {
+    message: string;
+    error?: any;
+    slack?: boolean;
+  }): Promise<void> {
+    const errorDetail =
+      error instanceof Error
+        ? error.stack || error.message
+        : String(error || 'N/A');
 
     this.nestLogger.error(message, errorDetail);
 
     if (slack) {
-      await this.sendToSlack(`🚨 *[ALERT]*\n\`${this.environment}\`\n*Message:* ${message}\n*Error:* \`${errorDetail}\``);
+      await this.sendToSlack(
+        `🚨 *[ALERT]*\n\`${this.environment}\`\n*Message:* ${message}\n*Error:* \`${errorDetail}\``,
+      );
     }
   }
 

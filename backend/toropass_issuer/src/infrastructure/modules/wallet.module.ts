@@ -9,4 +9,4 @@ import { LoggerModule } from '../notifications/logger.module';
   controllers: [WalletController],
   providers: [WalletService, PrismaService],
 })
-export class WalletModule { }
+export class WalletModule {}

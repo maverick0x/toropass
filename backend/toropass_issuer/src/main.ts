@@ -19,11 +19,15 @@ async function bootstrap() {
   await app.listen(port);
 
   const logger = app.get<ILogger>(LOGGER_PORT);
-  await logger.logInfo({ message: `🚀 ToroPass Issuer is live and listening on port ${port}!` });
+  await logger.logInfo({
+    message: `🚀 ToroPass Issuer is live and listening on port ${port}!`,
+  });
 
   initializeSDK({ network: 'mainnet' });
 
   const config = getSDKConfig();
-  await logger.logInfo({ message: `SDK initialized with network: ${config.getNetwork()} and base URL: ${config.getBaseURL()}` });
+  await logger.logInfo({
+    message: `SDK initialized with network: ${config.getNetwork()} and base URL: ${config.getBaseURL()}`,
+  });
 }
 bootstrap();

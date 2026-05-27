@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { createWallet, isTNSAvailable } from 'torosdk';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
@@ -8,13 +13,18 @@ export class WalletService {
   constructor(
     private prisma: PrismaService,
     @Inject(LOGGER_PORT) private logger: ILogger,
-  ) { }
+  ) {}
 
-  async provisionNewWallet(username: string, password: string): Promise<{ address: string; tnsName: string }> {
+  async provisionNewWallet(
+    username: string,
+    password: string,
+  ): Promise<{ address: string; tnsName: string }> {
     const isAvailable = await isTNSAvailable({ username });
 
     if (!isAvailable) {
-      throw new BadRequestException(`The username "${username}" is already taken on the network.`);
+      throw new BadRequestException(
+        `The username "${username}" is already taken on the network.`,
+      );
     }
 
     try {
@@ -23,7 +33,7 @@ export class WalletService {
       await this.prisma.user.create({
         data: {
           bvnHash: 'PENDING_' + username, // Will be updated during KYC
-          dateOfBirth: new Date(),        // Will be updated during KYC
+          dateOfBirth: new Date(), // Will be updated during KYC
           kycVerified: false,
           wallets: {
             create: {
@@ -37,20 +47,21 @@ export class WalletService {
 
       await this.logger.logInfo({
         message: `New wallet provisioned: ${username} (${walletAddress})`,
-        slack: true
+        slack: true,
       });
 
       return {
         address: walletAddress,
         tnsName: username,
       };
-
     } catch (error) {
       await this.logger.logAlert({
         message: `Failed to provision wallet for user: ${username}`,
-        error
+        error,
       });
-      throw new InternalServerErrorException('An error occurred while generating the Web3 wallet.');
+      throw new InternalServerErrorException(
+        'An error occurred while generating the Web3 wallet.',
+      );
     }
   }
 }

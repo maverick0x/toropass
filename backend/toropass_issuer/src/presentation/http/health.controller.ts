@@ -4,7 +4,6 @@ import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
   version: VERSION_NEUTRAL, // This makes it accessible at the absolute root '/'
 })
 export class HealthController {
-
   @Get()
   getHealthStatus() {
     return {

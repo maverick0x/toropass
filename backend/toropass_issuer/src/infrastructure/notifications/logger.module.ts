@@ -14,4 +14,4 @@ import { SlackLoggerAdapter } from './slack.adapter';
   ],
   exports: [LOGGER_PORT],
 })
-export class LoggerModule { }
+export class LoggerModule {}
