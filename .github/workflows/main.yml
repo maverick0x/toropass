@@ -9,9 +9,9 @@ on:
 
 jobs:
   # ==========================================
-  # COMBINED BUILD & DEPLOY JOB (Much Faster)
+  # BUILD ON GITHUB RUNNER
   # ==========================================
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -25,12 +25,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20' # NestJS standard
           cache: 'pnpm'
 
       - name: Install Monorepo Dependencies
-        # --frozen-lockfile stops pnpm from checking for updates, making it much faster
-        run: pnpm install --frozen-lockfile 
+        run: pnpm install
 
       - name: Generate Prisma Client (Local)
         run: pnpm --filter toropass_issuer exec prisma generate
@@ -41,20 +40,36 @@ jobs:
       - name: Compress Build Files
         run: |
           cd backend/toropass_issuer
+          # Added the 'prisma' folder to the archive
           tar -czf deploy.tar.gz dist package.json prisma
 
-      # SCP directly from this runner, skipping the slow Upload/Download Artifact steps
+      - name: Temporarily Save Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-package
+          path: backend/toropass_issuer/deploy.tar.gz
+          retention-days: 1
+
+  # ==========================================
+  # DEPLOY TO GCP COMPUTE ENGINE VM
+  # ==========================================
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-package
+
       - name: Secure Copy (SCP) to GCP VM
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.GCP_VM_IP }}
           username: ${{ secrets.GCP_USERNAME }}
           key: ${{ secrets.GCP_SSH_KEY }}
-          source: "backend/toropass_issuer/deploy.tar.gz"
+          source: "deploy.tar.gz"
           target: "/home/${{ secrets.GCP_USERNAME }}/server/"
-          # strip_components removes the 'backend/toropass_issuer' folder structure 
-          # on the server, putting deploy.tar.gz directly into /server/
-          strip_components: 2 
 
       - name: Execute Server Setup and Restart
         uses: appleboy/ssh-action@master
@@ -64,7 +79,7 @@ jobs:
           host: ${{ secrets.GCP_VM_IP }}
           username: ${{ secrets.GCP_USERNAME }}
           key: ${{ secrets.GCP_SSH_KEY }}
-          command_timeout: 10m
+          command_timeout: 15m
           envs: DATABASE_URL
           script: |
             cd /home/${{ secrets.GCP_USERNAME }}/server
@@ -73,8 +88,8 @@ jobs:
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
 
-            # Install production dependencies FAST (skips slow audits and funding text)
-            npm install --omit=dev --no-audit --no-fund
+            # Install production dependencies
+            npm install --omit=dev
 
             # ==========================================
             # PRISMA BUG FIX: Explicitly create the .env file
@@ -90,8 +105,5 @@ jobs:
             # Run pending migrations against the database
             npx prisma migrate deploy
 
-            # Graceful restart
+            # Graceful restart (Updated PM2 process name to match the folder)
             pm2 reload server || pm2 start dist/src/main.js --name server
-            
-            # Ensure PM2 remembers this app on server reboot
-            pm2 save
