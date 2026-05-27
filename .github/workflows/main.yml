@@ -32,7 +32,6 @@ jobs:
         run: pnpm install
 
       - name: Generate Prisma Client (Local)
-        # We generate this locally so TypeScript doesn't fail during the build step
         run: pnpm --filter toropass_issuer exec prisma generate
 
       - name: Build Application
@@ -69,16 +68,19 @@ jobs:
           host: ${{ secrets.GCP_VM_IP }}
           username: ${{ secrets.GCP_USERNAME }}
           key: ${{ secrets.GCP_SSH_KEY }}
-          source: "deploy.tar.gz" # Only sending the tar file now
-          target: "/home/${{ secrets.GCP_USERNAME }}/server/" # Updated folder name
+          source: "deploy.tar.gz"
+          target: "/home/${{ secrets.GCP_USERNAME }}/server/"
 
       - name: Execute Server Setup and Restart
         uses: appleboy/ssh-action@master
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         with:
           host: ${{ secrets.GCP_VM_IP }}
           username: ${{ secrets.GCP_USERNAME }}
           key: ${{ secrets.GCP_SSH_KEY }}
           command_timeout: 15m
+          envs: DATABASE_URL
           script: |
             cd /home/${{ secrets.GCP_USERNAME }}/server
             
@@ -92,8 +94,8 @@ jobs:
             # Generate the Prisma client native to the Ubuntu server architecture
             npx prisma generate
             
-            # Run pending migrations against the database securely using the manual .env
-            npx dotenv-cli -e .env -- npx prisma migrate deploy
+            # Run pending migrations against the database
+            npx prisma migrate deploy
 
             # Graceful restart (Updated PM2 process name to match the folder)
             pm2 reload server || pm2 start dist/src/main.js --name server
