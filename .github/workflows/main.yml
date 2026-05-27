@@ -1,0 +1,99 @@
+name: Deploy ToroPass Issuer to GCP VM
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/toropass_issuer/**' # Only trigger if backend changes
+
+jobs:
+  # ==========================================
+  # BUILD ON GITHUB RUNNER
+  # ==========================================
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # NestJS standard
+          cache: 'pnpm'
+
+      - name: Install Monorepo Dependencies
+        run: pnpm install
+
+      - name: Generate Prisma Client (Local)
+        # We generate this locally so TypeScript doesn't fail during the build step
+        run: pnpm --filter toropass_issuer exec prisma generate
+
+      - name: Build Application
+        run: pnpm --filter toropass_issuer build
+
+      - name: Compress Build Files
+        run: |
+          cd backend/toropass_issuer
+          # Added the 'prisma' folder to the archive
+          tar -czf deploy.tar.gz dist package.json prisma
+
+      - name: Temporarily Save Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-package
+          path: backend/toropass_issuer/deploy.tar.gz
+          retention-days: 1
+
+  # ==========================================
+  # DEPLOY TO GCP COMPUTE ENGINE VM
+  # ==========================================
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-package
+
+      - name: Secure Copy (SCP) to GCP VM
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.GCP_VM_IP }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.GCP_SSH_KEY }}
+          source: "deploy.tar.gz" # Only sending the tar file now
+          target: "/home/${{ secrets.GCP_USERNAME }}/server/" # Updated folder name
+
+      - name: Execute Server Setup and Restart
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GCP_VM_IP }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.GCP_SSH_KEY }}
+          command_timeout: 15m
+          script: |
+            cd /home/${{ secrets.GCP_USERNAME }}/server
+            
+            # Unzip the new code and clean up the archive
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
+
+            # Install production dependencies
+            npm install --omit=dev
+
+            # Generate the Prisma client native to the Ubuntu server architecture
+            npx prisma generate
+            
+            # Run pending migrations against the database securely using the manual .env
+            npx prisma migrate deploy
+
+            # Graceful restart (Updated PM2 process name to match the folder)
+            pm2 reload server || pm2 start dist/main.js --name server
