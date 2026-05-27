@@ -1,0 +1,66 @@
+# Step 1: Create the application
+
+curl -X POST http://localhost:3000/api/v1/oauth/apps/register \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -d '{
+    "name": "DeFi Swap Platform",
+    "redirectUri": "https://example.com"
+  }'
+
+RESPONSE: {
+  "status":"success",
+  "message":"Developer credentials generated successfully. Save the client secret safely!",
+  "data":{
+    "id":"c56ac0f0-a53a-4f26-b9bd-7f63df4fd868",
+    "name":"DeFi Swap Platform",
+    "clientId":"toro_client_b4f6ea873e0beaa848a38d6e",
+    "clientSecret":"toro_sk_08e0cc5fb76018b2905520eb10aaf93a7f575f5c7c076772a141649e2074baad","
+    redirectUri":"https://example.com"
+  }
+}
+
+
+# Step 2: Simulate the User Consent (Inside ToroPass App)
+
+curl -X POST http://localhost:3000/api/v1/oauth/authorize \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -d '{
+    "client_id": "toro_client_b4f6ea873e0beaa848a38d6e",
+    "user_id": "22920436-01d3-4d06-a33c-582e0bd8b8dd",
+    "redirect_uri": "https://example.com",
+    "scopes": ["kyc_status", "wallet"]
+  }'
+
+RESPONSE: {
+  "status":"success",
+  "data":{
+    "code":"687a9a55cbee12b2e66e666e61b70e8295b1526382e55aca"
+  }
+}
+
+
+Step 3: Simulate the SDK fetching the Profile
+
+curl -X POST http://localhost:3000/api/v1/oauth/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_id": "toro_client_b4f6ea873e0beaa848a38d6e",
+    "code":"d122e238e57c41dbfe3475a4b9021a9cd09358e6e483e1b6",
+    "redirect_uri": "https://example.com"
+  }'
+
+RESPONSE: {
+  "status":"success",
+  "data":{
+    "id":"22920436-01d3-4d06-a33c-582e0bd8b8dd",
+    "kycVerified":false,
+    "kycAnchorHash":null,
+    "wallet":{
+      "address":"0xaf451b811385dfd7cab02b9bb39fe5fc43469211",
+      "tnsName":"maveroid",
+      "network":"testnet"
+    }
+  }
+} 

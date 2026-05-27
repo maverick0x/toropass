@@ -13,7 +13,7 @@ export class WalletService {
   constructor(
     private prisma: PrismaService,
     @Inject(LOGGER_PORT) private logger: ILogger,
-  ) {}
+  ) { }
 
   async checkTnsAvailability(username: string): Promise<boolean> {
     try {
@@ -23,7 +23,7 @@ export class WalletService {
       await this.logger.logAlert({
         message: `Toronet SDK failed during TNS check for username: ${username}`,
         error,
-        slack: false,
+        slack: true,
       });
       throw new InternalServerErrorException(
         'Failed to communicate with the Toronet network.',
@@ -74,6 +74,7 @@ export class WalletService {
       await this.logger.logAlert({
         message: `Failed to provision wallet for user: ${username}`,
         error,
+        slack: true,
       });
       throw new InternalServerErrorException(
         'An error occurred while generating the Web3 wallet.',

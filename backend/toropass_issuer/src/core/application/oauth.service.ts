@@ -6,28 +6,47 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 export class OAuthService {
   constructor(private prisma: PrismaService) { }
 
-  // 1. Generate an authorization code after user consents in Flutter app
+  async registerDeveloperApp(name: string, redirectUri: string) {
+    const clientId = 'toro_client_' + crypto.randomBytes(12).toString('hex');
+    const clientSecret = 'toro_sk_' + crypto.randomBytes(32).toString('hex');
+
+    const newApp = await this.prisma.oAuthApp.create({
+      data: {
+        name,
+        clientId,
+        clientSecret, // In production, consider hashing this like a password!
+        redirectUri,
+      },
+    });
+
+    return {
+      id: newApp.id,
+      name: newApp.name,
+      clientId: newApp.clientId,
+      clientSecret: newApp.clientSecret,
+      redirectUri: newApp.redirectUri,
+    };
+  }
+
+  // 1. Generate an authorization code after user consents (Stays the same)
   async generateAuthorizationCode(clientId: string, userId: string, redirectUri: string, scopes: string[]) {
     const app = await this.prisma.oAuthApp.findUnique({ where: { clientId } });
     if (!app || !app.isActive) {
       throw new BadRequestException('OAuth client app not found or inactive.');
     }
 
-    // Verify redirect URI matches what they registered
     if (app.redirectUri !== redirectUri) {
       throw new BadRequestException('Redirect URI mismatch.');
     }
 
-    // Record or update user consent
     await this.prisma.oAuthConsent.upsert({
       where: { userId_appId: { userId, appId: app.id } },
-      update: { scopes, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) }, // 30 Days
+      update: { scopes, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
       create: { userId, appId: app.id, scopes },
     });
 
-    // Create a 5-minute transient code
     const code = crypto.randomBytes(24).toString('hex');
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     await this.prisma.oAuthCode.create({
       data: { code, appId: app.id, userId, redirectUri, expiresAt },
@@ -36,16 +55,26 @@ export class OAuthService {
     return code;
   }
 
-  // 2. Exchange authorization code for an Access Token (Called server-to-server by 3rd party)
-  async exchangeCodeForToken(clientId: string, clientSecret: string, code: string, redirectUri: string) {
+  // 2. MERGED: Exchange authorization code directly for the verified User Profile
+  async exchangeCodeForUserProfile(clientId: string, code: string, redirectUri: string, clientSecret?: string) {
     const app = await this.prisma.oAuthApp.findUnique({ where: { clientId } });
-    if (!app || app.clientSecret !== clientSecret || !app.isActive) {
-      throw new UnauthorizedException('Invalid developer client credentials.');
+    if (!app || !app.isActive) {
+      throw new UnauthorizedException('Invalid developer client ID.');
     }
 
+    // If it's a backend server calling, they MUST provide the secret.
+    // If it's your Mobile SDK calling, we rely on the strict matching of the code and redirectUri.
+    if (clientSecret && app.clientSecret !== clientSecret) {
+      throw new UnauthorizedException('Invalid client secret.');
+    }
+
+    // Fetch the code along with the consenting user and their active wallet
     const oauthCode = await this.prisma.oAuthCode.findUnique({
       where: { code },
-      include: { app: true },
+      include: {
+        app: true,
+        user: { include: { wallets: { where: { isActive: true }, take: 1 } } }
+      },
     });
 
     if (!oauthCode || oauthCode.app.clientId !== clientId || oauthCode.redirectUri !== redirectUri) {
@@ -57,40 +86,25 @@ export class OAuthService {
       throw new BadRequestException('Authorization code has expired.');
     }
 
-    // Generate a long-lived access token
-    const accessToken = 'toro_tk_' + crypto.randomBytes(32).toString('hex');
-    const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 Days
+    // Burn the temporary code immediately so it can never be reused
+    await this.prisma.oAuthCode.delete({ where: { id: oauthCode.id } });
 
-    const [tokenRecord] = await this.prisma.$transaction([
-      this.prisma.oAuthToken.create({
-        data: { accessToken, appId: app.id, userId: oauthCode.userId, expiresAt: tokenExpiresAt },
-      }),
-      this.prisma.oAuthCode.delete({ where: { id: oauthCode.id } }), // Burn the code!
-    ]);
+    const user = oauthCode.user;
+    const activeWallet = user.wallets[0];
 
+    // Return the sanitized profile data immediately
     return {
-      access_token: tokenRecord.accessToken,
-      token_type: 'Bearer',
-      expires_in: 30 * 24 * 60 * 60, // in seconds
-    };
-  }
-
-  // 3. Verify access token when 3rd party hits /v1/users/me
-  async verifyAccessToken(token: string) {
-    const cleanedToken = token.replace('Bearer ', '').trim();
-    const tokenRecord = await this.prisma.oAuthToken.findUnique({
-      where: { accessToken: cleanedToken },
-      include: {
-        user: {
-          include: { wallets: { where: { isActive: true }, take: 1 } },
-        },
+      status: 'success',
+      data: {
+        id: user.id,
+        kycVerified: user.kycVerified,
+        kycAnchorHash: user.kycAnchorHash,
+        wallet: activeWallet ? {
+          address: activeWallet.address,
+          tnsName: activeWallet.tnsName,
+          network: activeWallet.network
+        } : null,
       },
-    });
-
-    if (!tokenRecord || new Date() > tokenRecord.expiresAt) {
-      throw new UnauthorizedException('Invalid or expired developer access token.');
-    }
-
-    return tokenRecord.user;
+    };
   }
 }
