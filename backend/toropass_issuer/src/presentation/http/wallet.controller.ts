@@ -1,10 +1,17 @@
-import { BadRequestException, Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { WalletService } from '../../core/application/wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 
 @Controller('v1/wallets')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) { }
+  constructor(private readonly walletService: WalletService) {}
 
   @Get('tns')
   async checkTnsAvailability(@Query('username') username: string) {
@@ -14,7 +21,8 @@ export class WalletController {
 
     const normalizedUsername = username.toLowerCase().trim();
 
-    const isAvailable = await this.walletService.checkTnsAvailability(normalizedUsername);
+    const isAvailable =
+      await this.walletService.checkTnsAvailability(normalizedUsername);
 
     return {
       status: 'success',
