@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { OAuthService } from '../../core/application/oauth.service';
 import { ApiKeyGuard } from '../../core/guards/api-key.guard';
 import { CreateAppDto } from './dto/create-app.dto';
@@ -8,7 +8,7 @@ export class OAuthController {
   constructor(private oauthService: OAuthService) { }
 
   @Post('apps/register')
-  @UseGuards(ApiKeyGuard) // Only authorized admin requests can generate keys
+  @UseGuards(ApiKeyGuard)
   async registerApp(@Body() payload: CreateAppDto) {
     const appDetails = await this.oauthService.registerDeveloperApp(
       payload.name,
@@ -22,7 +22,6 @@ export class OAuthController {
     };
   }
 
-  // Route 1: Triggered when user approves the consent prompt in Flutter
   @Post('authorize')
   @UseGuards(ApiKeyGuard)
   async authorize(
@@ -35,20 +34,27 @@ export class OAuthController {
     return { status: 'success', data: { code } };
   }
 
-  // Route 2: Server-to-server endpoint for developer servers to get access tokens
   @Post('token')
   async exchangeToken(
     @Body('client_id') clientId: string,
     @Body('code') code: string,
     @Body('redirect_uri') redirectUri: string,
-    @Body('client_secret') clientSecret?: string, // Optional to safely support Public Clients/SDKs
+    @Body('client_secret') clientSecret?: string,
   ) {
-    // Exchanges code and returns the sanitized user profile in a single roundtrip
     return await this.oauthService.exchangeCodeForUserProfile(
       clientId,
       code,
       redirectUri,
       clientSecret,
     );
+  }
+
+  @Get('profile')
+  async getProfileSilently(@Headers('authorization') authHeader: string) {
+    if (!authHeader) {
+      throw new UnauthorizedException('Missing Authorization Header.');
+    }
+
+    return await this.oauthService.verifyAccessToken(authHeader);
   }
 }

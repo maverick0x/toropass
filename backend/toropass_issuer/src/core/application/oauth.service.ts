@@ -28,7 +28,6 @@ export class OAuthService {
     };
   }
 
-  // 1. Generate an authorization code after user consents (Stays the same)
   async generateAuthorizationCode(clientId: string, userId: string, redirectUri: string, scopes: string[]) {
     const app = await this.prisma.oAuthApp.findUnique({ where: { clientId } });
     if (!app || !app.isActive) {
@@ -55,20 +54,17 @@ export class OAuthService {
     return code;
   }
 
-  // 2. MERGED: Exchange authorization code directly for the verified User Profile
+  // Updated Exchange Method: Returns profile AND a long-lived Access Token
   async exchangeCodeForUserProfile(clientId: string, code: string, redirectUri: string, clientSecret?: string) {
     const app = await this.prisma.oAuthApp.findUnique({ where: { clientId } });
     if (!app || !app.isActive) {
       throw new UnauthorizedException('Invalid developer client ID.');
     }
 
-    // If it's a backend server calling, they MUST provide the secret.
-    // If it's your Mobile SDK calling, we rely on the strict matching of the code and redirectUri.
     if (clientSecret && app.clientSecret !== clientSecret) {
       throw new UnauthorizedException('Invalid client secret.');
     }
 
-    // Fetch the code along with the consenting user and their active wallet
     const oauthCode = await this.prisma.oAuthCode.findUnique({
       where: { code },
       include: {
@@ -86,13 +82,76 @@ export class OAuthService {
       throw new BadRequestException('Authorization code has expired.');
     }
 
-    // Burn the temporary code immediately so it can never be reused
-    await this.prisma.oAuthCode.delete({ where: { id: oauthCode.id } });
+    // Generate a long-lived access token (e.g., valid for 30 days)
+    const accessToken = 'toro_tk_' + crypto.randomBytes(32).toString('hex');
+    const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await this.prisma.$transaction([
+      this.prisma.oAuthToken.create({
+        data: {
+          accessToken,
+          appId: app.id,
+          userId: oauthCode.userId,
+          expiresAt: tokenExpiresAt,
+        },
+      }),
+      this.prisma.oAuthCode.delete({ where: { id: oauthCode.id } }) // Burn the code
+    ]);
 
     const user = oauthCode.user;
     const activeWallet = user.wallets[0];
 
-    // Return the sanitized profile data immediately
+    return {
+      status: 'success',
+      data: {
+        access_token: accessToken, // <--- The SDK will save this!
+        profile: {
+          id: user.id,
+          kycVerified: user.kycVerified,
+          kycAnchorHash: user.kycAnchorHash,
+          wallet: activeWallet ? {
+            address: activeWallet.address,
+            tnsName: activeWallet.tnsName,
+            network: activeWallet.network
+          } : null,
+        }
+      },
+    };
+  }
+
+  // New Method: Verify the silent background request
+  async verifyAccessToken(token: string) {
+    const cleanedToken = token.replace('Bearer ', '').trim();
+
+    // Find the token, make sure the consent wasn't revoked, and get the user
+    const tokenRecord = await this.prisma.oAuthToken.findUnique({
+      where: { accessToken: cleanedToken },
+      include: {
+        app: true,
+        user: {
+          include: { wallets: { where: { isActive: true }, take: 1 } },
+        },
+      },
+    });
+
+    if (!tokenRecord || new Date() > tokenRecord.expiresAt) {
+      throw new UnauthorizedException('Invalid or expired access token.');
+    }
+
+    // Check if the user manually revoked consent for this specific app
+    const consent = await this.prisma.oAuthConsent.findUnique({
+      where: { userId_appId: { userId: tokenRecord.userId, appId: tokenRecord.appId } }
+    });
+
+    if (!consent) {
+      // If consent is gone, destroy the token and reject the request
+      await this.prisma.oAuthToken.delete({ where: { id: tokenRecord.id } });
+      throw new UnauthorizedException('Access has been revoked by the user.');
+    }
+
+    const user = tokenRecord.user;
+    const activeWallet = user.wallets[0];
+
     return {
       status: 'success',
       data: {
@@ -106,5 +165,49 @@ export class OAuthService {
         } : null,
       },
     };
+  }
+
+  // =========================================================================
+  // USER CONSENT MANAGEMENT
+  // =========================================================================
+
+  // Fetch all apps a user has granted access to
+  async getUserConsents(userId: string) {
+    const consents = await this.prisma.oAuthConsent.findMany({
+      where: { userId },
+      include: {
+        app: {
+          select: { id: true, name: true, redirectUri: true },
+        },
+      },
+      orderBy: { grantedAt: 'desc' },
+    });
+
+    const now = new Date();
+
+    // Filter out expired consents and map to a clean frontend DTO
+    return consents
+      .filter((c) => !c.expiresAt || c.expiresAt > now)
+      .map((c) => ({
+        appId: c.app.id,
+        appName: c.app.name,
+        scopes: c.scopes,
+        grantedAt: c.grantedAt,
+        expiresAt: c.expiresAt,
+      }));
+  }
+
+  // Revoke a specific app's access
+  async revokeUserConsent(userId: string, appId: string) {
+    // We use deleteMany to gracefully handle cases where the consent is already deleted
+    const result = await this.prisma.oAuthConsent.deleteMany({
+      where: { userId, appId },
+    });
+
+    if (result.count === 0) {
+      throw new BadRequestException('Consent record not found or already revoked.');
+    }
+
+    return { success: true, message: 'Access revoked successfully.' };
   }
 }
