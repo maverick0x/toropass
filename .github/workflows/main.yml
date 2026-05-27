@@ -40,8 +40,7 @@ jobs:
       - name: Compress Build Files
         run: |
           cd backend/toropass_issuer
-          # Added the 'prisma' folder to the archive
-          tar -czf deploy.tar.gz dist package.json prisma
+          tar -czf deploy.tar.gz dist package.json prisma prisma.config.ts
 
       - name: Temporarily Save Artifact
         uses: actions/upload-artifact@v4
@@ -90,14 +89,6 @@ jobs:
 
             # Install production dependencies
             npm install --omit=dev
-
-            # ==========================================
-            # PRISMA BUG FIX: Explicitly create the .env file
-            # ==========================================
-            echo "DATABASE_URL=\"${DATABASE_URL}\"" > .env
-            
-            # Double-down by exporting it to the immediate shell session
-            export DATABASE_URL="${DATABASE_URL}"
 
             # Generate the Prisma client native to the Ubuntu server architecture
             npx prisma generate
