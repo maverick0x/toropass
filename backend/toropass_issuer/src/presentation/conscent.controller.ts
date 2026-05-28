@@ -1,9 +1,9 @@
 import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { OAuthService } from '../core/application/oauth.service';
-import { ApiKeyGuard } from '../core/guards/api-key.guard';
+import { ApiGuard } from '../core/guards/api.guard';
 
 @Controller({ path: 'conscents/:userId', version: '1' })
-@UseGuards(ApiKeyGuard)
+@UseGuards(ApiGuard)
 export class ConsentController {
   constructor(private oauthService: OAuthService) { }
 

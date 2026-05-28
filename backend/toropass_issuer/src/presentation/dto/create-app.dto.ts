@@ -8,8 +8,4 @@ export class CreateAppDto {
   @IsUrl({}, { message: 'A valid redirect URI is required.' })
   @IsNotEmpty()
   redirectUri: string;
-
-  @IsString()
-  @IsNotEmpty()
-  developerId: string;
 }

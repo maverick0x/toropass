@@ -158,10 +158,7 @@ export type OAuthTokenScalarFieldEnum = (typeof OAuthTokenScalarFieldEnum)[keyof
 export const UserSessionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  accessToken: 'accessToken',
   refreshToken: 'refreshToken',
-  accessExpiresAt: 'accessExpiresAt',
-  refreshExpiresAt: 'refreshExpiresAt',
   createdAt: 'createdAt'
 } as const
 

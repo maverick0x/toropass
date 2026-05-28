@@ -94,6 +94,17 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
   }
 
   async checkHealth(): Promise<boolean> {
-    return true;
+    try {
+      await this.checkTnsAvailability("admin");
+
+      // If it responds without throwing, the network is alive
+      return true;
+    } catch (error) {
+      this.logger.logAlert({
+        message: 'Toronet Health Check Failed. Network might be unreachable.',
+        error,
+      });
+      return false;
+    }
   }
 }

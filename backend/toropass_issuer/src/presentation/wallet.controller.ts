@@ -7,14 +7,18 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiKeyGuard } from 'src/core/guards/api-key.guard';
+import { CurrentUser } from 'src/core/decorators/user.decorator';
+import { ApiGuard } from 'src/core/guards/api.guard';
+import { AuthGuard } from 'src/core/guards/auth.guard';
+import { User } from 'src/generated/prisma/client';
 import { WalletService } from '../core/application/wallet.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateWalletDto } from './dto/create-wallet.dto';
+import { RefreshDto } from './dto/refresh.dto';
 import { ValidateWalletDto } from './dto/validate-wallet.dto';
 
 @Controller({ path: 'wallets', version: '1' })
-@UseGuards(ApiKeyGuard)
+@UseGuards(ApiGuard)
 export class WalletController {
   constructor(private readonly walletService: WalletService) { }
 
@@ -76,9 +80,10 @@ export class WalletController {
   }
 
   @Post('change-password')
-  async changePassword(@Body() payload: ChangePasswordDto) {
+  @UseGuards(AuthGuard)
+  async changePassword(@CurrentUser() user: User, @Body() payload: ChangePasswordDto) {
     const result = await this.walletService.changeWalletPassword(
-      payload.username,
+      user.id,
       payload.oldPassword,
       payload.newPassword,
     );
@@ -86,6 +91,17 @@ export class WalletController {
     return {
       status: 'success',
       message: result.message,
+    };
+  }
+
+  @Post('refresh')
+  async refreshTokens(@Body() payload: RefreshDto) {
+    const tokens = await this.walletService.refreshSession(payload.refreshToken);
+
+    return {
+      status: 'success',
+      message: 'Session refreshed successfully.',
+      data: tokens,
     };
   }
 }

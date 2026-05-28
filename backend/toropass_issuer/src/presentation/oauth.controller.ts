@@ -6,12 +6,14 @@ import {
   Headers,
   Param,
   Post,
-  Query,
   UnauthorizedException,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
+import { CurrentUser } from 'src/core/decorators/user.decorator';
+import { AuthGuard } from 'src/core/guards/auth.guard';
+import { User } from 'src/generated/prisma/client';
 import { OAuthService } from '../core/application/oauth.service';
-import { ApiKeyGuard } from '../core/guards/api-key.guard';
+import { ApiGuard } from '../core/guards/api.guard';
 import { CreateAppDto } from './dto/create-app.dto';
 
 @Controller({ path: 'oauth', version: '1' })
@@ -19,12 +21,13 @@ export class OAuthController {
   constructor(private oauthService: OAuthService) { }
 
   @Post('apps/register')
-  @UseGuards(ApiKeyGuard)
-  async registerApp(@Body() payload: CreateAppDto) {
+  @UseGuards(ApiGuard)
+  @UseGuards(AuthGuard)
+  async registerApp(@CurrentUser() user: User, @Body() payload: CreateAppDto) {
     const appDetails = await this.oauthService.registerApp(
       payload.name,
       payload.redirectUri,
-      payload.developerId,
+      user.id,
     );
 
     return {
@@ -36,9 +39,10 @@ export class OAuthController {
   }
 
   @Get('apps')
-  @UseGuards(ApiKeyGuard)
-  async listApps(@Query('developer_id') developerId: string) {
-    const apps = await this.oauthService.getApps(developerId);
+  @UseGuards(ApiGuard)
+  @UseGuards(AuthGuard)
+  async listApps(@CurrentUser() user: User) {
+    const apps = await this.oauthService.getApps(user.id);
     return {
       status: 'success',
       data: apps,
@@ -46,25 +50,27 @@ export class OAuthController {
   }
 
   @Delete('apps/:appId')
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(ApiGuard)
+  @UseGuards(AuthGuard)
   async deleteApp(
+    @CurrentUser() user: User,
     @Param('appId') appId: string,
-    @Body('developer_id') developerId: string,
   ) {
-    return await this.oauthService.deleteApp(developerId, appId);
+    return await this.oauthService.deleteApp(user.id, appId);
   }
 
   @Post('authorize')
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(ApiGuard)
+  @UseGuards(AuthGuard)
   async authorize(
+    @CurrentUser() user: User,
     @Body('client_id') clientId: string,
-    @Body('user_id') userId: string,
     @Body('redirect_uri') redirectUri: string,
     @Body('scopes') scopes: string[],
   ) {
     const code = await this.oauthService.generateAuthorizationCode(
       clientId,
-      userId,
+      user.id,
       redirectUri,
       scopes,
     );

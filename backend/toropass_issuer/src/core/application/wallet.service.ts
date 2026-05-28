@@ -5,8 +5,8 @@ import {
   InternalServerErrorException,
   UnauthorizedException
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { BLOCKCHAIN_PORT, IBlockchainPort } from '../ports/blockchain.interface';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
@@ -14,14 +14,13 @@ import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
 type WalletAuthTokens = {
   accessToken: string;
   refreshToken: string;
-  accessTokenExpiresAt: Date;
-  refreshTokenExpiresAt: Date;
 };
 
 @Injectable()
 export class WalletService {
   constructor(
     private prisma: PrismaService,
+    private jwtService: JwtService,
     @Inject(BLOCKCHAIN_PORT) private blockchain: IBlockchainPort,
     @Inject(LOGGER_PORT) private logger: ILogger,
   ) { }
@@ -165,9 +164,9 @@ export class WalletService {
     return { address, tnsName: username, tokens };
   }
 
-  async changeWalletPassword(username: string, oldPassword: string, newPassword: string) {
-    const existingWallet = await this.prisma.wallet.findUnique({
-      where: { tnsName: username },
+  async changeWalletPassword(userId: string, oldPassword: string, newPassword: string) {
+    const existingWallet = await this.prisma.wallet.findFirst({
+      where: { userId, isActive: true },
       include: { user: true },
     });
 
@@ -188,7 +187,7 @@ export class WalletService {
       );
     } catch (error) {
       await this.logger.logAlert({
-        message: `Toronet SDK failed to update password for: ${username}`,
+        message: `Toronet SDK failed to update password for: ${existingWallet.tnsName}`,
         error,
         slack: true,
       });
@@ -204,29 +203,40 @@ export class WalletService {
     return { success: true, message: 'Password changed successfully.' };
   }
 
+  async refreshSession(refreshToken: string): Promise<WalletAuthTokens> {
+    try {
+      await this.jwtService.verifyAsync(refreshToken);
+      const session = await this.prisma.userSession.findFirst({
+        where: { refreshToken },
+      });
+
+      if (!session) throw new UnauthorizedException('Session has been revoked.');
+
+      const newTokens = await this.issueTokens(session.userId);
+      await this.prisma.userSession.delete({ where: { id: session.id } });
+
+      return newTokens;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired refresh token. Please log in again.');
+    }
+  }
+
   private async issueTokens(userId: string): Promise<WalletAuthTokens> {
-    const accessToken = 'toro_at_' + crypto.randomBytes(32).toString('hex');
-    const refreshToken = 'toro_rt_' + crypto.randomBytes(48).toString('hex');
-    const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    const refreshTokenExpiresAt = new Date(
-      Date.now() + 30 * 24 * 60 * 60 * 1000,
-    );
+    const payload = { sub: userId };
+
+    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
+    const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '30d' });
 
     await this.prisma.userSession.create({
       data: {
         userId,
-        accessToken,
         refreshToken,
-        accessExpiresAt: accessTokenExpiresAt,
-        refreshExpiresAt: refreshTokenExpiresAt,
       },
     });
 
     return {
       accessToken,
       refreshToken,
-      accessTokenExpiresAt,
-      refreshTokenExpiresAt,
     };
   }
 }
