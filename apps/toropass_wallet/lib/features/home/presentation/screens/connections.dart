@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
@@ -103,21 +104,28 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
       30.verticalSpacer,
     ];
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: .start,
-          children: [
-            TopBar(title: "Connections"),
-            Expanded(
-              child: ListView.builder(
-                itemCount: children.length,
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, index) => children[index],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) context.pop();
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: .start,
+            children: [
+              TopBar(title: "Connections"),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: children.length,
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) => children[index],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

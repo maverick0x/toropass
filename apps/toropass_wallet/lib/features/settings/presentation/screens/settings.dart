@@ -31,42 +31,49 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisSize: .max,
-          crossAxisAlignment: .center,
-          children: [
-            TopBar(title: 'Settings'),
-            20.verticalSpacer,
-            IdentityCard(),
-            _buildSettingsCard(),
-            _buildLogout(),
-            const Spacer(),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _tapCount++;
-                  if (_tapCount > 4) _tapCount = 0;
-                });
-                if (_tapCount >= 4) {
-                  context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
-                }
-              },
-              child: Container(
-                alignment: Alignment.center,
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 10.height),
-                child: Text(
-                  "v1.0.0 (Build 42)",
-                  style: appStyles.body.copyWith(
-                    color: appColors.text.withAlpha(100),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) context.pop();
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            mainAxisSize: .max,
+            crossAxisAlignment: .center,
+            children: [
+              TopBar(title: 'Settings'),
+              20.verticalSpacer,
+              IdentityCard(),
+              _buildSettingsCard(),
+              _buildLogout(),
+              const Spacer(),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _tapCount++;
+                    if (_tapCount > 4) _tapCount = 0;
+                  });
+                  if (_tapCount >= 4) {
+                    context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
+                  }
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 10.height),
+                  child: Text(
+                    "v1.0.0 (Build 42)",
+                    style: appStyles.body.copyWith(
+                      color: appColors.text.withAlpha(100),
+                    ),
                   ),
                 ),
               ),
-            ),
-            30.verticalSpacer,
-          ],
+              30.verticalSpacer,
+            ],
+          ),
         ),
       ),
     );
