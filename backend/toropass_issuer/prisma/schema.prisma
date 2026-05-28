@@ -16,6 +16,7 @@ datasource db {
 model User {
   id          String   @id @default(uuid())
   bvnHash     String   @unique @map("bvn_hash")
+  password    String
   dateOfBirth DateTime @map("date_of_birth")
 
   // KYC Status & Blockchain Proof

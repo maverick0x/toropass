@@ -970,6 +970,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const UserScalarFieldEnum = {
   id: 'id',
   bvnHash: 'bvnHash',
+  password: 'password',
   dateOfBirth: 'dateOfBirth',
   kycVerified: 'kycVerified',
   kycAnchorHash: 'kycAnchorHash',

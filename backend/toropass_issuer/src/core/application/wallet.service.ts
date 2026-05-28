@@ -3,14 +3,16 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import {
   createWallet,
   getAddr,
   isTNSAvailable,
-  verifyWalletPassword,
+  updatePassword,
+  verifyWalletPassword
 } from 'torosdk';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
@@ -60,10 +62,13 @@ export class WalletService {
     try {
       const walletAddress = await createWallet({ username, password });
 
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const user = await this.prisma.user.create({
         data: {
-          bvnHash: 'PENDING_' + username, // Will be updated during KYC
-          dateOfBirth: new Date(), // Will be updated during KYC
+          password: hashedPassword,
+          bvnHash: 'PENDING_' + username,
+          dateOfBirth: new Date(),
           kycVerified: false,
           wallets: {
             create: {
@@ -107,89 +112,108 @@ export class WalletService {
 
     try {
       const rawAddress: unknown = await getAddr({ name: username });
-      this.logger.logInfo({
-        message: `Raw address retrieved for username "${username}": ${JSON.stringify(
-          rawAddress,
-        )}`,
-      });
       const resolvedAddress = this.extractAddress(rawAddress);
-      this.logger.logInfo({
-        message: `Resolved address for username "${username}": ${resolvedAddress}`,
-      });
       if (!resolvedAddress) {
-        throw new BadRequestException(
-          `No wallet address was found for "${username}".`,
-        );
+        throw new BadRequestException(`No wallet address was found for "${username}".`);
       }
       address = resolvedAddress;
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      if (error instanceof BadRequestException) throw error;
       await this.logger.logAlert({
         message: `Failed to resolve TNS address for username: ${username}`,
         error,
         slack: true,
       });
-      throw new InternalServerErrorException(
-        'Failed to communicate with the Toronet network.',
-      );
-    }
-
-    let isValid: Boolean = false;
-    try {
-      isValid = await verifyWalletPassword({ address, password });
-    } catch (error) {
-      await this.logger.logAlert({
-        message: `Toronet SDK password verification failed for username: ${username}`,
-        error,
-        // slack: true,
-      });
-      throw new InternalServerErrorException(
-        'Failed to communicate with the Toronet network.',
-      );
-    }
-
-    if (!isValid) {
-      throw new UnauthorizedException('Invalid wallet password.');
+      throw new InternalServerErrorException('Failed to communicate with the Toronet network.');
     }
 
     const existingWallet = await this.prisma.wallet.findUnique({
       where: { tnsName: username },
       include: { user: true },
     });
-
     let userId = existingWallet?.userId;
-    if (!userId) {
+
+    if (existingWallet) {
+      const isMatch = await bcrypt.compare(password, existingWallet.user.password);
+      if (!isMatch) {
+        throw new UnauthorizedException('Invalid wallet password.');
+      }
+
+      if (existingWallet.address !== address) {
+        await this.prisma.wallet.update({
+          where: { id: existingWallet.id },
+          data: { address },
+        });
+      }
+    } else {
+      let isValid: Boolean = false;
+      try {
+        isValid = await verifyWalletPassword({ address, password });
+      } catch (error) {
+        throw new InternalServerErrorException('Toronet SDK verification failed.');
+      }
+
+      if (!isValid) throw new UnauthorizedException('Invalid wallet password.');
+
+      const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.prisma.user.create({
         data: {
+          password: hashedPassword,
           bvnHash: 'PENDING_' + username,
           dateOfBirth: new Date(),
           kycVerified: false,
           wallets: {
-            create: {
-              address,
-              tnsName: username,
-              network: 'testnet',
-            },
+            create: { address, tnsName: username, network: 'testnet' },
           },
         },
       });
       userId = user.id;
-    } else if (existingWallet && existingWallet.address !== address) {
-      await this.prisma.wallet.update({
-        where: { id: existingWallet.id },
-        data: { address },
-      });
     }
 
-    const tokens = await this.issueTokens(userId);
+    const tokens = await this.issueTokens(userId ?? "");
+    return { address, tnsName: username, tokens };
+  }
 
-    return {
-      address,
-      tnsName: username,
-      tokens,
-    };
+  async changeWalletPassword(username: string, oldPassword: string, newPassword: string) {
+    const existingWallet = await this.prisma.wallet.findUnique({
+      where: { tnsName: username },
+      include: { user: true },
+    });
+
+    if (!existingWallet || !existingWallet.user.password) {
+      throw new BadRequestException('Wallet not fully registered in the system.');
+    }
+
+    // 1. Verify locally
+    const isMatch = await bcrypt.compare(oldPassword, existingWallet.user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid current password.');
+    }
+
+    // 2. Update on Toronet
+    try {
+      await updatePassword({
+        address: existingWallet.address,
+        oldPassword,
+        newPassword,
+      });
+    } catch (error) {
+      await this.logger.logAlert({
+        message: `Toronet SDK failed to update password for: ${username}`,
+        error,
+        slack: true,
+      });
+      throw new InternalServerErrorException('Failed to update password on the Toronet network.');
+    }
+
+    // 3. Update Locally
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: existingWallet.user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    return { success: true, message: 'Password changed successfully.' };
   }
 
   private async issueTokens(userId: string): Promise<WalletAuthTokens> {

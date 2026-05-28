@@ -27,6 +27,7 @@ export type AggregateUser = {
 export type UserMinAggregateOutputType = {
   id: string | null
   bvnHash: string | null
+  password: string | null
   dateOfBirth: Date | null
   kycVerified: boolean | null
   kycAnchorHash: string | null
@@ -37,6 +38,7 @@ export type UserMinAggregateOutputType = {
 export type UserMaxAggregateOutputType = {
   id: string | null
   bvnHash: string | null
+  password: string | null
   dateOfBirth: Date | null
   kycVerified: boolean | null
   kycAnchorHash: string | null
@@ -47,6 +49,7 @@ export type UserMaxAggregateOutputType = {
 export type UserCountAggregateOutputType = {
   id: number
   bvnHash: number
+  password: number
   dateOfBirth: number
   kycVerified: number
   kycAnchorHash: number
@@ -59,6 +62,7 @@ export type UserCountAggregateOutputType = {
 export type UserMinAggregateInputType = {
   id?: true
   bvnHash?: true
+  password?: true
   dateOfBirth?: true
   kycVerified?: true
   kycAnchorHash?: true
@@ -69,6 +73,7 @@ export type UserMinAggregateInputType = {
 export type UserMaxAggregateInputType = {
   id?: true
   bvnHash?: true
+  password?: true
   dateOfBirth?: true
   kycVerified?: true
   kycAnchorHash?: true
@@ -79,6 +84,7 @@ export type UserMaxAggregateInputType = {
 export type UserCountAggregateInputType = {
   id?: true
   bvnHash?: true
+  password?: true
   dateOfBirth?: true
   kycVerified?: true
   kycAnchorHash?: true
@@ -162,6 +168,7 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type UserGroupByOutputType = {
   id: string
   bvnHash: string
+  password: string
   dateOfBirth: Date
   kycVerified: boolean
   kycAnchorHash: string | null
@@ -193,6 +200,7 @@ export type UserWhereInput = {
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
   bvnHash?: Prisma.StringFilter<"User"> | string
+  password?: Prisma.StringFilter<"User"> | string
   dateOfBirth?: Prisma.DateTimeFilter<"User"> | Date | string
   kycVerified?: Prisma.BoolFilter<"User"> | boolean
   kycAnchorHash?: Prisma.StringNullableFilter<"User"> | string | null
@@ -209,6 +217,7 @@ export type UserWhereInput = {
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   bvnHash?: Prisma.SortOrder
+  password?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   kycVerified?: Prisma.SortOrder
   kycAnchorHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -229,6 +238,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
+  password?: Prisma.StringFilter<"User"> | string
   dateOfBirth?: Prisma.DateTimeFilter<"User"> | Date | string
   kycVerified?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -244,6 +254,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   bvnHash?: Prisma.SortOrder
+  password?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   kycVerified?: Prisma.SortOrder
   kycAnchorHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -260,6 +271,7 @@ export type UserScalarWhereWithAggregatesInput = {
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   bvnHash?: Prisma.StringWithAggregatesFilter<"User"> | string
+  password?: Prisma.StringWithAggregatesFilter<"User"> | string
   dateOfBirth?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   kycVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   kycAnchorHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -270,6 +282,7 @@ export type UserScalarWhereWithAggregatesInput = {
 export type UserCreateInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -286,6 +299,7 @@ export type UserCreateInput = {
 export type UserUncheckedCreateInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -302,6 +316,7 @@ export type UserUncheckedCreateInput = {
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -318,6 +333,7 @@ export type UserUpdateInput = {
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -334,6 +350,7 @@ export type UserUncheckedUpdateInput = {
 export type UserCreateManyInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -344,6 +361,7 @@ export type UserCreateManyInput = {
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -354,6 +372,7 @@ export type UserUpdateManyMutationInput = {
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -364,6 +383,7 @@ export type UserUncheckedUpdateManyInput = {
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   bvnHash?: Prisma.SortOrder
+  password?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   kycVerified?: Prisma.SortOrder
   kycAnchorHash?: Prisma.SortOrder
@@ -374,6 +394,7 @@ export type UserCountOrderByAggregateInput = {
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   bvnHash?: Prisma.SortOrder
+  password?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   kycVerified?: Prisma.SortOrder
   kycAnchorHash?: Prisma.SortOrder
@@ -384,6 +405,7 @@ export type UserMaxOrderByAggregateInput = {
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   bvnHash?: Prisma.SortOrder
+  password?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   kycVerified?: Prisma.SortOrder
   kycAnchorHash?: Prisma.SortOrder
@@ -499,6 +521,7 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
 export type UserCreateWithoutWalletsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -514,6 +537,7 @@ export type UserCreateWithoutWalletsInput = {
 export type UserUncheckedCreateWithoutWalletsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -545,6 +569,7 @@ export type UserUpdateToOneWithWhereWithoutWalletsInput = {
 export type UserUpdateWithoutWalletsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -560,6 +585,7 @@ export type UserUpdateWithoutWalletsInput = {
 export type UserUncheckedUpdateWithoutWalletsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -575,6 +601,7 @@ export type UserUncheckedUpdateWithoutWalletsInput = {
 export type UserCreateWithoutOauthAppsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -590,6 +617,7 @@ export type UserCreateWithoutOauthAppsInput = {
 export type UserUncheckedCreateWithoutOauthAppsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -621,6 +649,7 @@ export type UserUpdateToOneWithWhereWithoutOauthAppsInput = {
 export type UserUpdateWithoutOauthAppsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -636,6 +665,7 @@ export type UserUpdateWithoutOauthAppsInput = {
 export type UserUncheckedUpdateWithoutOauthAppsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -651,6 +681,7 @@ export type UserUncheckedUpdateWithoutOauthAppsInput = {
 export type UserCreateWithoutConsentsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -666,6 +697,7 @@ export type UserCreateWithoutConsentsInput = {
 export type UserUncheckedCreateWithoutConsentsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -697,6 +729,7 @@ export type UserUpdateToOneWithWhereWithoutConsentsInput = {
 export type UserUpdateWithoutConsentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -712,6 +745,7 @@ export type UserUpdateWithoutConsentsInput = {
 export type UserUncheckedUpdateWithoutConsentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -727,6 +761,7 @@ export type UserUncheckedUpdateWithoutConsentsInput = {
 export type UserCreateWithoutOauthCodesInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -742,6 +777,7 @@ export type UserCreateWithoutOauthCodesInput = {
 export type UserUncheckedCreateWithoutOauthCodesInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -773,6 +809,7 @@ export type UserUpdateToOneWithWhereWithoutOauthCodesInput = {
 export type UserUpdateWithoutOauthCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -788,6 +825,7 @@ export type UserUpdateWithoutOauthCodesInput = {
 export type UserUncheckedUpdateWithoutOauthCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -803,6 +841,7 @@ export type UserUncheckedUpdateWithoutOauthCodesInput = {
 export type UserCreateWithoutOauthTokensInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -818,6 +857,7 @@ export type UserCreateWithoutOauthTokensInput = {
 export type UserUncheckedCreateWithoutOauthTokensInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -849,6 +889,7 @@ export type UserUpdateToOneWithWhereWithoutOauthTokensInput = {
 export type UserUpdateWithoutOauthTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -864,6 +905,7 @@ export type UserUpdateWithoutOauthTokensInput = {
 export type UserUncheckedUpdateWithoutOauthTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -879,6 +921,7 @@ export type UserUncheckedUpdateWithoutOauthTokensInput = {
 export type UserCreateWithoutSessionsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -894,6 +937,7 @@ export type UserCreateWithoutSessionsInput = {
 export type UserUncheckedCreateWithoutSessionsInput = {
   id?: string
   bvnHash: string
+  password: string
   dateOfBirth: Date | string
   kycVerified?: boolean
   kycAnchorHash?: string | null
@@ -925,6 +969,7 @@ export type UserUpdateToOneWithWhereWithoutSessionsInput = {
 export type UserUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -940,6 +985,7 @@ export type UserUpdateWithoutSessionsInput = {
 export type UserUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bvnHash?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kycVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   kycAnchorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1031,6 +1077,7 @@ export type UserCountOutputTypeCountOauthAppsArgs<ExtArgs extends runtime.Types.
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   bvnHash?: boolean
+  password?: boolean
   dateOfBirth?: boolean
   kycVerified?: boolean
   kycAnchorHash?: boolean
@@ -1048,6 +1095,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   bvnHash?: boolean
+  password?: boolean
   dateOfBirth?: boolean
   kycVerified?: boolean
   kycAnchorHash?: boolean
@@ -1058,6 +1106,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   bvnHash?: boolean
+  password?: boolean
   dateOfBirth?: boolean
   kycVerified?: boolean
   kycAnchorHash?: boolean
@@ -1068,6 +1117,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectScalar = {
   id?: boolean
   bvnHash?: boolean
+  password?: boolean
   dateOfBirth?: boolean
   kycVerified?: boolean
   kycAnchorHash?: boolean
@@ -1075,7 +1125,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "bvnHash" | "dateOfBirth" | "kycVerified" | "kycAnchorHash" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "bvnHash" | "password" | "dateOfBirth" | "kycVerified" | "kycAnchorHash" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   wallets?: boolean | Prisma.User$walletsArgs<ExtArgs>
   consents?: boolean | Prisma.User$consentsArgs<ExtArgs>
@@ -1101,6 +1151,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     bvnHash: string
+    password: string
     dateOfBirth: Date
     kycVerified: boolean
     kycAnchorHash: string | null
@@ -1537,6 +1588,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly bvnHash: Prisma.FieldRef<"User", 'String'>
+  readonly password: Prisma.FieldRef<"User", 'String'>
   readonly dateOfBirth: Prisma.FieldRef<"User", 'DateTime'>
   readonly kycVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly kycAnchorHash: Prisma.FieldRef<"User", 'String'>

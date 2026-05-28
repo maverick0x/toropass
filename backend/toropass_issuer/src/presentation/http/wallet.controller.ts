@@ -9,13 +9,14 @@ import {
 } from '@nestjs/common';
 import { ApiKeyGuard } from 'src/core/guards/api-key.guard';
 import { WalletService } from '../../core/application/wallet.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { ValidateWalletDto } from './dto/validate-wallet.dto';
 
 @Controller({ path: 'wallets', version: '1' })
 @UseGuards(ApiKeyGuard)
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(private readonly walletService: WalletService) { }
 
   @Get('tns')
   async checkTnsAvailability(@Query('username') username: string) {
@@ -42,9 +43,8 @@ export class WalletController {
 
   @Post('create')
   async createWallet(@Body() payload: CreateWalletDto) {
-    const normalizedUsername = payload.username.toLowerCase().trim();
     const result = await this.walletService.provisionNewWallet(
-      normalizedUsername,
+      payload.username,
       payload.password,
     );
 
@@ -52,7 +52,7 @@ export class WalletController {
       status: 'success',
       message: 'Toronet wallet and TNS name claimed successfully.',
       data: {
-        username: normalizedUsername,
+        username: payload.username,
         ...result,
       },
     };
@@ -60,9 +60,8 @@ export class WalletController {
 
   @Post('validate')
   async validateWallet(@Body() payload: ValidateWalletDto) {
-    const normalizedUsername = payload.username.toLowerCase().trim();
     const result = await this.walletService.validateExistingWallet(
-      normalizedUsername,
+      payload.username,
       payload.password,
     );
 
@@ -70,9 +69,23 @@ export class WalletController {
       status: 'success',
       message: 'Wallet validated successfully.',
       data: {
-        username: normalizedUsername,
+        username: payload.username,
         ...result,
       },
+    };
+  }
+
+  @Post('change-password')
+  async changePassword(@Body() payload: ChangePasswordDto) {
+    const result = await this.walletService.changeWalletPassword(
+      payload.username,
+      payload.oldPassword,
+      payload.newPassword,
+    );
+
+    return {
+      status: 'success',
+      message: result.message,
     };
   }
 }
