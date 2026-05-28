@@ -3,6 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 
@@ -12,13 +13,16 @@ export class OAuthService {
 
   async registerApp(name: string, redirectUri: string, developerId: string) {
     const clientId = 'toro_client_' + crypto.randomBytes(12).toString('hex');
-    const clientSecret = 'toro_sk_' + crypto.randomBytes(32).toString('hex');
+    const plainTextSecret = 'toro_sk_' + crypto.randomBytes(32).toString('hex');
+
+    const saltRounds = 10;
+    const hashedSecret = await bcrypt.hash(plainTextSecret, saltRounds);
 
     const newApp = await this.prisma.oAuthApp.create({
       data: {
         name,
         clientId,
-        clientSecret, // In production, consider hashing this like a password!
+        clientSecret: hashedSecret,
         redirectUri,
         developerId,
       },
@@ -28,7 +32,7 @@ export class OAuthService {
       id: newApp.id,
       name: newApp.name,
       clientId: newApp.clientId,
-      clientSecret: newApp.clientSecret,
+      clientSecret: plainTextSecret,
       redirectUri: newApp.redirectUri,
     };
   }
@@ -109,8 +113,12 @@ export class OAuthService {
       throw new UnauthorizedException('Invalid developer client ID.');
     }
 
-    if (clientSecret && app.clientSecret !== clientSecret) {
-      throw new UnauthorizedException('Invalid client secret.');
+    // If a clientSecret is provided (Server-to-Server flow), verify against the hash
+    if (clientSecret) {
+      const isSecretValid = await bcrypt.compare(clientSecret, app.clientSecret);
+      if (!isSecretValid) {
+        throw new UnauthorizedException('Invalid client secret.');
+      }
     }
 
     const oauthCode = await this.prisma.oAuthCode.findUnique({
@@ -157,7 +165,7 @@ export class OAuthService {
     return {
       status: 'success',
       data: {
-        access_token: accessToken, // <--- The SDK will save this!
+        accessToken, // <--- The SDK will save this!
         profile: {
           id: user.id,
           kycVerified: user.kycVerified,
