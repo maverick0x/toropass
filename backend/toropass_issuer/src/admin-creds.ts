@@ -17,4 +17,4 @@ async function generateAdminWallet() {
   // This output becomes your TORONET_ADMIN_ADDRESS
 }
 
-generateAdminWallet();
+// generateAdminWallet();

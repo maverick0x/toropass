@@ -1,0 +1,105 @@
+# Step 1: Create the application
+
+curl -X POST http://localhost:3000/api/v1/oauth/apps/register \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -d '{
+    "name": "DeFi Swap Platform",
+    "developerId": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "redirectUri": "https://example.com"
+  }'
+
+RESPONSE: {
+  "status":"success",
+  "message":"Developer credentials generated successfully. Save the client secret safely!",
+  "data":{
+    "id":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "name":"DeFi Swap Platform",
+    "clientId":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "clientSecret":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx","
+    redirectUri":"https://example.com"
+  }
+}
+
+
+# Step 2: Simulate the User Consent (Inside ToroPass App)
+
+curl -X POST http://localhost:3000/api/v1/oauth/authorize \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -d '{
+    "client_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "user_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "redirect_uri": "https://example.com",
+    "scopes": ["kyc_status", "wallet"]
+  }'
+
+RESPONSE: {
+  "status":"success",
+  "data":{
+    "code":"1111111111111111111111"
+  }
+}
+
+
+Step 3: Simulate the SDK fetching the Profile
+
+curl -X POST http://localhost:3000/api/v1/oauth/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "code":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "redirect_uri": "https://example.com"
+  }'
+
+RESPONSE: {
+  "status":"success",
+  "data":{
+    "id":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+    "kycVerified":false,
+    "kycAnchorHash":null,
+    "wallet":{
+      "address":"kkdkskdskdksssskdskskkss",
+      "tnsName":"tns-name",
+      "network":"testnet"
+    }
+  }
+} 
+
+
+OTHERS
+
+--- View Apps:
+
+curl -X GET "http://localhost:3000/api/v1/oauth/apps?developer_id=xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx" \
+     -H "x-api-key: your_super_secret_flutter_api_key_here"
+
+RESPONSE: {
+  "status": "success",
+  "data": [
+    {
+      "id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+      "name": "DeFi Swap Platform",
+      "clientId": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+      "redirectUri": "https://example.com",
+      "isActive": true,
+      "createdAt": "2026-05-28T08:48:19.757Z"
+    },
+    {
+      "id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+      "name": "DeFi Swap Platform",
+      "clientId": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
+      "redirectUri": "https://example.com",
+      "isActive": true,
+      "createdAt": "2026-05-27T19:13:00.271Z"
+    }
+  ]
+}
+
+
+--- Delete App
+
+curl -X DELETE http://localhost:3000/api/v1/oauth/apps/xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -d '{ "developer_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx" }'

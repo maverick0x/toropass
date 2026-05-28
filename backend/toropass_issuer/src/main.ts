@@ -1,4 +1,4 @@
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { getSDKConfig, initializeSDK } from 'torosdk';
@@ -9,11 +9,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', { exclude: ['api/*path'] });
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
@@ -27,7 +29,7 @@ async function bootstrap() {
 
   const config = getSDKConfig();
   await logger.logInfo({
-    message: `SDK initialized with network: ${config.getNetwork()} and base URL: ${config.getBaseURL()}`,
+    message: `SDK initialized with network: ${config.getNetwork().toUpperCase()} and base URL: ${config.getBaseURL()}`,
   });
 }
 bootstrap();

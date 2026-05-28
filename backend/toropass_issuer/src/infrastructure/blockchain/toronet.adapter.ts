@@ -1,6 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as ToronetSDK from 'torosdk';
+import { updatePassword, verifyWalletPassword } from 'torosdk';
 import {
   IBlockchainPort,
   IKycPayload,
@@ -60,7 +61,50 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
     }
   }
 
+  async checkTnsAvailability(username: string): Promise<boolean> {
+    return await ToronetSDK.isTNSAvailable({ username });
+  }
+
+  async provisionWallet(username: string, password: string): Promise<string> {
+    return await ToronetSDK.createWallet({ username, password });
+  }
+
+  async resolveAddress(username: string): Promise<string | null> {
+    const rawAddress = await ToronetSDK.getAddr({ name: username });
+
+    // You can move your extractStringField helper logic here to keep it contained
+    if (typeof rawAddress === 'string') return rawAddress;
+    if (rawAddress && typeof rawAddress === 'object' && 'address' in rawAddress) {
+      const candidate = (rawAddress as { address?: unknown }).address;
+      if (typeof candidate === 'string') return candidate.toLowerCase();
+    }
+    return null;
+  }
+
+  async validateCredentials(address: string, password: string): Promise<Boolean> {
+    return await verifyWalletPassword({ address, password });
+  }
+
+  async updateWalletPassword(address: string, oldPass: string, newPass: string): Promise<void> {
+    await updatePassword({
+      address,
+      oldPassword: oldPass,
+      newPassword: newPass,
+    });
+  }
+
   async checkHealth(): Promise<boolean> {
-    return true;
+    try {
+      await this.checkTnsAvailability("admin");
+
+      // If it responds without throwing, the network is alive
+      return true;
+    } catch (error) {
+      this.logger.logAlert({
+        message: 'Toronet Health Check Failed. Network might be unreachable.',
+        error,
+      });
+      return false;
+    }
   }
 }
