@@ -13,5 +13,10 @@ export interface IKycPayload {
 
 export interface IBlockchainPort {
   verifyAndAnchorKyc(payload: IKycPayload): Promise<boolean>;
+  checkTnsAvailability(username: string): Promise<boolean>;
+  provisionWallet(username: string, password: string): Promise<string>;
+  resolveAddress(username: string): Promise<string | null>;
+  validateCredentials(address: string, password: string): Promise<Boolean>;
+  updateWalletPassword(address: string, oldPass: string, newPass: string): Promise<void>;
   checkHealth(): Promise<boolean>;
 }

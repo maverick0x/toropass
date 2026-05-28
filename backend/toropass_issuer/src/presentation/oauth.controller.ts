@@ -10,8 +10,8 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { OAuthService } from '../../core/application/oauth.service';
-import { ApiKeyGuard } from '../../core/guards/api-key.guard';
+import { OAuthService } from '../core/application/oauth.service';
+import { ApiKeyGuard } from '../core/guards/api-key.guard';
 import { CreateAppDto } from './dto/create-app.dto';
 
 @Controller({ path: 'oauth', version: '1' })

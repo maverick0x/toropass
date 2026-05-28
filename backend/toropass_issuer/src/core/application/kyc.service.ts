@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
-import { VerifyKycDto } from '../../presentation/http/dto/verify-kyc.dto';
+import { VerifyKycDto } from '../../presentation/dto/verify-kyc.dto';
 import {
   BLOCKCHAIN_PORT,
   IBlockchainPort,
@@ -20,7 +20,7 @@ export class KycService {
     private prisma: PrismaService,
     @Inject(BLOCKCHAIN_PORT) private blockchain: IBlockchainPort,
     @Inject(LOGGER_PORT) private logger: ILogger,
-  ) {}
+  ) { }
 
   async processKycVerification(
     payload: VerifyKycDto,

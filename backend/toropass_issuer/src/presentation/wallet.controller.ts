@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiKeyGuard } from 'src/core/guards/api-key.guard';
-import { WalletService } from '../../core/application/wallet.service';
+import { WalletService } from '../core/application/wallet.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { ValidateWalletDto } from './dto/validate-wallet.dto';

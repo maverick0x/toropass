@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
-import { OAuthService } from '../../core/application/oauth.service';
-import { ApiKeyGuard } from '../../core/guards/api-key.guard';
+import { OAuthService } from '../core/application/oauth.service';
+import { ApiKeyGuard } from '../core/guards/api-key.guard';
 
 @Controller({ path: 'conscents/:userId', version: '1' })
 @UseGuards(ApiKeyGuard)
