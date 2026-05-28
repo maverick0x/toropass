@@ -11,4 +11,4 @@ import { PrismaService } from '../database/prisma.service';
   providers: [OAuthService, PrismaService],
   exports: [OAuthService],
 })
-export class OAuthModule { }
+export class OAuthModule {}

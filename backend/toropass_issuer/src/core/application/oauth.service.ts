@@ -1,10 +1,14 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 
 @Injectable()
 export class OAuthService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async registerDeveloperApp(name: string, redirectUri: string) {
     const clientId = 'toro_client_' + crypto.randomBytes(12).toString('hex');
@@ -28,7 +32,12 @@ export class OAuthService {
     };
   }
 
-  async generateAuthorizationCode(clientId: string, userId: string, redirectUri: string, scopes: string[]) {
+  async generateAuthorizationCode(
+    clientId: string,
+    userId: string,
+    redirectUri: string,
+    scopes: string[],
+  ) {
     const app = await this.prisma.oAuthApp.findUnique({ where: { clientId } });
     if (!app || !app.isActive) {
       throw new BadRequestException('OAuth client app not found or inactive.');
@@ -40,7 +49,10 @@ export class OAuthService {
 
     await this.prisma.oAuthConsent.upsert({
       where: { userId_appId: { userId, appId: app.id } },
-      update: { scopes, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+      update: {
+        scopes,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
       create: { userId, appId: app.id, scopes },
     });
 
@@ -55,7 +67,12 @@ export class OAuthService {
   }
 
   // Updated Exchange Method: Returns profile AND a long-lived Access Token
-  async exchangeCodeForUserProfile(clientId: string, code: string, redirectUri: string, clientSecret?: string) {
+  async exchangeCodeForUserProfile(
+    clientId: string,
+    code: string,
+    redirectUri: string,
+    clientSecret?: string,
+  ) {
     const app = await this.prisma.oAuthApp.findUnique({ where: { clientId } });
     if (!app || !app.isActive) {
       throw new UnauthorizedException('Invalid developer client ID.');
@@ -69,16 +86,22 @@ export class OAuthService {
       where: { code },
       include: {
         app: true,
-        user: { include: { wallets: { where: { isActive: true }, take: 1 } } }
+        user: { include: { wallets: { where: { isActive: true }, take: 1 } } },
       },
     });
 
-    if (!oauthCode || oauthCode.app.clientId !== clientId || oauthCode.redirectUri !== redirectUri) {
+    if (
+      !oauthCode ||
+      oauthCode.app.clientId !== clientId ||
+      oauthCode.redirectUri !== redirectUri
+    ) {
       throw new BadRequestException('Invalid authorization code details.');
     }
 
     if (new Date() > oauthCode.expiresAt) {
-      await this.prisma.oAuthCode.delete({ where: { id: oauthCode.id } }).catch(() => { });
+      await this.prisma.oAuthCode
+        .delete({ where: { id: oauthCode.id } })
+        .catch(() => {});
       throw new BadRequestException('Authorization code has expired.');
     }
 
@@ -95,7 +118,7 @@ export class OAuthService {
           expiresAt: tokenExpiresAt,
         },
       }),
-      this.prisma.oAuthCode.delete({ where: { id: oauthCode.id } }) // Burn the code
+      this.prisma.oAuthCode.delete({ where: { id: oauthCode.id } }), // Burn the code
     ]);
 
     const user = oauthCode.user;
@@ -109,12 +132,14 @@ export class OAuthService {
           id: user.id,
           kycVerified: user.kycVerified,
           kycAnchorHash: user.kycAnchorHash,
-          wallet: activeWallet ? {
-            address: activeWallet.address,
-            tnsName: activeWallet.tnsName,
-            network: activeWallet.network
-          } : null,
-        }
+          wallet: activeWallet
+            ? {
+                address: activeWallet.address,
+                tnsName: activeWallet.tnsName,
+                network: activeWallet.network,
+              }
+            : null,
+        },
       },
     };
   }
@@ -140,7 +165,9 @@ export class OAuthService {
 
     // Check if the user manually revoked consent for this specific app
     const consent = await this.prisma.oAuthConsent.findUnique({
-      where: { userId_appId: { userId: tokenRecord.userId, appId: tokenRecord.appId } }
+      where: {
+        userId_appId: { userId: tokenRecord.userId, appId: tokenRecord.appId },
+      },
     });
 
     if (!consent) {
@@ -158,11 +185,13 @@ export class OAuthService {
         id: user.id,
         kycVerified: user.kycVerified,
         kycAnchorHash: user.kycAnchorHash,
-        wallet: activeWallet ? {
-          address: activeWallet.address,
-          tnsName: activeWallet.tnsName,
-          network: activeWallet.network
-        } : null,
+        wallet: activeWallet
+          ? {
+              address: activeWallet.address,
+              tnsName: activeWallet.tnsName,
+              network: activeWallet.network,
+            }
+          : null,
       },
     };
   }
@@ -205,7 +234,9 @@ export class OAuthService {
     });
 
     if (result.count === 0) {
-      throw new BadRequestException('Consent record not found or already revoked.');
+      throw new BadRequestException(
+        'Consent record not found or already revoked.',
+      );
     }
 
     return { success: true, message: 'Access revoked successfully.' };

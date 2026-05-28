@@ -5,7 +5,7 @@ import { ApiKeyGuard } from '../../core/guards/api-key.guard';
 @Controller({ path: 'users/:userId/consents', version: '1' })
 @UseGuards(ApiKeyGuard)
 export class ConsentController {
-  constructor(private oauthService: OAuthService) { }
+  constructor(private oauthService: OAuthService) {}
 
   @Get()
   async getConsents(@Param('userId') userId: string) {

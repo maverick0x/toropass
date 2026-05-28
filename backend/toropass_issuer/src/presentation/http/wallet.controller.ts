@@ -10,11 +10,12 @@ import {
 import { ApiKeyGuard } from 'src/core/guards/api-key.guard';
 import { WalletService } from '../../core/application/wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
+import { ValidateWalletDto } from './dto/validate-wallet.dto';
 
 @Controller({ path: 'wallets', version: '1' })
 @UseGuards(ApiKeyGuard)
 export class WalletController {
-  constructor(private readonly walletService: WalletService) { }
+  constructor(private readonly walletService: WalletService) {}
 
   @Get('tns')
   async checkTnsAvailability(@Query('username') username: string) {
@@ -41,15 +42,37 @@ export class WalletController {
 
   @Post('create')
   async createWallet(@Body() payload: CreateWalletDto) {
+    const normalizedUsername = payload.username.toLowerCase().trim();
     const result = await this.walletService.provisionNewWallet(
-      payload.username,
+      normalizedUsername,
       payload.password,
     );
 
     return {
       status: 'success',
       message: 'Toronet wallet and TNS name claimed successfully.',
-      data: result,
+      data: {
+        username: normalizedUsername,
+        ...result,
+      },
+    };
+  }
+
+  @Post('validate')
+  async validateWallet(@Body() payload: ValidateWalletDto) {
+    const normalizedUsername = payload.username.toLowerCase().trim();
+    const result = await this.walletService.validateExistingWallet(
+      normalizedUsername,
+      payload.password,
+    );
+
+    return {
+      status: 'success',
+      message: 'Wallet validated successfully.',
+      data: {
+        username: normalizedUsername,
+        ...result,
+      },
     };
   }
 }

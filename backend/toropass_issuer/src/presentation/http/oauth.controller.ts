@@ -1,11 +1,19 @@
-import { Body, Controller, Get, Headers, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Post,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { OAuthService } from '../../core/application/oauth.service';
 import { ApiKeyGuard } from '../../core/guards/api-key.guard';
 import { CreateAppDto } from './dto/create-app.dto';
 
 @Controller({ path: 'oauth', version: '1' })
 export class OAuthController {
-  constructor(private oauthService: OAuthService) { }
+  constructor(private oauthService: OAuthService) {}
 
   @Post('apps/register')
   @UseGuards(ApiKeyGuard)
@@ -17,7 +25,8 @@ export class OAuthController {
 
     return {
       status: 'success',
-      message: 'Developer credentials generated successfully. Save the client secret safely!',
+      message:
+        'Developer credentials generated successfully. Save the client secret safely!',
       data: appDetails,
     };
   }
@@ -30,7 +39,12 @@ export class OAuthController {
     @Body('redirect_uri') redirectUri: string,
     @Body('scopes') scopes: string[],
   ) {
-    const code = await this.oauthService.generateAuthorizationCode(clientId, userId, redirectUri, scopes);
+    const code = await this.oauthService.generateAuthorizationCode(
+      clientId,
+      userId,
+      redirectUri,
+      scopes,
+    );
     return { status: 'success', data: { code } };
   }
 
