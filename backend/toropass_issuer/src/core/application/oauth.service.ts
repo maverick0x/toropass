@@ -8,9 +8,9 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 
 @Injectable()
 export class OAuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  async registerDeveloperApp(name: string, redirectUri: string) {
+  async registerApp(name: string, redirectUri: string, developerId: string) {
     const clientId = 'toro_client_' + crypto.randomBytes(12).toString('hex');
     const clientSecret = 'toro_sk_' + crypto.randomBytes(32).toString('hex');
 
@@ -20,6 +20,7 @@ export class OAuthService {
         clientId,
         clientSecret, // In production, consider hashing this like a password!
         redirectUri,
+        developerId,
       },
     });
 
@@ -30,6 +31,37 @@ export class OAuthService {
       clientSecret: newApp.clientSecret,
       redirectUri: newApp.redirectUri,
     };
+  }
+
+  async getApps(developerId: string) {
+    return await this.prisma.oAuthApp.findMany({
+      where: { developerId },
+      select: {
+        id: true,
+        name: true,
+        clientId: true,
+        redirectUri: true,
+        isActive: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteApp(developerId: string, appId: string) {
+    const app = await this.prisma.oAuthApp.findFirst({
+      where: { id: appId, developerId },
+    });
+
+    if (!app) {
+      throw new BadRequestException('Application not found or unauthorized access.');
+    }
+
+    await this.prisma.oAuthApp.delete({
+      where: { id: appId },
+    });
+
+    return { success: true, message: 'Application successfully deleted.' };
   }
 
   async generateAuthorizationCode(
@@ -66,7 +98,6 @@ export class OAuthService {
     return code;
   }
 
-  // Updated Exchange Method: Returns profile AND a long-lived Access Token
   async exchangeCodeForUserProfile(
     clientId: string,
     code: string,
@@ -101,11 +132,10 @@ export class OAuthService {
     if (new Date() > oauthCode.expiresAt) {
       await this.prisma.oAuthCode
         .delete({ where: { id: oauthCode.id } })
-        .catch(() => {});
+        .catch(() => { });
       throw new BadRequestException('Authorization code has expired.');
     }
 
-    // Generate a long-lived access token (e.g., valid for 30 days)
     const accessToken = 'toro_tk_' + crypto.randomBytes(32).toString('hex');
     const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
@@ -134,10 +164,10 @@ export class OAuthService {
           kycAnchorHash: user.kycAnchorHash,
           wallet: activeWallet
             ? {
-                address: activeWallet.address,
-                tnsName: activeWallet.tnsName,
-                network: activeWallet.network,
-              }
+              address: activeWallet.address,
+              tnsName: activeWallet.tnsName,
+              network: activeWallet.network,
+            }
             : null,
         },
       },
@@ -187,10 +217,10 @@ export class OAuthService {
         kycAnchorHash: user.kycAnchorHash,
         wallet: activeWallet
           ? {
-              address: activeWallet.address,
-              tnsName: activeWallet.tnsName,
-              network: activeWallet.network,
-            }
+            address: activeWallet.address,
+            tnsName: activeWallet.tnsName,
+            network: activeWallet.network,
+          }
           : null,
       },
     };

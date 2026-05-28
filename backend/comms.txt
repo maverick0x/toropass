@@ -5,6 +5,7 @@ curl -X POST http://localhost:3000/api/v1/oauth/apps/register \
   -H "x-api-key: your_super_secret_flutter_api_key_here" \
   -d '{
     "name": "DeFi Swap Platform",
+    "developerId": "22920436-01d3-4d06-a33c-582e0bd8b8dd",
     "redirectUri": "https://example.com"
   }'
 
@@ -64,3 +65,41 @@ RESPONSE: {
     }
   }
 } 
+
+
+OTHERS
+
+--- View Apps:
+
+curl -X GET "http://localhost:3000/api/v1/oauth/apps?developer_id=22920436-01d3-4d06-a33c-582e0bd8b8dd" \
+     -H "x-api-key: your_super_secret_flutter_api_key_here"
+
+RESPONSE: {
+  "status": "success",
+  "data": [
+    {
+      "id": "da5a4e83-8220-4d2b-8d54-50241c3184b9",
+      "name": "DeFi Swap Platform",
+      "clientId": "toro_client_0d148322d2132e3635401d29",
+      "redirectUri": "https://example.com",
+      "isActive": true,
+      "createdAt": "2026-05-28T08:48:19.757Z"
+    },
+    {
+      "id": "c56ac0f0-a53a-4f26-b9bd-7f63df4fd868",
+      "name": "DeFi Swap Platform",
+      "clientId": "toro_client_b4f6ea873e0beaa848a38d6e",
+      "redirectUri": "https://example.com",
+      "isActive": true,
+      "createdAt": "2026-05-27T19:13:00.271Z"
+    }
+  ]
+}
+
+
+--- Delete App
+
+curl -X DELETE http://localhost:3000/api/v1/oauth/apps/c56ac0f0-a53a-4f26-b9bd-7f63df4fd868 \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -d '{ "developer_id": "22920436-01d3-4d06-a33c-582e0bd8b8dd" }'

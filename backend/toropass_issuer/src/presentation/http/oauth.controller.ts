@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
+  Param,
   Post,
+  Query,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -13,22 +16,42 @@ import { CreateAppDto } from './dto/create-app.dto';
 
 @Controller({ path: 'oauth', version: '1' })
 export class OAuthController {
-  constructor(private oauthService: OAuthService) {}
+  constructor(private oauthService: OAuthService) { }
 
   @Post('apps/register')
   @UseGuards(ApiKeyGuard)
   async registerApp(@Body() payload: CreateAppDto) {
-    const appDetails = await this.oauthService.registerDeveloperApp(
+    const appDetails = await this.oauthService.registerApp(
       payload.name,
       payload.redirectUri,
+      payload.developerId,
     );
 
     return {
       status: 'success',
       message:
-        'Developer credentials generated successfully. Save the client secret safely!',
+        'Application credentials generated successfully. Save the client secret safely!',
       data: appDetails,
     };
+  }
+
+  @Get('apps')
+  @UseGuards(ApiKeyGuard)
+  async listApps(@Query('developer_id') developerId: string) {
+    const apps = await this.oauthService.getApps(developerId);
+    return {
+      status: 'success',
+      data: apps,
+    };
+  }
+
+  @Delete('apps/:appId')
+  @UseGuards(ApiKeyGuard)
+  async deleteApp(
+    @Param('appId') appId: string,
+    @Body('developer_id') developerId: string,
+  ) {
+    return await this.oauthService.deleteApp(developerId, appId);
   }
 
   @Post('authorize')
