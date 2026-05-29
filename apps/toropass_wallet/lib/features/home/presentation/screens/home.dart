@@ -31,44 +31,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisSize: .max,
-          crossAxisAlignment: .center,
-          children: [
-            TopBar(
-              title: 'ToroPass',
-              action: AppInkWell(
-                callback: () => context.pushNamed(AppRoutes.SETTINGS_SCREEN),
-                child: Container(
-                  padding: EdgeInsets.only(left: 50.width),
-                  child: AppSvg(
-                    path: Assets.icons.settings,
-                    width: 24.width,
-                    height: 24.height,
-                    color: appColors.primary,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            mainAxisSize: .max,
+            crossAxisAlignment: .center,
+            children: [
+              TopBar(
+                title: 'ToroPass',
+                action: AppInkWell(
+                  callback: () => context.pushNamed(AppRoutes.SETTINGS_SCREEN),
+                  child: Container(
+                    padding: EdgeInsets.only(left: 50.width),
+                    child: AppSvg(
+                      path: Assets.icons.settings,
+                      width: 24.width,
+                      height: 24.height,
+                      color: appColors.primary,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: .min,
-                  crossAxisAlignment: .center,
-                  children: [
-                    20.verticalSpacer,
-                    IdentityCard(),
-                    _secureAction(),
-                    _buildPrivacyCard(),
-                    _buildConnectionCard(),
-                    30.verticalSpacer,
-                  ],
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: .min,
+                    crossAxisAlignment: .center,
+                    children: [
+                      20.verticalSpacer,
+                      IdentityCard(),
+                      _secureAction(),
+                      _buildPrivacyCard(),
+                      _buildConnectionCard(),
+                      30.verticalSpacer,
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

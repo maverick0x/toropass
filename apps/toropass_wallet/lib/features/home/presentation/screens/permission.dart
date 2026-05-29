@@ -26,173 +26,178 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisSize: .max,
-          crossAxisAlignment: .start,
-          children: [
-            TopBar(title: "Permissions"),
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                alignment: Alignment.center,
-                margin: EdgeInsets.symmetric(
-                  horizontal: AppDimens.horizontalPadding,
-                ).add(EdgeInsets.only(top: 50.height, bottom: 20.height)),
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppDimens.horizontalPadding,
-                  vertical: 20.height,
-                ),
-                decoration: BoxDecoration(
-                  color: appColors.white,
-                  borderRadius: BorderRadius.circular(
-                    AppDimens.dialogBorderRadius,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            mainAxisSize: .max,
+            crossAxisAlignment: .start,
+            children: [
+              TopBar(title: "Permissions"),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.symmetric(
+                    horizontal: AppDimens.horizontalPadding,
+                  ).add(EdgeInsets.only(top: 50.height, bottom: 20.height)),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppDimens.horizontalPadding,
+                    vertical: 20.height,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: appColors.shadow.withAlpha(10),
-                      blurRadius: 30,
-                      spreadRadius: 10,
+                  decoration: BoxDecoration(
+                    color: appColors.white,
+                    borderRadius: BorderRadius.circular(
+                      AppDimens.dialogBorderRadius,
                     ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: .max,
-                  crossAxisAlignment: .center,
-                  children: [
-                    15.verticalSpacer,
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.width,
-                        vertical: 8.height,
+                    boxShadow: [
+                      BoxShadow(
+                        color: appColors.shadow.withAlpha(10),
+                        blurRadius: 30,
+                        spreadRadius: 10,
                       ),
-                      decoration: BoxDecoration(
-                        color: appColors.surfaceContainer,
-                        borderRadius: BorderRadius.circular(
-                          AppDimens.borderRadius,
-                        ),
-                      ),
-                      child: Container(
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: .max,
+                    crossAxisAlignment: .center,
+                    children: [
+                      15.verticalSpacer,
+                      Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 6.width,
-                          vertical: 6.height,
+                          horizontal: 8.width,
+                          vertical: 8.height,
                         ),
+                        decoration: BoxDecoration(
+                          color: appColors.surfaceContainer,
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.borderRadius,
+                          ),
+                        ),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.width,
+                            vertical: 6.height,
+                          ),
+                          decoration: BoxDecoration(
+                            color: appColors.surface,
+                            borderRadius: BorderRadius.circular(
+                              AppDimens.borderRadius,
+                            ),
+                          ),
+                          child: AppSvg(
+                            path: Assets.icons.marketplace,
+                            width: 28.width,
+                            height: 28.height,
+                            color: appColors.primary,
+                          ),
+                        ),
+                      ),
+                      20.verticalSpacer,
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: appStyles.cardTitle.copyWith(height: 1.5),
+                          children: [
+                            TextSpan(
+                              text: "Marketplace",
+                              style: TextStyle(
+                                fontFamily: FontFamily.interBold,
+                              ),
+                            ),
+                            TextSpan(text: " wants to verify\nyour identity"),
+                          ],
+                        ),
+                      ),
+                      10.verticalSpacer,
+                      Text(
+                        "Please review the information they are requesting access to.",
+                        textAlign: TextAlign.center,
+                        style: appStyles.body.copyWith(
+                          color: appColors.text.withAlpha(150),
+                        ),
+                      ),
+                      15.verticalSpacer,
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 15.width,
+                        ).add(EdgeInsets.only(bottom: 15.height)),
                         decoration: BoxDecoration(
                           color: appColors.surface,
                           borderRadius: BorderRadius.circular(
                             AppDimens.borderRadius,
                           ),
                         ),
-                        child: AppSvg(
-                          path: Assets.icons.marketplace,
-                          width: 28.width,
-                          height: 28.height,
-                          color: appColors.primary,
+                        child: Column(
+                          mainAxisSize: .min,
+                          crossAxisAlignment: .start,
+                          children: [
+                            _buildAccessItem(
+                              success: true,
+                              title: "Verification Status",
+                              description:
+                                  "They will know you are a verified user.",
+                            ),
+                            _buildAccessItem(
+                              success: true,
+                              title: "TNS Name",
+                              description: "Your public ToroID handle.",
+                            ),
+                            20.verticalSpacer,
+                            Divider(
+                              color: appColors.primary.withAlpha(60),
+                              thickness: 1.height,
+                            ),
+                            _buildAccessItem(
+                              success: false,
+                              title: "Real Name",
+                              description: "Private",
+                            ),
+                            _buildAccessItem(
+                              success: false,
+                              title: "BVN",
+                              description: "Private",
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    20.verticalSpacer,
-                    RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style: appStyles.cardTitle.copyWith(height: 1.5),
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          TextSpan(
-                            text: "Marketplace",
-                            style: TextStyle(fontFamily: FontFamily.interBold),
+                          Expanded(
+                            child: AppButton(
+                              text: "Deny",
+                              hollow: true,
+                              callback: () => context.pop(),
+                            ),
                           ),
-                          TextSpan(text: " wants to verify\nyour identity"),
-                        ],
-                      ),
-                    ),
-                    10.verticalSpacer,
-                    Text(
-                      "Please review the information they are requesting access to.",
-                      textAlign: TextAlign.center,
-                      style: appStyles.body.copyWith(
-                        color: appColors.text.withAlpha(150),
-                      ),
-                    ),
-                    15.verticalSpacer,
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 15.width,
-                      ).add(EdgeInsets.only(bottom: 15.height)),
-                      decoration: BoxDecoration(
-                        color: appColors.surface,
-                        borderRadius: BorderRadius.circular(
-                          AppDimens.borderRadius,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: .min,
-                        crossAxisAlignment: .start,
-                        children: [
-                          _buildAccessItem(
-                            success: true,
-                            title: "Verification Status",
-                            description:
-                                "They will know you are a verified user.",
-                          ),
-                          _buildAccessItem(
-                            success: true,
-                            title: "TNS Name",
-                            description: "Your public ToroID handle.",
-                          ),
-                          20.verticalSpacer,
-                          Divider(
-                            color: appColors.primary.withAlpha(60),
-                            thickness: 1.height,
-                          ),
-                          _buildAccessItem(
-                            success: false,
-                            title: "Real Name",
-                            description: "Private",
-                          ),
-                          _buildAccessItem(
-                            success: false,
-                            title: "BVN",
-                            description: "Private",
+                          15.horizontalSpacer,
+                          Expanded(
+                            child: AppButton(
+                              text: "Allow",
+                              callback: () => ref
+                                  .read(loadingProvider.notifier)
+                                  .wrap(() async {
+                                    await Future.delayed(
+                                      const Duration(seconds: 3),
+                                    );
+                                    if (!mounted || !context.mounted) return;
+                                    context.pop();
+                                  }),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: AppButton(
-                            text: "Deny",
-                            hollow: true,
-                            callback: () => context.pop(),
-                          ),
-                        ),
-                        15.horizontalSpacer,
-                        Expanded(
-                          child: AppButton(
-                            text: "Allow",
-                            callback: () => ref
-                                .read(loadingProvider.notifier)
-                                .wrap(() async {
-                                  await Future.delayed(
-                                    const Duration(seconds: 3),
-                                  );
-                                  if (!mounted || !context.mounted) return;
-                                  context.pop();
-                                }),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
