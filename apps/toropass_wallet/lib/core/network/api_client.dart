@@ -196,9 +196,8 @@ class ApiClient {
       }
 
       if (!silent) {
-        // Log the request details, including body and query parameters
         AppLogger.log(
-          "Making ${type.name} request to $endpoint with \nBody: ${body is FormData ? body.fields : body}\nQuery: $queryParameters",
+          "${type.name} Request: $endpoint \nBody: ${body is FormData ? body.fields : body}\nQuery: $queryParameters",
           name: "API-CLIENT",
         );
       }

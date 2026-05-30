@@ -1,11 +1,7 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../providers/device_id_provider.dart';
+import '../../providers/hmac_provider.dart';
 import '../endpoints.dart';
 import '../token/token_model.dart';
 import '../token/token_notifier.dart';
@@ -21,17 +17,11 @@ class QueuedAuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    final deviceId = _ref.read(deviceIdProvider);
+    final hmac = _ref.read(hmacProvider)();
 
-    final appSecret = dotenv.env['APP_SECRET'] ?? 'default_secret';
-    final message = '$timestamp:$deviceId';
-    final hmac = Hmac(sha256, utf8.encode(appSecret));
-    final signature = hmac.convert(utf8.encode(message)).toString();
-
-    options.headers['X-Timestamp'] = timestamp.toString();
-    options.headers['X-Device-ID'] = deviceId;
-    options.headers['X-Signature'] = signature;
+    options.headers['X-Device-ID'] = hmac.deviceId;
+    options.headers['X-Timestamp'] = hmac.timestamp;
+    options.headers['X-Signature'] = hmac.signature;
 
     if (options.extra['useToken'] == true) {
       final token = _ref.read(tokenProvider).value?.token;
@@ -78,17 +68,11 @@ class QueuedAuthInterceptor extends QueuedInterceptor {
         final tokenDio = Dio(BaseOptions(baseUrl: ApiEndpoints.BASE_URL));
 
         // Re-generate HMAC for the refresh request
-        final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-        final deviceId = _ref.read(deviceIdProvider);
-        final appSecret = dotenv.env['APP_SECRET'] ?? 'default_secret';
-        final message = '$timestamp:$deviceId';
-        final hmac = Hmac(sha256, utf8.encode(appSecret));
-        final signature = hmac.convert(utf8.encode(message)).toString();
-
+        final hmac = _ref.read(hmacProvider)();
         tokenDio.options.headers.addAll({
-          'X-Timestamp': timestamp.toString(),
-          'X-Device-ID': deviceId,
-          'X-Signature': signature,
+          'X-Timestamp': hmac.timestamp,
+          'X-Device-ID': hmac.deviceId,
+          'X-Signature': hmac.signature,
         });
 
         // Call your refresh token endpoint
