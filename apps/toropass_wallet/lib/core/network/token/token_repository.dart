@@ -16,7 +16,7 @@ class TokenRepository {
 
   Future<TokenModel> getToken(String refreshToken) async {
     final result = await client.post(
-      endpoint: ApiEndpoints.REFRESH_TOKEN,
+      endpoint: ApiEndpoints.WALLET_REFRESH,
       body: {"refreshToken": refreshToken},
       useToken: false,
     );

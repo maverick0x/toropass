@@ -13,7 +13,7 @@ final fetchTokenUseCaseProvider = Provider((ref) {
 
 class FetchTokenUseCase extends UseCase<DataState<TokenModel>, String> {
   final TokenRepository repository;
-  //
+
   FetchTokenUseCase(this.repository);
 
   @override
@@ -23,12 +23,7 @@ class FetchTokenUseCase extends UseCase<DataState<TokenModel>, String> {
 
       return DataSuccess(data: result);
     } on ApiServiceException catch (e, stackTrace) {
-      return DataFailed(
-        code: e.code,
-        path: e.path,
-        error: e.message,
-        trace: stackTrace,
-      );
+      return DataFailed(code: e.code, error: e.message, trace: stackTrace);
     } catch (e, stackTrace) {
       return DataFailed(error: e.toString(), trace: stackTrace);
     }

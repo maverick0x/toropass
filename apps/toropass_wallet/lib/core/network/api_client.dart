@@ -209,30 +209,6 @@ class ApiClient {
         queryParameters: queryParameters,
         options: options,
       );
-      final responseData = response.data;
-
-      // Handle Set-Cookie for refresh token
-      final List<String>? cookies = response.headers['set-cookie'];
-      if (cookies != null &&
-          [
-            ApiEndpoints.LOGIN,
-            ApiEndpoints.REFRESH_TOKEN,
-          ].any((e) => endpoint.contains(e))) {
-        try {
-          final cookieWithToken = cookies.firstWhere(
-            (cookie) => cookie.contains('refresh_token='),
-          );
-          final tokenString = cookieWithToken
-              .split(';')
-              .firstWhere((e) => e.trim().startsWith('refresh_token='));
-          responseData['data']['refreshToken'] = tokenString.split('=')[1];
-        } catch (e) {
-          AppLogger.log(
-            "No refresh_token found in Set-Cookie header.",
-            name: "API-CLIENT",
-          );
-        }
-      }
 
       return SuccessResponse.fromJson(response.data);
     } on DioException catch (error) {

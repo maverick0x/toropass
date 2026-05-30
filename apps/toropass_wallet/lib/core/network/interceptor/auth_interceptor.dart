@@ -94,7 +94,7 @@ class QueuedAuthInterceptor extends QueuedInterceptor {
 
         // Call your refresh token endpoint
         final refreshResponse = await tokenDio.post(
-          ApiEndpoints.REFRESH_TOKEN,
+          ApiEndpoints.WALLET_REFRESH,
           data: {'refreshToken': refreshToken},
         );
 

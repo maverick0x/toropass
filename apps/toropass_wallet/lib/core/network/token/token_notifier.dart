@@ -2,7 +2,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/config/resource/data_state.dart';
 import '../../services/storage_service.dart';
-import '../../utilities/logger.dart';
 import 'token_model.dart';
 import 'token_state_model.dart';
 import 'token_usecase.dart';
@@ -22,37 +21,14 @@ class TokenNotifier extends _$TokenNotifier {
       final result = await useCase(refreshToken);
 
       if (result is DataSuccess && result.data != null) {
-        await storage.saveRefreshToken(result.data!.refreshToken ?? "");
-
-        return TokenStateModel(
-          token: result.data!.accessToken,
-          refreshToken: result.data!.refreshToken,
-        );
+        updateTokens(result.data!);
       } else {
-        AppLogger.log(
-          "Failed to refresh token: ${result is DataFailed ? result.error : 'Unknown error'}",
-          name: "TokenNotifier",
-        );
-
         await storage.clearRefreshToken();
         return const TokenStateModel();
       }
     }
 
     return TokenStateModel(refreshToken: refreshToken);
-  }
-
-  Future fetchNewToken() async {
-    final currentState = state.value;
-    if (currentState == null || currentState.refreshToken == null) return;
-
-    final useCase = ref.read(fetchTokenUseCaseProvider);
-    final result = await useCase(currentState.refreshToken!);
-    if (result is DataSuccess && result.data != null) {
-      await updateTokens(result.data!);
-    } else {
-      await clearTokens();
-    }
   }
 
   Future updateTokens(TokenModel model) async {
