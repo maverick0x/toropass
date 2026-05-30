@@ -1,7 +1,6 @@
 abstract class DataState<T> {
   final T? data;
   final int? code;
-  final String? path;
   final String? error;
   final int? progress;
   final String? message;
@@ -10,7 +9,6 @@ abstract class DataState<T> {
     this.data,
     this.error,
     this.code,
-    this.path,
     this.progress,
     this.message,
   });
@@ -59,13 +57,7 @@ class DataProgress<T> extends DataState<T> {
 
 class DataFailed<T> extends DataState<T> {
   final StackTrace? trace;
-  const DataFailed({
-    super.code,
-    super.path,
-    super.error,
-    super.message,
-    this.trace,
-  });
+  const DataFailed({super.code, super.error, super.message, this.trace});
 
   @override
   String toString() {

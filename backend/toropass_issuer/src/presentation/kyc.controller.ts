@@ -1,12 +1,14 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiGuard } from 'src/core/guards/api.guard';
 import { AuthGuard } from 'src/core/guards/auth.guard';
+import { HmacAuthGuard } from 'src/core/guards/hmac.guard';
 import { KycService } from '../core/application/kyc.service';
 import { VerifyKycDto } from './dto/verify-kyc.dto';
 
 @Controller({ path: 'kyc', version: '1' })
 @UseGuards(ApiGuard)
 @UseGuards(AuthGuard)
+@UseGuards(HmacAuthGuard)
 export class KycController {
   constructor(private readonly kycService: KycService) { }
 
