@@ -10,7 +10,6 @@ import '../endpoints.dart';
 import '../token/token_model.dart';
 import '../token/token_notifier.dart';
 
-// For catching 401 errors and refreshing tokens: QueuedAuthInterceptor; ensures that multiple requests that fail with 401 at the same time will wait for the token refresh to complete before retrying.
 class QueuedAuthInterceptor extends QueuedInterceptor {
   final Ref _ref;
   final Dio _dio;
