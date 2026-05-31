@@ -18,6 +18,7 @@ class AuthNotifier extends _$AuthNotifier {
 
   void changeUsername(String? username) {
     state = state.copyWith(username: username);
+    checkTNSName();
   }
 
   void changePassword(String? password) {

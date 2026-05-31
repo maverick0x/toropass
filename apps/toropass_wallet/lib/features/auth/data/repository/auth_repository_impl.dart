@@ -21,6 +21,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final response = await _client.get(
       endpoint: ApiEndpoints.CHECK_TNS,
       useToken: false,
+      silent: false,
     );
 
     return TnsModel.fromJson(response.data);
