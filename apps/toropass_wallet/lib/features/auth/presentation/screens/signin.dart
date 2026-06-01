@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/resource/data_state.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
@@ -17,6 +18,7 @@ import '../../../../shared/app_svg.dart';
 import '../../../../shared/app_textfield.dart';
 import '../../../../shared/field_status.dart';
 import '../../../../shared/field_widget.dart';
+import '../../domain/entities/tns_entity.dart';
 import '../provider/auth_notifier.dart';
 import 'dialog/password.dart';
 
@@ -48,6 +50,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
     final appColors = AppColors.of(context);
 
     final username = ref.watch(authProvider.select((s) => s.username));
+    final tnsState = ref.watch(authProvider.select((s) => s.tnsState));
+    final tns = tnsState is DataSuccess ? tnsState.data : TnsEntity();
+
+    final notifier = ref.read(authProvider.notifier);
 
     return PopScope(
       canPop: false,
@@ -145,23 +151,36 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                         ),
                         hint: "",
                       ),
-                      10.verticalSpacer,
                       AnimatedSize(
                         duration: Animations.duration,
                         child: Visibility(
                           visible: username.length > 4,
-                          child: FieldStatus(
-                            success: true,
-                            message: "Available!",
+                          child: Column(
+                            mainAxisSize: .min,
+                            crossAxisAlignment: .start,
+                            children: [
+                              10.verticalSpacer,
+                              FieldStatus(
+                                loading: tnsState is DataLoading,
+                                success: tnsState is DataSuccess,
+                                message: tns?.isAvailable == null
+                                    ? ""
+                                    : tns?.isAvailable == true
+                                    ? "Available!"
+                                    : "Verify ownership or try another username.",
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      40.verticalSpacer,
+                      30.verticalSpacer,
                       AppButton(
-                        text: "Claim Identity",
-                        color: username.length > 4
-                            ? appColors.primary
-                            : appColors.black.withAlpha(100),
+                        text: notifier.isNewUser || tns?.isAvailable == null
+                            ? "Claim Identity"
+                            : "Verify Ownership",
+                        color: username.length < 5 || tnsState is DataLoading
+                            ? appColors.black.withAlpha(100)
+                            : appColors.primary,
                         callback: () async {
                           if (username.length <= 4) return;
                           await displayDialog(

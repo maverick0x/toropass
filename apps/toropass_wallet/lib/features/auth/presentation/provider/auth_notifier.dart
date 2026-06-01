@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/config/resource/data_state.dart';
@@ -13,13 +15,27 @@ part 'auth_notifier.g.dart';
 
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
+  Timer? _debounceTimer;
+
   @override
-  AuthStateModel build() => AuthStateModel();
+  AuthStateModel build() {
+    ref.onDispose(() {
+      _debounceTimer?.cancel();
+    });
+    return AuthStateModel();
+  }
 
   void changeUsername(String? username) {
     state = state.copyWith(username: username);
-    checkTNSName();
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      checkTNSName();
+    });
   }
+
+  bool get isNewUser =>
+      state.tnsState is DataSuccess &&
+      (state.tnsState as DataSuccess).data?.isAvailable == true;
 
   void changePassword(String? password) {
     state = state.copyWith(password: password);

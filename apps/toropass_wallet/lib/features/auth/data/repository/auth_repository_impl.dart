@@ -19,7 +19,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<TnsEntity> checkTNSName(String username) async {
     final response = await _client.get(
-      endpoint: ApiEndpoints.CHECK_TNS,
+      endpoint: "${ApiEndpoints.CHECK_TNS}?username=$username",
       useToken: false,
       silent: false,
     );

@@ -2,8 +2,8 @@ class AuthValidator {
   static String? validateUsername(String username) {
     if (username.trim().isEmpty) {
       return 'Username cannot be empty.';
-    } else if (username.length < 3) {
-      return 'Username must be at least 3 characters.';
+    } else if (username.length <= 4) {
+      return 'Username must be at least 5 characters.';
     }
     return null;
   }
