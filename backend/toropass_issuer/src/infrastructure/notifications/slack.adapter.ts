@@ -25,9 +25,8 @@ export class SlackLoggerAdapter implements ILogger {
     this.nestLogger.log(message);
 
     if (slack) {
-      await this.sendToSlack(
-        `🟢 *[INFO]*\n\`${this.environment}\`\n*Message:* ${message}`,
-      );
+      const log = `🟢 *[INFO]*\n\`${this.environment}\`\n*Message:* ${message}`;
+      void this.sendToSlack(log).catch(() => { });
     }
   }
 
@@ -48,9 +47,8 @@ export class SlackLoggerAdapter implements ILogger {
     this.nestLogger.error(message, errorDetail);
 
     if (slack) {
-      await this.sendToSlack(
-        `🚨 *[ALERT]*\n\`${this.environment}\`\n*Message:* ${message}\n*Error:* \`${errorDetail}\``,
-      );
+      const log = `🚨 *[ALERT]*\n\`${this.environment}\`\n*Message:* ${message}\n*Error:* \`${errorDetail}\``;
+      void this.sendToSlack(log).catch(() => { });
     }
   }
 
@@ -66,8 +64,8 @@ export class SlackLoggerAdapter implements ILogger {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: payloadText }),
       });
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.stack : String(e);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.stack : String(error);
       this.nestLogger.error('Failed to send payload to Slack', errorMessage);
     }
   }

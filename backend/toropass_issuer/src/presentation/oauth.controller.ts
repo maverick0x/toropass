@@ -7,7 +7,7 @@ import {
   Param,
   Post,
   UnauthorizedException,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/core/decorators/user.decorator';
 import { AuthGuard } from 'src/core/guards/auth.guard';
@@ -19,7 +19,7 @@ import { CreateAppDto } from './dto/create-app.dto';
 
 @Controller({ path: 'oauth', version: '1' })
 export class OAuthController {
-  constructor(private oauthService: OAuthService) { }
+  constructor(private oauthService: OAuthService) {}
 
   @Post('apps/register')
   @UseGuards(ApiGuard)
@@ -56,10 +56,7 @@ export class OAuthController {
   @UseGuards(ApiGuard)
   @UseGuards(AuthGuard)
   @UseGuards(HmacAuthGuard)
-  async deleteApp(
-    @CurrentUser() user: User,
-    @Param('appId') appId: string,
-  ) {
+  async deleteApp(@CurrentUser() user: User, @Param('appId') appId: string) {
     return await this.oauthService.deleteApp(user.id, appId);
   }
 

@@ -3,12 +3,15 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
-import { BLOCKCHAIN_PORT, IBlockchainPort } from '../ports/blockchain.interface';
+import {
+  BLOCKCHAIN_PORT,
+  IBlockchainPort,
+} from '../ports/blockchain.interface';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
 
 type WalletAuthTokens = {
@@ -29,11 +32,12 @@ export class WalletService {
     try {
       return await this.blockchain.checkTnsAvailability(username);
     } catch (error) {
-      await this.logger.logAlert({
-        message: `Toronet SDK failed during TNS check for username: ${username}`,
-        error,
-        slack: true,
-      });
+      this.logger
+        .logAlert({
+          message: `Toronet SDK failed during TNS check for username: ${username}`,
+          error,
+          slack: true,
+        });
       throw new InternalServerErrorException(
         'Failed to communicate with the Toronet network.',
       );
@@ -53,7 +57,10 @@ export class WalletService {
     }
 
     try {
-      const walletAddress = await this.blockchain.provisionWallet(username, password);
+      const walletAddress = await this.blockchain.provisionWallet(
+        username,
+        password,
+      );
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.prisma.user.create({
         data: {
@@ -73,10 +80,11 @@ export class WalletService {
 
       const tokens = await this.issueTokens(user.id);
 
-      await this.logger.logInfo({
-        message: `New wallet provisioned:\n${username}\n(${walletAddress})`,
-        slack: true,
-      });
+      this.logger
+        .logInfo({
+          message: `New wallet provisioned:\n${username}\n(${walletAddress})`,
+          slack: true,
+        });
 
       return {
         address: walletAddress,
@@ -84,11 +92,12 @@ export class WalletService {
         tokens,
       };
     } catch (error) {
-      await this.logger.logAlert({
-        message: `Failed to provision wallet for user: ${username}`,
-        error,
-        slack: true,
-      });
+      this.logger
+        .logAlert({
+          message: `Failed to provision wallet for user: ${username}`,
+          error,
+          slack: true,
+        });
       throw new InternalServerErrorException(
         'An error occurred while generating the Web3 wallet.',
       );
@@ -104,17 +113,22 @@ export class WalletService {
     try {
       const resolvedAddress = await this.blockchain.resolveAddress(username);
       if (!resolvedAddress) {
-        throw new BadRequestException(`No wallet address was found for "${username}".`);
+        throw new BadRequestException(
+          `No wallet address was found for "${username}".`,
+        );
       }
       address = resolvedAddress;
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      await this.logger.logAlert({
-        message: `Failed to resolve TNS address for username: ${username}`,
-        error,
-        slack: true,
-      });
-      throw new InternalServerErrorException('Failed to communicate with the Toronet network.');
+      this.logger
+        .logAlert({
+          message: `Failed to resolve TNS address for username: ${username}`,
+          error,
+          slack: true,
+        });
+      throw new InternalServerErrorException(
+        'Failed to communicate with the Toronet network.',
+      );
     }
 
     const existingWallet = await this.prisma.wallet.findUnique({
@@ -124,7 +138,10 @@ export class WalletService {
     let userId = existingWallet?.userId;
 
     if (existingWallet) {
-      const isMatch = await bcrypt.compare(password, existingWallet.user.password);
+      const isMatch = await bcrypt.compare(
+        password,
+        existingWallet.user.password,
+      );
       if (!isMatch) {
         throw new UnauthorizedException('Invalid wallet password.');
       }
@@ -140,7 +157,9 @@ export class WalletService {
       try {
         isValid = await this.blockchain.validateCredentials(address, password);
       } catch (error) {
-        throw new InternalServerErrorException('Toronet SDK verification failed.');
+        throw new InternalServerErrorException(
+          'Toronet SDK verification failed.',
+        );
       }
 
       if (!isValid) throw new UnauthorizedException('Invalid wallet password.');
@@ -160,21 +179,30 @@ export class WalletService {
       userId = user.id;
     }
 
-    const tokens = await this.issueTokens(userId ?? "");
+    const tokens = await this.issueTokens(userId ?? '');
     return { address, tnsName: username, tokens };
   }
 
-  async changeWalletPassword(userId: string, oldPassword: string, newPassword: string) {
+  async changeWalletPassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
     const existingWallet = await this.prisma.wallet.findFirst({
       where: { userId, isActive: true },
       include: { user: true },
     });
 
     if (!existingWallet || !existingWallet.user.password) {
-      throw new BadRequestException('Wallet not fully registered in the system.');
+      throw new BadRequestException(
+        'Wallet not fully registered in the system.',
+      );
     }
 
-    const isMatch = await bcrypt.compare(oldPassword, existingWallet.user.password);
+    const isMatch = await bcrypt.compare(
+      oldPassword,
+      existingWallet.user.password,
+    );
     if (!isMatch) {
       throw new UnauthorizedException('Invalid current password.');
     }
@@ -186,12 +214,15 @@ export class WalletService {
         newPassword,
       );
     } catch (error) {
-      await this.logger.logAlert({
-        message: `Toronet SDK failed to update password for: ${existingWallet.tnsName}`,
-        error,
-        slack: true,
-      });
-      throw new InternalServerErrorException('Failed to update password on the Toronet network.');
+      this.logger
+        .logAlert({
+          message: `Toronet SDK failed to update password for: ${existingWallet.tnsName}`,
+          error,
+          slack: true,
+        });
+      throw new InternalServerErrorException(
+        'Failed to update password on the Toronet network.',
+      );
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
@@ -210,22 +241,29 @@ export class WalletService {
         where: { refreshToken },
       });
 
-      if (!session) throw new UnauthorizedException('Session has been revoked.');
+      if (!session)
+        throw new UnauthorizedException('Session has been revoked.');
 
       const newTokens = await this.issueTokens(session.userId);
       await this.prisma.userSession.delete({ where: { id: session.id } });
 
       return newTokens;
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired refresh token. Please log in again.');
+      throw new UnauthorizedException(
+        'Invalid or expired refresh token. Please log in again.',
+      );
     }
   }
 
   private async issueTokens(userId: string): Promise<WalletAuthTokens> {
     const payload = { sub: userId };
 
-    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
-    const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '30d' });
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '30d',
+    });
 
     await this.prisma.userSession.create({
       data: {

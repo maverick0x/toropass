@@ -1,7 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as ToronetSDK from 'torosdk';
-import { updatePassword, verifyWalletPassword } from 'torosdk';
+import { createWallet, getAddr, getSDKConfig, initializeSDK, isTNSAvailable, performKYCForCustomer, updatePassword, verifyWalletPassword } from 'torosdk';
 import {
   IBlockchainPort,
   IKycPayload,
@@ -25,26 +24,21 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
 
   async onModuleInit() {
     if (!this.adminAddress || !this.adminPwd) {
-      await this.logger.logAlert({
-        message: 'Toronet Admin credentials are missing from .env!',
-      });
+      this.logger.logAlert({ message: 'Toronet Admin credentials are missing from .env!', slack: true });
     } else {
-      await this.logger.logInfo({
-        message: 'Toronet SDK Adapter initialized successfully.',
-        slack: false,
-      });
+      this.logger.logInfo({ message: 'Toronet SDK Adapter initialized successfully.' });
     }
+
+    initializeSDK({ network: 'mainnet' });
+    const config = getSDKConfig();
+    this.logger.logInfo({
+      message: `SDK initialized with network: ${config.getNetwork().toUpperCase()} and base URL: ${config.getBaseURL()}`,
+    });
   }
 
   async verifyAndAnchorKyc(payload: IKycPayload): Promise<boolean> {
     try {
-      this.logger.logInfo({
-        message: `Initiating Toronet SDK KYC verification for wallet: ${payload.address}`,
-        slack: false,
-      });
-
-      // Execute the built-in KYC method from the SDK
-      const isSuccessful = await ToronetSDK.performKYCForCustomer({
+      const isSuccessful = await performKYCForCustomer({
         ...payload,
         middleName: payload.middleName || '',
         admin: this.adminAddress,
@@ -53,57 +47,59 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
 
       return isSuccessful;
     } catch (error) {
-      this.logger.logAlert({
-        message: `Toronet SDK KYC failed for wallet: ${payload.address}`,
-        error,
-      });
+      const message = `Toronet SDK KYC verification failed for wallet: ${payload.address}`;
+      this.logger.logAlert({ message, error, slack: true, });
       return false;
     }
   }
 
   async checkTnsAvailability(username: string): Promise<boolean> {
-    return await ToronetSDK.isTNSAvailable({ username });
+    return await isTNSAvailable({ username });
   }
 
   async provisionWallet(username: string, password: string): Promise<string> {
-    return await ToronetSDK.createWallet({ username, password });
+    return await createWallet({ username, password });
   }
 
   async resolveAddress(username: string): Promise<string | null> {
-    const rawAddress = await ToronetSDK.getAddr({ name: username });
+    const rawAddress = await getAddr({ name: username });
 
-    // You can move your extractStringField helper logic here to keep it contained
     if (typeof rawAddress === 'string') return rawAddress;
-    if (rawAddress && typeof rawAddress === 'object' && 'address' in rawAddress) {
+    if (
+      rawAddress &&
+      typeof rawAddress === 'object' &&
+      'address' in rawAddress
+    ) {
       const candidate = (rawAddress as { address?: unknown }).address;
       if (typeof candidate === 'string') return candidate.toLowerCase();
     }
     return null;
   }
 
-  async validateCredentials(address: string, password: string): Promise<Boolean> {
+  async validateCredentials(
+    address: string,
+    password: string,
+  ): Promise<Boolean> {
     return await verifyWalletPassword({ address, password });
   }
 
-  async updateWalletPassword(address: string, oldPass: string, newPass: string): Promise<void> {
-    await updatePassword({
-      address,
-      oldPassword: oldPass,
-      newPassword: newPass,
-    });
+  async updateWalletPassword(
+    address: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    await updatePassword({ address, oldPassword, newPassword });
   }
 
   async checkHealth(): Promise<boolean> {
     try {
-      await this.checkTnsAvailability("admin");
+      await this.checkTnsAvailability('admin');
 
-      // If it responds without throwing, the network is alive
       return true;
     } catch (error) {
-      this.logger.logAlert({
-        message: 'Toronet Health Check Failed. Network might be unreachable.',
-        error,
-      });
+      const message = 'Toronet Health Check Failed. Network might be unreachable.';
+      this.logger.logAlert({ message, error, slack: true });
+
       return false;
     }
   }

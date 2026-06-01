@@ -10,4 +10,4 @@ import { LoggerModule } from '../notifications/logger.module';
   controllers: [KycController],
   providers: [KycService, PrismaService],
 })
-export class KycModule { }
+export class KycModule {}

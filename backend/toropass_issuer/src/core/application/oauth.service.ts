@@ -9,7 +9,7 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 
 @Injectable()
 export class OAuthService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async registerApp(name: string, redirectUri: string, developerId: string) {
     const clientId = 'toro_client_' + crypto.randomBytes(12).toString('hex');
@@ -58,7 +58,9 @@ export class OAuthService {
     });
 
     if (!app) {
-      throw new BadRequestException('Application not found or unauthorized access.');
+      throw new BadRequestException(
+        'Application not found or unauthorized access.',
+      );
     }
 
     await this.prisma.oAuthApp.delete({
@@ -115,7 +117,10 @@ export class OAuthService {
 
     // If a clientSecret is provided (Server-to-Server flow), verify against the hash
     if (clientSecret) {
-      const isSecretValid = await bcrypt.compare(clientSecret, app.clientSecret);
+      const isSecretValid = await bcrypt.compare(
+        clientSecret,
+        app.clientSecret,
+      );
       if (!isSecretValid) {
         throw new UnauthorizedException('Invalid client secret.');
       }
@@ -140,7 +145,7 @@ export class OAuthService {
     if (new Date() > oauthCode.expiresAt) {
       await this.prisma.oAuthCode
         .delete({ where: { id: oauthCode.id } })
-        .catch(() => { });
+        .catch(() => {});
       throw new BadRequestException('Authorization code has expired.');
     }
 
@@ -172,10 +177,10 @@ export class OAuthService {
           kycAnchorHash: user.kycAnchorHash,
           wallet: activeWallet
             ? {
-              address: activeWallet.address,
-              tnsName: activeWallet.tnsName,
-              network: activeWallet.network,
-            }
+                address: activeWallet.address,
+                tnsName: activeWallet.tnsName,
+                network: activeWallet.network,
+              }
             : null,
         },
       },
@@ -225,10 +230,10 @@ export class OAuthService {
         kycAnchorHash: user.kycAnchorHash,
         wallet: activeWallet
           ? {
-            address: activeWallet.address,
-            tnsName: activeWallet.tnsName,
-            network: activeWallet.network,
-          }
+              address: activeWallet.address,
+              tnsName: activeWallet.tnsName,
+              network: activeWallet.network,
+            }
           : null,
       },
     };

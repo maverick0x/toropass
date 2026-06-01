@@ -1,5 +1,14 @@
-import { Controller, Get, Inject, ServiceUnavailableException, VERSION_NEUTRAL } from '@nestjs/common';
-import { BLOCKCHAIN_PORT, IBlockchainPort } from '../core/ports/blockchain.interface';
+import {
+  Controller,
+  Get,
+  Inject,
+  ServiceUnavailableException,
+  VERSION_NEUTRAL,
+} from '@nestjs/common';
+import {
+  BLOCKCHAIN_PORT,
+  IBlockchainPort,
+} from '../core/ports/blockchain.interface';
 import { PrismaService } from '../infrastructure/database/prisma.service';
 
 @Controller({
@@ -9,7 +18,7 @@ export class HealthController {
   constructor(
     private prisma: PrismaService,
     @Inject(BLOCKCHAIN_PORT) private blockchain: IBlockchainPort,
-  ) { }
+  ) {}
 
   @Get()
   async getHealthStatus() {
@@ -19,11 +28,15 @@ export class HealthController {
       .catch(() => 'DOWN');
 
     // 2. Check Toronet network connection
-    const blockchainCheck = this.blockchain.checkHealth()
+    const blockchainCheck = this.blockchain
+      .checkHealth()
       .then((isHealthy) => (isHealthy ? 'UP' : 'DOWN'))
       .catch(() => 'DOWN');
 
-    const [dbStatus, blockchainStatus] = await Promise.all([dbCheck, blockchainCheck]);
+    const [dbStatus, blockchainStatus] = await Promise.all([
+      dbCheck,
+      blockchainCheck,
+    ]);
 
     const isFullyHealthy = dbStatus === 'UP' && blockchainStatus === 'UP';
 
