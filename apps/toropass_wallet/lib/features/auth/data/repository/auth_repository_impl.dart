@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/endpoints.dart';
 import '../../domain/entities/tns_entity.dart';
 import '../../domain/repository/auth_repository.dart';
 import '../model/tns_model.dart';
@@ -17,7 +18,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<TnsEntity> checkTNSName(String username) async {
-    final response = await _client.get(endpoint: "", useToken: false);
+    final response = await _client.get(
+      endpoint: "${ApiEndpoints.CHECK_TNS}?username=$username",
+      useToken: false,
+      silent: false,
+    );
 
     return TnsModel.fromJson(response.data);
   }

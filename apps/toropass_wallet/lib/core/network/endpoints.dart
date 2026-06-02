@@ -4,7 +4,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiEndpoints {
-  static final String BASE_URL = dotenv.env['API_BASE_URL'] ?? "";
+  static final String BASE_URL = dotenv.env['API_BASE_URL'] ?? '';
 
   // WALLETS
   static const String CHECK_TNS = 'wallets/tns';

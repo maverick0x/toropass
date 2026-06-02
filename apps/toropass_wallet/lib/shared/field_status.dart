@@ -9,10 +9,16 @@ import '../generated/assets.gen.dart';
 import 'app_svg.dart';
 
 class FieldStatus extends StatelessWidget {
+  final bool loading;
   final bool success;
   final String message;
 
-  const FieldStatus({super.key, required this.success, required this.message});
+  const FieldStatus({
+    super.key,
+    this.loading = false,
+    required this.success,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +29,9 @@ class FieldStatus extends StatelessWidget {
       duration: Animations.duration,
       padding: EdgeInsets.symmetric(vertical: 4.height, horizontal: 10.width),
       decoration: BoxDecoration(
-        color: success
+        color: loading
+            ? appColors.primary.withAlpha(20)
+            : success
             ? appColors.success.withAlpha(20)
             : appColors.error.withAlpha(20),
         borderRadius: BorderRadius.circular(AppDimens.borderRadius),
@@ -32,20 +40,46 @@ class FieldStatus extends StatelessWidget {
         mainAxisSize: .min,
         crossAxisAlignment: .center,
         children: [
-          AppSvg(
-            path: Assets.icons.checkmarkCircle,
-            width: 14.width,
-            height: 14.height,
-            color: success ? appColors.success : appColors.error,
+          AnimatedSize(
+            duration: Animations.duration,
+            child: Visibility(
+              visible: loading,
+              child: SizedBox(
+                width: 12.width,
+                height: 12.height,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(appColors.primary),
+                ),
+              ),
+            ),
           ),
-          5.horizontalSpacer,
-          AnimatedSwitcher(
-            duration: Animations.shortDuration,
-            child: Text(
-              key: ValueKey(message),
-              message,
-              style: appStyles.caption.copyWith(
-                color: success ? appColors.success : appColors.error,
+          AnimatedSize(
+            duration: Animations.duration,
+            child: Visibility(
+              visible: !loading,
+              child: Row(
+                mainAxisSize: .min,
+                crossAxisAlignment: .center,
+                children: [
+                  AppSvg(
+                    path: Assets.icons.checkmarkCircle,
+                    width: 14.width,
+                    height: 14.height,
+                    color: success ? appColors.success : appColors.error,
+                  ),
+                  5.horizontalSpacer,
+                  AnimatedSwitcher(
+                    duration: Animations.shortDuration,
+                    child: Text(
+                      key: ValueKey(message),
+                      message,
+                      style: appStyles.caption.copyWith(
+                        color: success ? appColors.success : appColors.error,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

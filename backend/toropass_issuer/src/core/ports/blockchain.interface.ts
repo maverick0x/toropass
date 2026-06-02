@@ -17,6 +17,10 @@ export interface IBlockchainPort {
   provisionWallet(username: string, password: string): Promise<string>;
   resolveAddress(username: string): Promise<string | null>;
   validateCredentials(address: string, password: string): Promise<Boolean>;
-  updateWalletPassword(address: string, oldPass: string, newPass: string): Promise<void>;
+  updateWalletPassword(
+    address: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void>;
   checkHealth(): Promise<boolean>;
 }

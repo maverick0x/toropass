@@ -9,15 +9,19 @@ import { PrismaService } from '../database/prisma.service';
 import { LoggerModule } from '../notifications/logger.module';
 
 @Module({
-  imports: [JwtModule.registerAsync({
-    global: true,
-    imports: [ConfigModule],
-    inject: [ConfigService],
-    useFactory: async (configService: ConfigService) => ({
-      secret: configService.get<string>('JWT_SECRET'),
+  imports: [
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+      }),
     }),
-  }), LoggerModule, ToronetModule],
+    LoggerModule,
+    ToronetModule,
+  ],
   controllers: [WalletController],
   providers: [WalletService, PrismaService],
 })
-export class WalletModule { }
+export class WalletModule {}

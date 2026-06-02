@@ -22,7 +22,7 @@ Errors
 - 400 Bad Request: missing username.
 
 Curl
-curl -X GET "https://{HOST}/v1/wallets/tns?username=alice" -H "X-API-KEY: <api-key>"
+curl -X GET "https://localhost:3000/api/v1/wallets/tns?username=alice" -H "x-api-key: your_super_secret_flutter_api_key_here"
 
 2) POST /v1/wallets/create
 - Description: Provision a new Toronet wallet and claim a TNS name.
