@@ -6,6 +6,7 @@ import '../../../../core/network/endpoints.dart';
 import '../../domain/entities/consent_entity.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/params/change_password_params.dart';
+import '../../domain/params/verify_kyc_params.dart';
 import '../../domain/repository/user_repository.dart';
 import '../models/consent_model.dart';
 import '../models/profile_model.dart';
@@ -52,6 +53,18 @@ class UserRepositoryImpl implements UserRepository {
       endpoint: ApiEndpoints.revokeConsent(appId),
       useToken: true,
       silent: false,
+    );
+
+    return response;
+  }
+
+  @override
+  Future<SuccessResponse> verifyKyc(VerifyKycParams params) async {
+    final response = await _client.post(
+      endpoint: ApiEndpoints.VERIFY_KYC,
+      useToken: true,
+      silent: false,
+      body: params.toJson(),
     );
 
     return response;

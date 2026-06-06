@@ -149,6 +149,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _secureAction(ProfileEntity? profile) {
     final appStyles = context.appStyles;
     final isVerified = profile?.kycVerified == true;
+    final anchorHash = profile?.kycAnchorHash;
     final title = isVerified ? "Identity Verified" : "Secure Your Identity";
     final description = isVerified
         ? "Your Toro identity is verified and ready for partner app access."
@@ -171,6 +172,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           20.verticalSpacer,
           Text(description, style: appStyles.body, textAlign: TextAlign.center),
+          if (isVerified && anchorHash != null && anchorHash.isNotEmpty) ...[
+            15.verticalSpacer,
+            Text(
+              "Anchor Hash: ${_formatAnchorHash(anchorHash)}",
+              style: appStyles.caption.copyWith(
+                color: AppColors.of(context).text.withAlpha(170),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
           AnimatedSize(
             duration: Animations.shortDuration,
             child: Visibility(
@@ -190,6 +201,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
     );
+  }
+
+  String _formatAnchorHash(String value) {
+    if (value.length <= 18) return value;
+    return "${value.substring(0, 10)}...${value.substring(value.length - 8)}";
   }
 
   Widget _buildPrivacyCard() {

@@ -100,12 +100,12 @@ Definition of done:
 
 ## Phase 5: KYC Integration
 
-- [ ] Add request model for `POST /api/v1/kyc/verify`
-- [ ] Build app-side KYC input flow
-- [ ] Send KYC payload using documented auth requirements
-- [ ] Update state using backend KYC response
-- [ ] Reflect `kycVerified` and `kycAnchorHash` in the app
-- [ ] Handle KYC failure messaging cleanly
+- [x] Add request model for `POST /api/v1/kyc/verify`
+- [x] Build app-side KYC input flow
+- [x] Send KYC payload using documented auth requirements
+- [x] Update state using backend KYC response
+- [x] Reflect `kycVerified` and `kycAnchorHash` in the app
+- [x] Handle KYC failure messaging cleanly
 
 Definition of done:
 
@@ -183,7 +183,7 @@ Definition of done:
 - [-] Phase 2: Networking Foundation
 - [x] Phase 3: Wallet Auth and Session Flow
 - [x] Phase 4: Auth UI Completion
-- [ ] Phase 5: KYC Integration
+- [x] Phase 5: KYC Integration
 - [x] Phase 6: Consent Management
 - [ ] Phase 7: Developer Dashboard
 - [ ] Phase 8: Wallet-Side OAuth Consent Flow

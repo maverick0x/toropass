@@ -11,6 +11,7 @@ import '../../../../generated/fonts.gen.dart';
 import '../../../../shared/app_bar.dart';
 import '../../../../shared/app_button.dart';
 import '../../../../shared/app_svg.dart';
+import '../provider/user_notifier.dart';
 
 class SuccessScreen extends ConsumerStatefulWidget {
   const SuccessScreen({super.key});
@@ -24,6 +25,11 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen> {
   Widget build(BuildContext context) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
+    final profile = ref.watch(userProvider.select((state) => state.walletState.data));
+    final displayName = profile?.wallet?.tnsName?.isNotEmpty == true
+        ? "${profile!.wallet!.tnsName}.toro"
+        : "ToroPass Identity";
+    final anchorHash = profile?.kycAnchorHash;
 
     return PopScope(
       canPop: false,
@@ -80,9 +86,9 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen> {
                 child: Column(
                   mainAxisSize: .min,
                   crossAxisAlignment: .center,
-                  children: [
-                    Text("Identity Verified!", style: appStyles.pageTitle),
-                    15.verticalSpacer,
+                          children: [
+                            Text("Identity Verified!", style: appStyles.pageTitle),
+                            15.verticalSpacer,
                     RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
@@ -100,13 +106,23 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen> {
                             text:
                                 " identity is now fully verified. You've unlocked all "
                                 "network features and secure access to partner apps.",
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      if (anchorHash != null && anchorHash.isNotEmpty) ...[
+                        18.verticalSpacer,
+                        Text(
+                          "Anchor Hash: ${_formatAnchorHash(anchorHash)}",
+                          textAlign: TextAlign.center,
+                          style: appStyles.caption.copyWith(
+                            color: appColors.text.withAlpha(180),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
               const Spacer(),
               Container(
                 margin: EdgeInsets.symmetric(
@@ -165,7 +181,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen> {
                           mainAxisSize: .min,
                           crossAxisAlignment: .center,
                           children: [
-                            Text("alexander.toro", style: appStyles.cardTitle),
+                            Text(displayName, style: appStyles.cardTitle),
                             10.horizontalSpacer,
                             AppSvg(
                               path: Assets.icons.verified,
@@ -225,5 +241,10 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen> {
         ),
       ),
     );
+  }
+
+  String _formatAnchorHash(String value) {
+    if (value.length <= 18) return value;
+    return "${value.substring(0, 10)}...${value.substring(value.length - 8)}";
   }
 }
