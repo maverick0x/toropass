@@ -8,27 +8,13 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { WalletAuthTokens } from './types/wallet-auth-tokens.type';
+import { WalletProfile } from './types/wallet-profile.type';
 import {
   BLOCKCHAIN_PORT,
   IBlockchainPort,
 } from '../ports/blockchain.interface';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
-
-type WalletAuthTokens = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-type WalletProfile = {
-  id: string;
-  kycVerified: boolean;
-  kycAnchorHash: string | null;
-  wallet: {
-    address: string;
-    tnsName: string | null;
-    network: string;
-  } | null;
-};
 
 @Injectable()
 export class WalletService {
@@ -59,6 +45,7 @@ export class WalletService {
     password: string,
   ): Promise<{ address: string; tnsName: string; tokens: WalletAuthTokens }> {
     const isAvailable = await this.checkTnsAvailability(username);
+    const network = this.blockchain.getNetwork();
 
     if (!isAvailable) {
       throw new BadRequestException(
@@ -82,7 +69,7 @@ export class WalletService {
             create: {
               address: walletAddress,
               tnsName: username,
-              network: 'testnet',
+              network,
             },
           },
         },
@@ -117,6 +104,7 @@ export class WalletService {
     password: string,
   ): Promise<{ address: string; tnsName: string; tokens: WalletAuthTokens }> {
     let address: string;
+    const network = this.blockchain.getNetwork();
 
     try {
       const resolvedAddress = await this.blockchain.resolveAddress(username);
@@ -181,7 +169,7 @@ export class WalletService {
           dateOfBirth: new Date(),
           kycVerified: false,
           wallets: {
-            create: { address, tnsName: username, network: 'testnet' },
+            create: { address, tnsName: username, network },
           },
         },
       });

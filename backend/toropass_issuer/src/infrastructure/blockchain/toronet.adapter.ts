@@ -9,6 +9,7 @@ import { ILogger, LOGGER_PORT } from '../../core/ports/logger.interface';
 
 @Injectable()
 export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
+  private readonly network: 'mainnet' | 'testnet';
   private adminAddress: string;
   private adminPwd: string;
 
@@ -16,24 +17,45 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
     private configService: ConfigService,
     @Inject(LOGGER_PORT) private logger: ILogger,
   ) {
-    this.adminAddress =
-      this.configService.get<string>('MAINNET_ADMIN_ADDRESS') || '';
-    this.adminPwd =
-      this.configService.get<string>('MAINNET_ADMIN_PASSWORD') || '';
+    const configuredNetwork =
+      this.configService.get<string>('TORONET_NETWORK')?.toLowerCase() ||
+      'mainnet';
+    this.network = configuredNetwork === 'testnet' ? 'testnet' : 'mainnet';
+
+    const adminAddressKey =
+      this.network === 'testnet'
+        ? 'TESTNET_ADMIN_ADDRESS'
+        : 'MAINNET_ADMIN_ADDRESS';
+    const adminPasswordKey =
+      this.network === 'testnet'
+        ? 'TESTNET_ADMIN_PASSWORD'
+        : 'MAINNET_ADMIN_PASSWORD';
+
+    this.adminAddress = this.configService.get<string>(adminAddressKey) || '';
+    this.adminPwd = this.configService.get<string>(adminPasswordKey) || '';
   }
 
   async onModuleInit() {
     if (!this.adminAddress || !this.adminPwd) {
-      this.logger.logAlert({ message: 'Toronet Admin credentials are missing from .env!', slack: true });
+      this.logger.logAlert({
+        message: `Toronet ${this.network} admin credentials are missing from .env.`,
+        slack: true,
+      });
     } else {
-      this.logger.logInfo({ message: 'Toronet SDK Adapter initialized successfully.' });
+      this.logger.logInfo({
+        message: `Toronet SDK Adapter initialized successfully for ${this.network}.`,
+      });
     }
 
-    initializeSDK({ network: 'mainnet' });
+    initializeSDK({ network: this.network });
     const config = getSDKConfig();
     this.logger.logInfo({
       message: `SDK initialized with network: ${config.getNetwork().toUpperCase()} and base URL: ${config.getBaseURL()}`,
     });
+  }
+
+  getNetwork(): 'mainnet' | 'testnet' {
+    return this.network;
   }
 
   async verifyAndAnchorKyc(payload: IKycPayload): Promise<boolean> {
