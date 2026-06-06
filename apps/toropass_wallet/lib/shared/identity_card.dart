@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../core/config/resource/data_state.dart';
-import '../core/config/router/routes.dart';
 import '../core/config/themes/colors.dart';
 import '../core/config/themes/dimens.dart';
 import '../core/config/themes/styles.dart';
@@ -11,7 +9,6 @@ import '../core/utilities/extensions/numbers.dart';
 import '../features/home/domain/entities/profile_entity.dart';
 import '../features/home/presentation/provider/user_notifier.dart';
 import '../generated/assets.gen.dart';
-import 'app_inkwell.dart';
 import 'app_svg.dart';
 
 class IdentityCard extends ConsumerWidget {
@@ -62,10 +59,7 @@ class IdentityCard extends ConsumerWidget {
                 crossAxisAlignment: .center,
                 children: [
                   Expanded(
-                    child: Text(
-                      displayName,
-                      style: appStyles.sectionTitle,
-                    ),
+                    child: Text(displayName, style: appStyles.sectionTitle),
                   ),
                   10.horizontalSpacer,
                   Container(
@@ -123,15 +117,11 @@ class IdentityCard extends ConsumerWidget {
                     ),
                   ),
                   20.horizontalSpacer,
-                  AppInkWell(
-                    callback: () =>
-                        context.pushNamed(AppRoutes.PERMISSION_SCREEN),
-                    child: AppSvg(
-                      path: Assets.icons.universal,
-                      width: 50.width,
-                      height: 50.height,
-                      color: appColors.primary,
-                    ),
+                  AppSvg(
+                    path: Assets.icons.universal,
+                    width: 50.width,
+                    height: 50.height,
+                    color: appColors.primary,
                   ),
                 ],
               ),

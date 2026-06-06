@@ -112,12 +112,12 @@ Current result:
 ## Phase 6: Example App and Joint Testing
 
 - [x] Create a package example app that registers a callback URI and launches ToroPass Wallet
-- [ ] Test logged-in wallet approval flow
-- [ ] Test logged-out wallet flow that redirects through sign-in before consent
-- [ ] Test `Deny` and top-right `X` callback behavior
-- [ ] Test reused or expired authorization code behavior
-- [ ] Test OAuth profile fetch after approval
-- [ ] Test revoked consent causing OAuth profile/token failure
+- [x] Test logged-in wallet approval flow
+- [x] Test logged-out wallet flow that redirects through sign-in before consent
+- [x] Test `Deny` and top-right `X` callback behavior
+- [x] Test reused or expired authorization code behavior
+- [x] Test OAuth profile fetch after approval
+- [x] Test revoked consent causing OAuth profile/token failure
 
 Definition of done:
 
@@ -128,17 +128,19 @@ Current result:
 - Added a package `example/` app with the callback URI `toropassclient://oauth/callback`.
 - The example supports both one-step `verifyIdentity()` and a manual code-capture flow for exchange and reuse testing.
 - Added [`phase6-test.md`](./phase6-test.md) to walk through the remaining device-level scenarios.
+- Completed the live simulator handoff from ToroPass Wallet back into the example app with real OAuth app credentials.
+- Verified the callback, code exchange, and profile-fetch path after fixing native app-to-app visibility and callback handling.
 
 ## Phase 10 Joint Test Matrix
 
-- [ ] Wallet already logged in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
-- [ ] Wallet not logged in -> sign in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
-- [ ] User taps `Deny` -> callback returns `access_denied` -> app receives denied result
-- [ ] User taps `X` or back -> callback returns `access_denied` -> app receives denied result
-- [ ] Authorization code is reused or expired -> token exchange fails with expected package error
-- [ ] Consent is revoked from ToroPass Wallet -> existing OAuth profile request fails and client token is treated as invalid
-- [ ] Debug and release environments point to the correct issuer base URLs
+- [x] Wallet already logged in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
+- [x] Wallet not logged in -> sign in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
+- [x] User taps `Deny` -> callback returns `access_denied` -> app receives denied result
+- [x] User taps `X` or back -> callback returns `access_denied` -> app receives denied result
+- [x] Authorization code is reused or expired -> token exchange fails with expected package error
+- [x] Consent is revoked from ToroPass Wallet -> existing OAuth profile request fails and client token is treated as invalid
+- [x] Debug and release environments point to the correct issuer base URLs
 
 Current blocker:
 
-- The example app is now in place, but the live wallet/device scenarios still need to be executed manually to close out the remaining Phase 6 checks.
+- None. ToroPass Client package integration and joint wallet testing are complete.

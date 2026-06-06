@@ -73,7 +73,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
             mainAxisSize: .max,
             crossAxisAlignment: .start,
             children: [
-              TopBar(title: "Developers"),
+              TopBar(title: "Developer"),
               Expanded(
                 child: Skeletonizer(
                   enabled: showSkeleton,
@@ -204,7 +204,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
                       12.horizontalSpacer,
                       Expanded(
                         child: AppButton(
-                          text: "Generate API Keys",
+                          text: "Create",
                           prefix: FieldWidget(
                             child: AppSvg(
                               path: Assets.icons.key,

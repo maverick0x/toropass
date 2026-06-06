@@ -30,11 +30,13 @@ class ToroPassExampleScreen extends StatefulWidget {
 }
 
 class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
-  final _clientIdController = TextEditingController(text: 'toro_client_test');
-  final _issuerBaseUrlController = TextEditingController(
-    text: ToroPassClientConfig.defaultIssuerBaseUrl.toString(),
+  final _clientIdController = TextEditingController(
+    text: 'toro_client_c9b31514f78a7ce1aed5bb0a',
   );
-  final _appNameController = TextEditingController(text: 'ToroPass Client Demo');
+  final _issuerBaseUrlController = TextEditingController(
+    text: "http://localhost:3000/api/v1",
+  );
+  final _appNameController = TextEditingController(text: 'Example');
 
   static final Uri _redirectUri = Uri.parse('toropassclient://oauth/callback');
 
@@ -215,23 +217,23 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
                 FilledButton(
                   onPressed: _isAuthorizing ? null : _startAuthorizationOnly,
                   child: Text(
-                    _isAuthorizing ? 'Waiting for callback...' : 'Authorize Only',
+                    _isAuthorizing
+                        ? 'Waiting for callback...'
+                        : 'Authorize Only',
                   ),
                 ),
                 FilledButton.tonal(
-                  onPressed:
-                      _isExchanging || _latestCode == null
-                          ? null
-                          : _exchangeStoredCode,
+                  onPressed: _isExchanging || _latestCode == null
+                      ? null
+                      : _exchangeStoredCode,
                   child: Text(
                     _isExchanging ? 'Exchanging...' : 'Exchange Stored Code',
                   ),
                 ),
                 OutlinedButton(
-                  onPressed:
-                      _isFetchingProfile || _session == null
-                          ? null
-                          : _fetchProfile,
+                  onPressed: _isFetchingProfile || _session == null
+                      ? null
+                      : _fetchProfile,
                   child: Text(
                     _isFetchingProfile ? 'Refreshing...' : 'Fetch Profile',
                   ),
@@ -317,7 +319,10 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
               'KYC verified',
               profile == null ? 'No profile yet' : '${profile.kycVerified}',
             ),
-            _buildInfoRow('Wallet address', wallet?.address ?? 'No profile yet'),
+            _buildInfoRow(
+              'Wallet address',
+              wallet?.address ?? 'No profile yet',
+            ),
             _buildInfoRow('TNS name', wallet?.tnsName ?? 'No profile yet'),
             _buildInfoRow('Network', wallet?.network ?? 'No profile yet'),
           ],
@@ -440,8 +445,9 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
     } catch (error, stackTrace) {
       _setResult(
         ToroPassAuthTransportError(
-          message:
-              error is ToroPassException ? error.message : 'Code exchange failed.',
+          message: error is ToroPassException
+              ? error.message
+              : 'Code exchange failed.',
           cause: error,
           stackTrace: stackTrace,
         ),
@@ -472,10 +478,9 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
     } catch (error, stackTrace) {
       _setResult(
         ToroPassAuthTransportError(
-          message:
-              error is ToroPassException
-                  ? error.message
-                  : 'Profile fetch failed.',
+          message: error is ToroPassException
+              ? error.message
+              : 'Profile fetch failed.',
           cause: error,
           stackTrace: stackTrace,
         ),

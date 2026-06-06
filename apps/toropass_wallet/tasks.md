@@ -178,15 +178,15 @@ Current result:
 
 ## Phase 10: End-to-End Verification
 
-- [ ] Test new-user path end-to-end
-- [ ] Test existing-user path end-to-end
-- [ ] Test refresh-token path end-to-end
-- [ ] Test wallet profile bootstrap end-to-end
-- [ ] Test KYC submission end-to-end
-- [ ] Test consent list/revoke end-to-end
-- [ ] Test developer app register/list/delete end-to-end
-- [ ] Verify every protected route sends the documented headers
-- [ ] Test third-party client OAuth launch, callback, token exchange, and profile fetch end-to-end
+- [x] Test new-user path end-to-end
+- [x] Test existing-user path end-to-end
+- [x] Test refresh-token path end-to-end
+- [x] Test wallet profile bootstrap end-to-end
+- [x] Test KYC submission end-to-end
+- [x] Test consent list/revoke end-to-end
+- [x] Test developer app register/list/delete end-to-end
+- [x] Verify every protected route sends the documented headers
+- [x] Test third-party client OAuth launch, callback, token exchange, and profile fetch end-to-end
 
 Definition of done:
 
@@ -196,10 +196,17 @@ Cross-project dependency:
 
 - Phase 10 now depends on the third-party Flutter package task plan in [packages/toropass_client/tasks.md](../../packages/toropass_client/tasks.md)
 
+Current result:
+
+- Wallet authentication, session restore, token refresh, and home bootstrap have been exercised against the live issuer contract.
+- KYC submission, consent management, and developer OAuth app management have all been integrated and tested through the wallet UI.
+- The wallet-side OAuth consent flow now launches from third-party apps through `toropass:/permission`, returns through the client callback URI, and supports downstream code exchange and profile fetch.
+- Native app-to-app visibility and callback handling issues were resolved for the third-party Flutter example during simulator testing.
+
 ## Suggested Working Order
 
 - [x] Phase 1: Contract Mapping
-- [-] Phase 2: Networking Foundation
+- [x] Phase 2: Networking Foundation
 - [x] Phase 3: Wallet Auth and Session Flow
 - [x] Phase 4: Auth UI Completion
 - [x] Phase 5: KYC Integration
@@ -207,4 +214,4 @@ Cross-project dependency:
 - [x] Phase 7: Developer Dashboard
 - [x] Phase 8: Wallet-Side OAuth Consent Flow
 - [x] Phase 9: Error Handling and Security Hardening
-- [ ] Phase 10: End-to-End Verification
+- [x] Phase 10: End-to-End Verification
