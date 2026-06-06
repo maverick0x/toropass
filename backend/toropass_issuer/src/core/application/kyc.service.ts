@@ -23,16 +23,17 @@ export class KycService {
   ) { }
 
   async processKycVerification(
+    userId: string,
     payload: VerifyKycDto,
   ): Promise<{ success: boolean; message: string }> {
-    const walletRecord = await this.prisma.wallet.findUnique({
-      where: { address: payload.address },
+    const walletRecord = await this.prisma.wallet.findFirst({
+      where: { userId },
       include: { user: true },
     });
 
     if (!walletRecord) {
       throw new NotFoundException(
-        `Wallet address ${payload.address} not found in our system.`,
+        `Wallet for user ${userId} not found in our system.`,
       );
     }
 
@@ -40,12 +41,21 @@ export class KycService {
       throw new BadRequestException('This user has already passed KYC.');
     }
 
-    const isVerified = await this.blockchain.verifyAndAnchorKyc(payload);
+    const isVerified = await this.blockchain.verifyAndAnchorKyc({
+      firstName: payload.firstName,
+      middleName: payload.middleName,
+      lastName: payload.lastName,
+      bvn: payload.bvn,
+      currency: payload.currency,
+      phoneNumber: payload.phoneNumber,
+      dob: payload.dob,
+      address: walletRecord.address,
+    });
 
     if (!isVerified) {
       this.logger
         .logAlert({
-          message: `KYC failed for wallet: ${payload.address}`,
+          message: `KYC failed for user: ${userId}, wallet: ${walletRecord.address}`,
           slack: false,
         });
       throw new BadRequestException(
@@ -71,7 +81,7 @@ export class KycService {
 
       this.logger
         .logInfo({
-          message: `User linked to wallet ${payload.address} successfully passed KYC!`,
+          message: `User linked to wallet ${walletRecord.address} successfully passed KYC!`,
           slack: true,
         });
 
@@ -83,7 +93,7 @@ export class KycService {
     } catch (error) {
       this.logger
         .logAlert({
-          message: `Database failure after successful KYC for ${payload.address}`,
+          message: `Database failure after successful KYC for ${userId}, wallet: ${walletRecord.address}`,
           error,
         });
       throw new InternalServerErrorException(

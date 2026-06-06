@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -23,20 +22,20 @@ final dioProvider = Provider<Dio>((ref) {
     ),
   );
 
-  dio.httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient: () {
-      final context = SecurityContext(withTrustedRoots: false);
-      // TODO: Replace with your actual certificate bytes
-      // final certBytes = <int>[];
-      // context.setTrustedCertificatesBytes(certBytes);
+  // dio.httpClientAdapter = IOHttpClientAdapter(
+  //   createHttpClient: () {
+  //     final context = SecurityContext(withTrustedRoots: false);
+  //     // TODO: Replace with your actual certificate bytes
+  //     // final certBytes = <int>[];
+  //     // context.setTrustedCertificatesBytes(certBytes);
 
-      final client = HttpClient(context: context);
+  //     final client = HttpClient(context: context);
 
-      // NEVER — not even in debug
-      client.badCertificateCallback = (cert, host, port) => false;
-      return client;
-    },
-  );
+  //     // NEVER — not even in debug
+  //     client.badCertificateCallback = (cert, host, port) => false;
+  //     return client;
+  //   },
+  // );
 
   // Inject Interceptors
   dio.interceptors.addAll([

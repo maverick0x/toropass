@@ -6,5 +6,4 @@ export class VerifyKycDto {
   currency!: string;
   phoneNumber!: string;
   dob!: string; // Expected format: YYYY-MM-DD
-  address!: string; // The user's Toronet wallet address
 }
