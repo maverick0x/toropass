@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/resource/data_state.dart';
 import '../../../core/config/resource/usecase.dart';
 import '../../config/resource/exception.dart';
-import 'token_model.dart';
+import 'token_entity.dart';
 import 'token_repository.dart';
 
 final fetchTokenUseCaseProvider = Provider((ref) {
@@ -11,13 +11,13 @@ final fetchTokenUseCaseProvider = Provider((ref) {
   return FetchTokenUseCase(repository);
 });
 
-class FetchTokenUseCase extends UseCase<DataState<TokenModel>, String> {
+class FetchTokenUseCase extends UseCase<DataState<TokenEntity>, String> {
   final TokenRepository repository;
 
   FetchTokenUseCase(this.repository);
 
   @override
-  Future<DataState<TokenModel>> call(String params) async {
+  Future<DataState<TokenEntity>> call(String params) async {
     try {
       final result = await repository.getToken(params);
 

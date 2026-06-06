@@ -23,7 +23,6 @@ class AppTextfield extends StatefulWidget {
   final Widget? suffix;
   final double textHeight;
   final List<TextInputFormatter>? inputFormatters;
-  final FocusNode? focusNode;
 
   const AppTextfield({
     super.key,
@@ -43,7 +42,6 @@ class AppTextfield extends StatefulWidget {
     this.onChanged,
     this.prefix,
     this.suffix,
-    this.focusNode,
   });
 
   @override
@@ -61,13 +59,14 @@ class _AppTextfieldState extends State<AppTextfield> {
         maxLines: widget.maxLines,
         enabled: widget.enabled,
         controller: widget.enabled ? widget.controller : null,
-        focusNode: widget.focusNode,
         obscureText: widget.obscureText,
         keyboardType: widget.keyboardType,
         textInputAction: widget.textInputAction,
         onChanged: widget.onChanged,
         inputFormatters: widget.inputFormatters,
-        onTapOutside: (_) => FocusScope.of(context).unfocus(),
+        onTapOutside: (_) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
         style:
             widget.style ??
             context.appStyles.body.copyWith(height: widget.textHeight),

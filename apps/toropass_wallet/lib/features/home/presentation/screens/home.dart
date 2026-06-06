@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../../core/config/resource/data_state.dart';
 import '../../../../core/config/router/routes.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
@@ -15,6 +17,8 @@ import '../../../../shared/app_button.dart';
 import '../../../../shared/app_inkwell.dart';
 import '../../../../shared/app_svg.dart';
 import '../../../../shared/identity_card.dart';
+import '../../domain/entities/profile_entity.dart';
+import '../provider/user_notifier.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -27,10 +31,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final walletState = ref.read(userProvider).walletState;
+      if (walletState is DataSuccess || walletState is DataLoading) return;
+      ref.read(userProvider.notifier).getWallet();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final appColors = AppColors.of(context);
+    final walletState = ref.watch(userProvider.select((s) => s.walletState));
+    final consentState = ref.watch(userProvider.select((s) => s.consentState));
+    final profile = walletState is DataSuccess ? walletState.data : null;
+    final consentCount = consentState.data?.length ?? 0;
+    final showSkeleton =
+        walletState is DataLoading ||
+        walletState is DataFailed ||
+        consentState is DataLoading ||
+        consentState is DataFailed;
+    final showRefresh =
+        walletState is DataFailed || consentState is DataFailed;
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -56,17 +78,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: .min,
-                    crossAxisAlignment: .center,
-                    children: [
-                      20.verticalSpacer,
-                      IdentityCard(),
-                      _secureAction(),
-                      _buildPrivacyCard(),
-                      _buildConnectionCard(),
-                      30.verticalSpacer,
-                    ],
+                  child: Skeletonizer(
+                    enabled: showSkeleton,
+                    child: Column(
+                      mainAxisSize: .min,
+                      crossAxisAlignment: .center,
+                      children: [
+                        _buildRefresh(showRefresh),
+                        IdentityCard(),
+                        _secureAction(profile),
+                        _buildPrivacyCard(),
+                        _buildConnectionCard(consentCount),
+                        30.verticalSpacer,
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -77,8 +102,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _secureAction() {
+  Widget _buildRefresh(bool showRefresh) {
+    final appColors = AppColors.of(context);
+
+    return AnimatedSize(
+      duration: Animations.shortDuration,
+      child: Visibility(
+        visible: showRefresh,
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 16.height,
+              bottom: 10.height,
+              right: AppDimens.horizontalPadding,
+            ),
+            child: AppInkWell(
+              callback: ref.read(userProvider.notifier).refreshHomeData,
+              child: Container(
+                padding: EdgeInsets.all(10.radius),
+                decoration: BoxDecoration(
+                  color: appColors.white,
+                  borderRadius: BorderRadius.circular(AppDimens.borderRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: appColors.shadow.withAlpha(10),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.refresh_rounded,
+                  size: 22.width,
+                  color: appColors.primary,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _secureAction(ProfileEntity? profile) {
     final appStyles = context.appStyles;
+    final isVerified = profile?.kycVerified == true;
+    final title = isVerified ? "Identity Verified" : "Secure Your Identity";
+    final description = isVerified
+        ? "Your Toro identity is verified and ready for partner app access."
+        : "Complete your verification to unlock full network features and secure your .toro domain.";
+    final buttonText = isVerified
+        ? "View Verification Status"
+        : "Complete Verification";
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppDimens.horizontalPadding),
@@ -88,20 +165,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           30.verticalSpacer,
           Text(
-            "Secure Your Identity",
+            title,
             style: appStyles.sectionTitle,
             textAlign: TextAlign.center,
           ),
           20.verticalSpacer,
-          Text(
-            "Complete your verification to unlock full network features and secure your .toro domain.",
-            style: appStyles.body,
-            textAlign: TextAlign.center,
-          ),
-          20.verticalSpacer,
-          AppButton(
-            text: "Complete Verification",
-            callback: () => context.pushNamed(AppRoutes.VERIFICATION_SCREEN),
+          Text(description, style: appStyles.body, textAlign: TextAlign.center),
+          AnimatedSize(
+            duration: Animations.shortDuration,
+            child: Visibility(
+              visible: !isVerified,
+              child: Column(
+                children: [
+                  20.verticalSpacer,
+                  AppButton(
+                    text: buttonText,
+                    callback: () =>
+                        context.pushNamed(AppRoutes.VERIFICATION_SCREEN),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -196,7 +280,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildConnectionCard() {
+  Widget _buildConnectionCard(int consentCount) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
@@ -252,7 +336,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             5.verticalSpacer,
             Text(
-              "5",
+              consentCount.toString(),
               style: appStyles.cardTitle.copyWith(
                 color: appColors.text,
                 fontFamily: FontFamily.interSemiBold,

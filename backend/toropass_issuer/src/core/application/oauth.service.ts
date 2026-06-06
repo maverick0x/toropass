@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { User } from 'src/generated/prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { WalletProfile } from './types/wallet-profile.type';
 
 @Injectable()
 export class OAuthService {
@@ -165,24 +167,13 @@ export class OAuthService {
     ]);
 
     const user = oauthCode.user;
-    const activeWallet = user.wallets[0];
+    const profile = this.buildWalletProfile(user);
 
     return {
       status: 'success',
       data: {
         accessToken, // <--- The SDK will save this!
-        profile: {
-          id: user.id,
-          kycVerified: user.kycVerified,
-          kycAnchorHash: user.kycAnchorHash,
-          wallet: activeWallet
-            ? {
-                address: activeWallet.address,
-                tnsName: activeWallet.tnsName,
-                network: activeWallet.network,
-              }
-            : null,
-        },
+        profile,
       },
     };
   }
@@ -220,22 +211,10 @@ export class OAuthService {
     }
 
     const user = tokenRecord.user;
-    const activeWallet = user.wallets[0];
 
     return {
       status: 'success',
-      data: {
-        id: user.id,
-        kycVerified: user.kycVerified,
-        kycAnchorHash: user.kycAnchorHash,
-        wallet: activeWallet
-          ? {
-              address: activeWallet.address,
-              tnsName: activeWallet.tnsName,
-              network: activeWallet.network,
-            }
-          : null,
-      },
+      data: this.buildWalletProfile(user),
     };
   }
 
@@ -283,5 +262,30 @@ export class OAuthService {
     }
 
     return { success: true, message: 'Access revoked successfully.' };
+  }
+
+  private buildWalletProfile(
+    user: User & {
+      wallets: Array<{
+        address: string;
+        tnsName: string | null;
+        network: string;
+      }>;
+    },
+  ): WalletProfile {
+    const activeWallet = user.wallets[0] ?? null;
+
+    return {
+      id: user.id,
+      kycVerified: user.kycVerified,
+      kycAnchorHash: user.kycAnchorHash,
+      wallet: activeWallet
+          ? {
+              address: activeWallet.address,
+              tnsName: activeWallet.tnsName,
+              network: activeWallet.network,
+            }
+          : null,
+    };
   }
 }

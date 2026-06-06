@@ -1,98 +1,152 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ToroPass Issuer Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+ToroPass Issuer is the trusted backend for the ToroPass identity system. It provisions and validates Toronet wallets, performs KYC anchoring, manages first-party wallet sessions, and exposes OAuth-style app and consent flows for the wider ToroPass ecosystem.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This document is the backend overview. Use the companion docs for integration details:
 
-## Description
+- [API_REFERENCE.md](./API_REFERENCE.md)
+- [AUTHENTICATION.md](./AUTHENTICATION.md)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## What This Service Does
 
-## Project setup
+- Checks `.toro` username availability against Toronet.
+- Creates new wallets and claims TNS names on behalf of the wallet app.
+- Validates existing Toronet wallets and links them to local ToroPass users.
+- Issues wallet access and refresh tokens for first-party app sessions.
+- Performs KYC verification and stores verified status in Postgres after on-chain anchoring succeeds.
+- Registers developer apps, stores consent, issues OAuth codes/tokens, and serves app-scoped user profiles.
+
+## Runtime Shape
+
+- Framework: NestJS
+- Database: PostgreSQL via Prisma
+- Blockchain integration: `torosdk`
+- API base: `/api/v1`
+- Health endpoint: `/`
+- Rate limiting: 10 requests per 60 seconds per IP
+
+## Main Domains
+
+### Wallets
+
+Implemented in:
+
+- [wallet.controller.ts](./src/presentation/wallet.controller.ts)
+- [wallet.service.ts](./src/core/application/wallet.service.ts)
+
+Responsibilities:
+
+- TNS availability lookup
+- New wallet provisioning
+- Existing wallet validation
+- Wallet profile retrieval
+- Password changes
+- Refresh-token exchange
+
+### KYC
+
+Implemented in:
+
+- [kyc.controller.ts](./src/presentation/kyc.controller.ts)
+- [kyc.service.ts](./src/core/application/kyc.service.ts)
+
+Responsibilities:
+
+- Receives first-party KYC payloads
+- Calls Toronet admin-backed KYC verification
+- Marks local users as verified after successful blockchain anchoring
+
+### OAuth and Consent
+
+Implemented in:
+
+- [oauth.controller.ts](./src/presentation/oauth.controller.ts)
+- [conscent.controller.ts](./src/presentation/conscent.controller.ts)
+- [oauth.service.ts](./src/core/application/oauth.service.ts)
+
+Responsibilities:
+
+- App registration for developers
+- Authorization code issuance
+- Token exchange for third-party apps
+- Profile retrieval with app-scoped access tokens
+- User consent listing and revocation for the authenticated wallet user
+
+## Data Model Summary
+
+Key Prisma models in [schema.prisma](./prisma/schema.prisma):
+
+- `User`: ToroPass user record, password hash, KYC state, KYC anchor hash
+- `Wallet`: active Toronet wallet linked to a user
+- `UserSession`: refresh-token-backed first-party wallet sessions
+- `OAuthApp`: registered third-party developer apps
+- `OAuthConsent`: user-to-app consent grants and scopes
+- `OAuthCode`: short-lived authorization codes
+- `OAuthToken`: app-scoped access tokens for profile access
+
+## Authentication Layers
+
+Different endpoints use different combinations of these mechanisms:
+
+- `x-api-key`: shared backend API key
+- `Authorization: Bearer <jwt>`: first-party wallet access token
+- HMAC headers: request signing with device identity
+
+See [AUTHENTICATION.md](./AUTHENTICATION.md) for exact header requirements.
+
+Current rule:
+
+- All first-party wallet and internal issuer endpoints use HMAC signing.
+- The only live endpoints that do not use HMAC are the third-party client package endpoints: `POST /api/v1/oauth/token` and `GET /api/v1/oauth/profile`.
+
+## Environment Variables
+
+The current code depends on these values:
+
+- `DATABASE_URL`: Prisma PostgreSQL connection string
+- `APP_API_KEY`: required by `ApiGuard`
+- `APP_SECRET`: required by `HmacAuthGuard`
+- `JWT_SECRET`: used for first-party wallet JWTs
+- `BLOCKCHAIN_NETWORK`: Toronet SDK network, supported values are `mainnet` and `testnet`
+- `MAINNET_ADMIN_ADDRESS`: Toronet admin wallet for KYC when `BLOCKCHAIN_NETWORK=mainnet`
+- `MAINNET_ADMIN_PASSWORD`: Toronet admin wallet password for KYC when `BLOCKCHAIN_NETWORK=mainnet`
+- `TESTNET_ADMIN_ADDRESS`: Toronet admin wallet for KYC when `BLOCKCHAIN_NETWORK=testnet`
+- `TESTNET_ADMIN_PASSWORD`: Toronet admin wallet password for KYC when `BLOCKCHAIN_NETWORK=testnet`
+- `PORT`: optional, defaults to `3000`
+
+## Local Development
+
+Install dependencies:
 
 ```bash
-$ pnpm install
+pnpm install
 ```
 
-## Compile and run the project
+Start the backend in watch mode:
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm run start:dev
 ```
 
-## Run tests
+Generate Prisma client manually if needed:
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm prisma generate
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Inspect the active blockchain configuration and run the SDK connectivity check:
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm run config
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Important Implementation Notes
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Toronet SDK network is selected from `BLOCKCHAIN_NETWORK` and defaults to `testnet` when unset.
+- The backend reads admin credentials from the env pair that matches the active Toronet network.
+- `Wallet.network` is persisted from the active Toronet adapter network during wallet creation and first-time wallet linking.
+- `pnpm run config` initializes the SDK with the configured network and attempts a test wallet creation for quick connectivity verification.
+- Newly created or newly linked users are stored with placeholder `bvnHash` and `dateOfBirth` until KYC completes.
+- All wallet routes now require HMAC signing in addition to the shared API key.
+- The consent route path is currently spelled `/conscents/...` in code. The docs preserve that exact live path to avoid integration mistakes.
+- Consent routes now use the authenticated wallet user from the bearer token and no longer require `userId` in the path.

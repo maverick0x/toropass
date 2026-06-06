@@ -1,105 +1,194 @@
-# Step 1: Create the application
+# ToroPass Issuer Communication Examples
 
+These examples reflect the live backend behavior in `backend/toropass_issuer`.
+
+Base URL:
+
+```text
+http://localhost:3000/api/v1
+```
+
+## Shared Header Placeholders
+
+Protected first-party routes usually need some combination of:
+
+```text
+x-api-key: your_super_secret_flutter_api_key_here
+Authorization: Bearer your_wallet_access_token_here
+x-device-id: emulator-5554
+x-timestamp: <unix-seconds>
+x-signature: <hmac_sha256_hex_of_timestamp:deviceId>
+```
+
+See `backend/toropass_issuer/AUTHENTICATION.md` for the exact rules.
+
+## Step 1: Register a Developer App
+
+This route requires:
+
+- `x-api-key`
+- wallet bearer token
+- HMAC headers
+
+```bash
 curl -X POST http://localhost:3000/api/v1/oauth/apps/register \
   -H "Content-Type: application/json" \
   -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -H "Authorization: Bearer your_wallet_access_token_here" \
+  -H "x-device-id: emulator-5554" \
+  -H "x-timestamp: 1780732800" \
+  -H "x-signature: your_hmac_signature_here" \
   -d '{
     "name": "DeFi Swap Platform",
-    "developerId": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "redirectUri": "https://example.com"
+    "redirectUri": "https://example.com/callback"
   }'
+```
 
-RESPONSE: {
-  "status":"success",
-  "message":"Developer credentials generated successfully. Save the client secret safely!",
-  "data":{
-    "id":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "name":"DeFi Swap Platform",
-    "clientId":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "clientSecret":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx","
-    redirectUri":"https://example.com"
+Response:
+
+```json
+{
+  "status": "success",
+  "message": "Application credentials generated successfully. Save the client secret safely!",
+  "data": {
+    "id": "app-uuid",
+    "name": "DeFi Swap Platform",
+    "clientId": "toro_client_xxxxx",
+    "clientSecret": "toro_sk_xxxxx",
+    "redirectUri": "https://example.com/callback"
   }
 }
+```
 
+## Step 2: Simulate User Consent Inside ToroPass Wallet
 
-# Step 2: Simulate the User Consent (Inside ToroPass App)
+This route requires:
 
+- `x-api-key`
+- wallet bearer token
+- HMAC headers
+
+```bash
 curl -X POST http://localhost:3000/api/v1/oauth/authorize \
   -H "Content-Type: application/json" \
   -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -H "Authorization: Bearer your_wallet_access_token_here" \
+  -H "x-device-id: emulator-5554" \
+  -H "x-timestamp: 1780732800" \
+  -H "x-signature: your_hmac_signature_here" \
   -d '{
-    "client_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "user_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "redirect_uri": "https://example.com",
+    "client_id": "toro_client_xxxxx",
+    "redirect_uri": "https://example.com/callback",
     "scopes": ["kyc_status", "wallet"]
   }'
+```
 
-RESPONSE: {
-  "status":"success",
-  "data":{
-    "code":"1111111111111111111111"
+Response:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "code": "authorization-code"
   }
 }
+```
 
+## Step 3: Exchange the Authorization Code
 
-Step 3: Simulate the SDK fetching the Profile
+This route is public at the controller level. Server-side consumers can also provide `client_secret`.
 
+```bash
 curl -X POST http://localhost:3000/api/v1/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
-    "client_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "code":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "redirect_uri": "https://example.com"
+    "client_id": "toro_client_xxxxx",
+    "code": "authorization-code",
+    "redirect_uri": "https://example.com/callback",
+    "client_secret": "toro_sk_xxxxx"
   }'
+```
 
-RESPONSE: {
-  "status":"success",
-  "data":{
-    "id":"xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-    "kycVerified":false,
-    "kycAnchorHash":null,
-    "wallet":{
-      "address":"kkdkskdskdksssskdskskkss",
-      "tnsName":"tns-name",
-      "network":"testnet"
+Response:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "accessToken": "toro_tk_xxxxx",
+    "profile": {
+      "id": "user-uuid",
+      "kycVerified": false,
+      "kycAnchorHash": null,
+      "wallet": {
+        "address": "0x123...",
+        "tnsName": "alice",
+        "network": "<active-network>"
+      }
     }
   }
-} 
-
-
-OTHERS
-
---- View Apps:
-
-curl -X GET "http://localhost:3000/api/v1/oauth/apps?developer_id=xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx" \
-     -H "x-api-key: your_super_secret_flutter_api_key_here"
-
-RESPONSE: {
-  "status": "success",
-  "data": [
-    {
-      "id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-      "name": "DeFi Swap Platform",
-      "clientId": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-      "redirectUri": "https://example.com",
-      "isActive": true,
-      "createdAt": "2026-05-28T08:48:19.757Z"
-    },
-    {
-      "id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-      "name": "DeFi Swap Platform",
-      "clientId": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx",
-      "redirectUri": "https://example.com",
-      "isActive": true,
-      "createdAt": "2026-05-27T19:13:00.271Z"
-    }
-  ]
 }
+```
 
+## Step 4: Fetch the Profile Silently
 
---- Delete App
+This route uses the OAuth access token returned in step 3.
 
-curl -X DELETE http://localhost:3000/api/v1/oauth/apps/xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx \
-  -H "Content-Type: application/json" \
+```bash
+curl -X GET http://localhost:3000/api/v1/oauth/profile \
+  -H "Authorization: Bearer toro_tk_xxxxx"
+```
+
+Response:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "user-uuid",
+    "kycVerified": false,
+    "kycAnchorHash": null,
+    "wallet": {
+      "address": "0x123...",
+      "tnsName": "alice",
+      "network": "<active-network>"
+    }
+  }
+}
+```
+
+## Other Useful Examples
+
+### List Registered Apps
+
+This route requires:
+
+- `x-api-key`
+- wallet bearer token
+- HMAC headers
+
+```bash
+curl -X GET http://localhost:3000/api/v1/oauth/apps \
   -H "x-api-key: your_super_secret_flutter_api_key_here" \
-  -d '{ "developer_id": "xxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx" }'
+  -H "Authorization: Bearer your_wallet_access_token_here" \
+  -H "x-device-id: emulator-5554" \
+  -H "x-timestamp: 1780732800" \
+  -H "x-signature: your_hmac_signature_here"
+```
+
+### Delete an App
+
+This route requires:
+
+- `x-api-key`
+- wallet bearer token
+- HMAC headers
+
+```bash
+curl -X DELETE http://localhost:3000/api/v1/oauth/apps/app-uuid \
+  -H "x-api-key: your_super_secret_flutter_api_key_here" \
+  -H "Authorization: Bearer your_wallet_access_token_here" \
+  -H "x-device-id: emulator-5554" \
+  -H "x-timestamp: 1780732800" \
+  -H "x-signature: your_hmac_signature_here"
+```

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
+import 'token_entity.dart';
 import 'token_model.dart';
 
 final tokenRepositoryProvider = Provider((ref) {
@@ -14,7 +15,7 @@ class TokenRepository {
 
   TokenRepository(this.client);
 
-  Future<TokenModel> getToken(String refreshToken) async {
+  Future<TokenEntity> getToken(String refreshToken) async {
     final result = await client.post(
       endpoint: ApiEndpoints.WALLET_REFRESH,
       body: {"refreshToken": refreshToken},

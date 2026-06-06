@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/config/resource/data_state.dart';
 import '../../services/storage_service.dart';
-import 'token_model.dart';
+import 'token_entity.dart';
 import 'token_state_model.dart';
 import 'token_usecase.dart';
 
@@ -31,18 +31,18 @@ class TokenNotifier extends _$TokenNotifier {
     return TokenStateModel(refreshToken: refreshToken);
   }
 
-  Future updateTokens(TokenModel model) async {
-    if (model.accessToken == null || model.refreshToken == null) return;
+  Future updateTokens(TokenEntity entity) async {
+    if (entity.accessToken == null || entity.refreshToken == null) return;
 
     final storage = ref.read(storageServiceProvider);
-    await storage.saveRefreshToken(model.refreshToken ?? "");
+    await storage.saveRefreshToken(entity.refreshToken ?? "");
 
     final currentState = state.value;
     if (currentState != null) {
       state = AsyncData(
         currentState.copyWith(
-          token: model.accessToken,
-          refreshToken: model.refreshToken,
+          token: entity.accessToken,
+          refreshToken: entity.refreshToken,
         ),
       );
     } else {

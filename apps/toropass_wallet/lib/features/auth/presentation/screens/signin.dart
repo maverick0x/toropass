@@ -6,7 +6,6 @@ import '../../../../core/config/resource/data_state.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
-import '../../../../core/providers/loading_notifier.dart';
 import '../../../../core/utilities/animations.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
 import '../../../../generated/assets.gen.dart';
@@ -52,6 +51,29 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
     final username = ref.watch(authProvider.select((s) => s.username));
     final tnsState = ref.watch(authProvider.select((s) => s.tnsState));
     final tns = tnsState is DataSuccess ? tnsState.data : TnsEntity();
+    final isCheckingTns = tnsState is DataLoading;
+    final isNewWallet = tns?.isAvailable == true;
+    final isExistingWallet = tns?.isAvailable == false;
+    final canContinue = username.length > 4 && !isCheckingTns;
+
+    final pageTitle = isExistingWallet
+        ? "Verify Your Identity"
+        : "Claim Your Identity";
+    final pageDescription = isExistingWallet
+        ? "Your Toro username already exists. Enter your password to verify ownership and unlock your wallet."
+        : "Protect your digital identity with a unique username and secure password. Your identity, your control.";
+    final statusMessage = isCheckingTns
+        ? "Checking username availability..."
+        : isNewWallet
+        ? "Username available. You'll create a new wallet."
+        : isExistingWallet
+        ? "Username found. Verify ownership to continue."
+        : "";
+    final actionText = isExistingWallet
+        ? "Verify Ownership"
+        : isCheckingTns
+        ? "Checking Username"
+        : "Claim Identity";
 
     final notifier = ref.read(authProvider.notifier);
 
@@ -88,16 +110,26 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                   ],
                 ),
                 const Spacer(),
-                Text(
-                  "Claim Your Identity",
-                  style: appStyles.pageTitle,
-                  textAlign: TextAlign.center,
+                AnimatedSwitcher(
+                  duration: Animations.duration,
+                  transitionBuilder: Animations.textTransition,
+                  child: Text(
+                    key: ValueKey(pageTitle),
+                    pageTitle,
+                    style: appStyles.pageTitle,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 10.verticalSpacer,
-                Text(
-                  "Protect your digital identity with a unique username and secure password. Your identity, your control.",
-                  style: appStyles.bodyMedium,
-                  textAlign: TextAlign.center,
+                AnimatedSwitcher(
+                  duration: Animations.duration,
+                  transitionBuilder: Animations.textTransition,
+                  child: Text(
+                    key: ValueKey(pageDescription),
+                    pageDescription,
+                    style: appStyles.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 const Spacer(),
                 Container(
@@ -161,13 +193,9 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                             children: [
                               10.verticalSpacer,
                               FieldStatus(
-                                loading: tnsState is DataLoading,
-                                success: tnsState is DataSuccess,
-                                message: tns?.isAvailable == null
-                                    ? ""
-                                    : tns?.isAvailable == true
-                                    ? "Available!"
-                                    : "Verify ownership or try another username.",
+                                loading: isCheckingTns,
+                                success: isNewWallet,
+                                message: statusMessage,
                               ),
                             ],
                           ),
@@ -175,12 +203,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                       ),
                       30.verticalSpacer,
                       AppButton(
-                        text: notifier.isNewUser || tns?.isAvailable == null
-                            ? "Claim Identity"
-                            : "Verify Ownership",
-                        color: username.length < 5 || tnsState is DataLoading
-                            ? appColors.black.withAlpha(100)
-                            : appColors.primary,
+                        text: actionText,
+                        color: canContinue
+                            ? appColors.primary
+                            : appColors.black.withAlpha(100),
                         callback: () async {
                           if (username.length <= 4) return;
                           await displayDialog(
@@ -193,10 +219,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                             authProvider.select((s) => s.password),
                           );
                           if (password.isEmpty || password.length <= 7) return;
-                          ref.read(loadingProvider.notifier).wrap(() async {
-                            await Future.delayed(const Duration(seconds: 5));
-                            ref.read(authProvider.notifier).login();
-                          });
+                          await notifier.submit();
                         },
                       ),
                     ],
