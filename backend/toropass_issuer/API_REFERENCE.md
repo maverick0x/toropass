@@ -585,6 +585,7 @@ Note:
 Auth:
 
 - `x-api-key`
+- wallet `Authorization` bearer token
 - HMAC headers
 
 Purpose:
@@ -611,12 +612,14 @@ Success response:
 Important behavior:
 
 - Expired consents are filtered out before response
+- The live route still includes `:userId`, but the controller now uses the authenticated wallet user from the bearer token
 
 ### `DELETE /api/v1/conscents/:userId/:appId`
 
 Auth:
 
 - `x-api-key`
+- wallet `Authorization` bearer token
 - HMAC headers
 
 Purpose:
@@ -631,6 +634,10 @@ Success response:
   "message": "Access revoked successfully."
 }
 ```
+
+Important behavior:
+
+- The live route still includes `:userId`, but revocation is performed for the authenticated wallet user from the bearer token
 
 ## Suggested Wallet-App Integration Order
 

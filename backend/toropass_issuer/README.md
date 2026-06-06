@@ -70,7 +70,7 @@ Responsibilities:
 - Authorization code issuance
 - Token exchange for third-party apps
 - Profile retrieval with app-scoped access tokens
-- User consent listing and revocation
+- User consent listing and revocation for the authenticated wallet user
 
 ## Data Model Summary
 
@@ -142,3 +142,4 @@ pnpm prisma generate
 - Newly created or newly linked users are stored with placeholder `bvnHash` and `dateOfBirth` until KYC completes.
 - All wallet routes now require HMAC signing in addition to the shared API key.
 - The consent route path is currently spelled `/conscents/...` in code. The docs preserve that exact live path to avoid integration mistakes.
+- Consent routes now use the authenticated wallet user from the bearer token, even though the live path still contains `:userId`.
