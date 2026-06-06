@@ -100,12 +100,12 @@ Definition of done:
 
 ## Phase 5: KYC Integration
 
-- [ ] Add request model for `POST /api/v1/kyc/verify`
-- [ ] Build app-side KYC input flow
-- [ ] Send KYC payload using documented auth requirements
-- [ ] Update state using backend KYC response
-- [ ] Reflect `kycVerified` and `kycAnchorHash` in the app
-- [ ] Handle KYC failure messaging cleanly
+- [x] Add request model for `POST /api/v1/kyc/verify`
+- [x] Build app-side KYC input flow
+- [x] Send KYC payload using documented auth requirements
+- [x] Update state using backend KYC response
+- [x] Reflect `kycVerified` and `kycAnchorHash` in the app
+- [x] Handle KYC failure messaging cleanly
 
 Definition of done:
 
@@ -126,12 +126,12 @@ Definition of done:
 
 ## Phase 7: Developer Dashboard
 
-- [ ] Wire `POST /api/v1/oauth/apps/register`
-- [ ] Wire `GET /api/v1/oauth/apps`
-- [ ] Wire `DELETE /api/v1/oauth/apps/:appId`
-- [ ] Build models for developer app registration/listing
-- [ ] Build the hidden developer dashboard flow around the live backend
-- [ ] Show client secret once and handle it carefully in UI
+- [x] Wire `POST /api/v1/oauth/apps/register`
+- [x] Wire `GET /api/v1/oauth/apps`
+- [x] Wire `DELETE /api/v1/oauth/apps/:appId`
+- [x] Build models for developer app registration/listing
+- [x] Build the hidden developer dashboard flow around the live backend
+- [x] Show client secret once and handle it carefully in UI
 
 Definition of done:
 
@@ -139,28 +139,42 @@ Definition of done:
 
 ## Phase 8: Wallet-Side OAuth Consent Flow
 
-- [ ] Wire `POST /api/v1/oauth/authorize`
-- [ ] Model scopes and redirect URI handling in the wallet
-- [ ] Build consent approval UI for third-party apps
-- [ ] Keep wallet-auth flows separate from third-party OAuth token/profile flows
+- [x] Wire `POST /api/v1/oauth/authorize`
+- [x] Model scopes and redirect URI handling in the wallet
+- [x] Build consent approval UI for third-party apps
+- [x] Register the `toropass` native deep link scheme for wallet consent requests
+- [x] Keep wallet-auth flows separate from third-party OAuth token/profile flows
 
 Definition of done:
 
 - The wallet can approve app access and issue authorization codes through the documented backend contract.
 
+Current result:
+
+- Third-party apps can open the wallet consent flow with `toropass:/permission?...`.
+- Android registers the `toropass` scheme through a `VIEW` intent filter.
+- iOS registers the `toropass` scheme through `CFBundleURLTypes`.
+
 ## Phase 9: Error Handling and Security Hardening
 
-- [ ] Normalize backend errors into app-level domain errors
-- [ ] Handle invalid wallet password responses
-- [ ] Handle expired access token flows
-- [ ] Handle revoked refresh token flows
-- [ ] Handle invalid HMAC responses
-- [ ] Handle revoked consent states
-- [ ] Review storage boundaries for tokens and other sensitive values
+- [x] Normalize backend errors into app-level domain errors
+- [x] Handle invalid wallet password responses
+- [x] Handle expired access token flows
+- [x] Handle revoked refresh token flows
+- [x] Handle invalid HMAC responses
+- [x] Handle revoked consent states
+- [x] Review storage boundaries for tokens and other sensitive values
 
 Definition of done:
 
 - Expected auth, session, and security failures are handled gracefully and consistently.
+
+Current result:
+
+- Shared failure mapping now normalizes backend, network, timeout, security, session, consent, and password failures before they reach feature notifiers.
+- Session-loss requests now preserve the underlying auth failure instead of collapsing into a generic cancellation message.
+- Backend validation arrays are collapsed into readable snackbar messages.
+- Refresh token remains in secure storage while the access token stays memory-only during runtime.
 
 ## Phase 10: End-to-End Verification
 
@@ -172,10 +186,15 @@ Definition of done:
 - [ ] Test consent list/revoke end-to-end
 - [ ] Test developer app register/list/delete end-to-end
 - [ ] Verify every protected route sends the documented headers
+- [ ] Test third-party client OAuth launch, callback, token exchange, and profile fetch end-to-end
 
 Definition of done:
 
 - The wallet app and issuer backend work together across all documented first-party flows.
+
+Cross-project dependency:
+
+- Phase 10 now depends on the third-party Flutter package task plan in [packages/toropass_client/tasks.md](../../packages/toropass_client/tasks.md)
 
 ## Suggested Working Order
 
@@ -183,9 +202,9 @@ Definition of done:
 - [-] Phase 2: Networking Foundation
 - [x] Phase 3: Wallet Auth and Session Flow
 - [x] Phase 4: Auth UI Completion
-- [ ] Phase 5: KYC Integration
+- [x] Phase 5: KYC Integration
 - [x] Phase 6: Consent Management
-- [ ] Phase 7: Developer Dashboard
-- [ ] Phase 8: Wallet-Side OAuth Consent Flow
-- [ ] Phase 9: Error Handling and Security Hardening
+- [x] Phase 7: Developer Dashboard
+- [x] Phase 8: Wallet-Side OAuth Consent Flow
+- [x] Phase 9: Error Handling and Security Hardening
 - [ ] Phase 10: End-to-End Verification

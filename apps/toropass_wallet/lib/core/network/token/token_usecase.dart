@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/resource/data_state.dart';
+import '../../../core/config/resource/failure_mapper.dart';
 import '../../../core/config/resource/usecase.dart';
-import '../../config/resource/exception.dart';
 import 'token_entity.dart';
 import 'token_repository.dart';
 
@@ -22,10 +22,8 @@ class FetchTokenUseCase extends UseCase<DataState<TokenEntity>, String> {
       final result = await repository.getToken(params);
 
       return DataSuccess(data: result);
-    } on ApiServiceException catch (e, stackTrace) {
-      return DataFailed(code: e.code, error: e.message, trace: stackTrace);
     } catch (e, stackTrace) {
-      return DataFailed(error: e.toString(), trace: stackTrace);
+      return AppFailureMapper.toDataFailed(e, stackTrace);
     }
   }
 }

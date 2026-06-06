@@ -21,13 +21,13 @@ Primary source docs:
 | `GET /api/v1/wallets` | Fetch wallet profile | `x-api-key` + JWT + HMAC | Repository exists, request currently misconfigured |
 | `POST /api/v1/wallets/change-password` | Change wallet password | `x-api-key` + JWT + HMAC | Implemented in user repo |
 | `POST /api/v1/wallets/refresh` | Refresh wallet session | `x-api-key` + HMAC | Implemented in token repo / auth interceptor |
-| `POST /api/v1/kyc/verify` | Submit KYC | `x-api-key` + JWT + HMAC | Not implemented |
+| `POST /api/v1/kyc/verify` | Submit KYC | `x-api-key` + JWT + HMAC | Implemented |
 | `GET /api/v1/conscents` | List connected apps | `x-api-key` + JWT + HMAC | Implemented |
 | `DELETE /api/v1/conscents/:appId` | Revoke consent | `x-api-key` + JWT + HMAC | Implemented |
-| `POST /api/v1/oauth/apps/register` | Register developer app | `x-api-key` + JWT + HMAC | Not implemented |
-| `GET /api/v1/oauth/apps` | List developer apps | `x-api-key` + JWT + HMAC | Not implemented |
-| `DELETE /api/v1/oauth/apps/:appId` | Delete developer app | `x-api-key` + JWT + HMAC | Not implemented |
-| `POST /api/v1/oauth/authorize` | Approve app consent and issue code | `x-api-key` + JWT + HMAC | Not implemented |
+| `POST /api/v1/oauth/apps/register` | Register developer app | `x-api-key` + JWT + HMAC | Implemented |
+| `GET /api/v1/oauth/apps` | List developer apps | `x-api-key` + JWT + HMAC | Implemented |
+| `DELETE /api/v1/oauth/apps/:appId` | Delete developer app | `x-api-key` + JWT + HMAC | Implemented |
+| `POST /api/v1/oauth/authorize` | Approve app consent and issue code | `x-api-key` + JWT + HMAC | Implemented |
 
 ### Third-Party Client Package Routes
 

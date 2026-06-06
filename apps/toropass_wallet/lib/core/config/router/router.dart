@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../features/auth/presentation/screens/intro.dart';
 import '../../../features/auth/presentation/screens/signin.dart';
+import '../../../features/home/data/models/oauth_permission_request_model.dart';
 import '../../../features/home/presentation/screens/connections.dart';
 import '../../../features/home/presentation/screens/home.dart';
 import '../../../features/home/presentation/screens/permission.dart';
@@ -47,7 +48,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         loading: () => null,
         error: (err, stack) => AppRoutes.SPLASH_SCREEN,
         data: (m) {
+          final isPermissionRoute =
+              state.matchedLocation == AppRoutes.PERMISSION_SCREEN;
+          final permissionQuery = state.uri.queryParameters;
+          final hasPermissionPayload =
+              permissionQuery['client_id']?.isNotEmpty == true &&
+              permissionQuery['redirect_uri']?.isNotEmpty == true;
+
           if (!m.ready) {
+            if (isPermissionRoute && hasPermissionPayload) {
+              return null;
+            }
             final isOnSplash = state.matchedLocation == AppRoutes.SPLASH_SCREEN;
             if (isOnSplash) return null;
             return AppRoutes.SPLASH_SCREEN;
@@ -66,10 +77,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           /// AUTH GUARD LOGIC
           // User is not logged in and trying to access a protected route
           if (!isLoggedIn && !isGoingToAuth) {
+            if (isPermissionRoute && hasPermissionPayload) {
+              return Uri(
+                path: AppRoutes.SIGNIN_SCREEN,
+                queryParameters: permissionQuery,
+              ).toString();
+            }
             return AppRoutes.INTRO_SCREEN; // Redirect to intro
           }
           // User is logged in and trying to access an auth route
           if (isLoggedIn && isGoingToAuth) {
+            if (hasPermissionPayload) {
+              return Uri(
+                path: AppRoutes.PERMISSION_SCREEN,
+                queryParameters: permissionQuery,
+              ).toString();
+            }
             return AppRoutes.HOME_SCREEN; // Redirect to home
           }
 
@@ -117,7 +140,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         name: AppRoutes.PERMISSION_SCREEN,
         path: AppRoutes.PERMISSION_SCREEN,
-        builder: (context, state) => const PermissionScreen(),
+        builder: (context, state) => PermissionScreen(
+          request: OAuthPermissionRequestModel.fromUri(state.uri),
+        ),
       ),
       GoRoute(
         name: AppRoutes.SETTINGS_SCREEN,

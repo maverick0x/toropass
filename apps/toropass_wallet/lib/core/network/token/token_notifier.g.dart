@@ -33,7 +33,7 @@ final class TokenNotifierProvider
   TokenNotifier create() => TokenNotifier();
 }
 
-String _$tokenNotifierHash() => r'25be3c29f46f9c45cb63c5e39c3216c528b3de60';
+String _$tokenNotifierHash() => r'14ed8ec55ef528128e09d1174939b471aafc4653';
 
 abstract class _$TokenNotifier extends $AsyncNotifier<TokenStateModel> {
   FutureOr<TokenStateModel> build();

@@ -21,6 +21,8 @@ class AppTextfield extends StatefulWidget {
   final String? error;
   final Widget? prefix;
   final Widget? suffix;
+  final bool readOnly;
+  final VoidCallback? onTap;
   final double textHeight;
   final List<TextInputFormatter>? inputFormatters;
 
@@ -42,6 +44,8 @@ class AppTextfield extends StatefulWidget {
     this.onChanged,
     this.prefix,
     this.suffix,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -59,10 +63,12 @@ class _AppTextfieldState extends State<AppTextfield> {
         maxLines: widget.maxLines,
         enabled: widget.enabled,
         controller: widget.enabled ? widget.controller : null,
+        readOnly: widget.readOnly,
         obscureText: widget.obscureText,
         keyboardType: widget.keyboardType,
         textInputAction: widget.textInputAction,
         onChanged: widget.onChanged,
+        onTap: widget.onTap,
         inputFormatters: widget.inputFormatters,
         onTapOutside: (_) {
           FocusManager.instance.primaryFocus?.unfocus();

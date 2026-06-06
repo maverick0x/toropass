@@ -236,12 +236,14 @@ class ApiClient {
         throw ApiServiceException(
           path: response.path,
           code: response.code,
-          message: response.message,
+          message: response.message ?? error.response?.statusMessage,
           timestamp: response.timestamp,
         );
 
       case DioExceptionType.cancel:
-        throw ApiServiceException(message: 'Request was cancelled');
+        throw ApiServiceException(
+          message: error.error?.toString() ?? 'Request was cancelled',
+        );
 
       case DioExceptionType.badCertificate:
         throw ApiServiceException(
@@ -249,7 +251,9 @@ class ApiClient {
         );
 
       case DioExceptionType.connectionError:
-        throw ApiServiceException(message: 'Connection Refused');
+        throw ApiServiceException(
+          message: error.error?.toString() ?? 'Connection Refused',
+        );
 
       default:
         if (error.error is SocketException) {
