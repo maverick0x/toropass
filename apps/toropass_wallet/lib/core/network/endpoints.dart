@@ -1,12 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 // ignore_for_file: constant_identifier_names
 
-import 'package:flutter/foundation.dart';
-
 class ApiEndpoints {
-  static final String BASE_URL = kDebugMode
-      ? 'http://localhost:3000/api/v1/'
-      : 'https://api.toropass.app/api/v1/';
+  static final String BASE_URL = 'https://api.toropass.app/api/v1/';
 
   // WALLETS
   static const String WALLET = 'wallets';
