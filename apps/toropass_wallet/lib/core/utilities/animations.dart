@@ -5,17 +5,18 @@ class Animations {
   static const Duration duration = Duration(milliseconds: 500);
 
   static Widget textTransition(Widget child, Animation<double> animation) {
+    final isExiting = animation.status == AnimationStatus.reverse;
+    final offsetTween = isExiting
+        ? Tween<Offset>(begin: Offset.zero, end: const Offset(-0.12, 0))
+        : Tween<Offset>(begin: const Offset(0.12, 0), end: Offset.zero);
+
     return FadeTransition(
       opacity: animation,
-      child: ScaleTransition(
-        scale: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(-0.5, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
+      child: SlideTransition(
+        position: offsetTween.animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeInOut),
         ),
+        child: child,
       ),
     );
   }

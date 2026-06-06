@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/config/resource/data_state.dart';
 import '../../../../../core/config/themes/colors.dart';
 import '../../../../../core/config/themes/dimens.dart';
 import '../../../../../core/config/themes/styles.dart';
@@ -48,6 +49,17 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final appColors = AppColors.of(context);
 
     final password = ref.watch(authProvider.select((s) => s.password));
+    final tnsState = ref.watch(authProvider.select((s) => s.tnsState));
+    final isExistingWallet =
+        tnsState is DataSuccess && tnsState.data?.isAvailable == false;
+    final title = isExistingWallet ? "Verify Password" : "Create Password";
+    final description = isExistingWallet
+        ? "Enter the password linked to this Toro identity to verify ownership and continue."
+        : "Create a strong password to secure your new Toro identity.";
+    final helperText = isExistingWallet
+        ? "Use the password for this existing wallet."
+        : "Use at least 8 characters to protect this wallet.";
+    final actionText = isExistingWallet ? "Verify Wallet" : "Create Wallet";
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -67,10 +79,10 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
                   mainAxisSize: .min,
                   crossAxisAlignment: .start,
                   children: [
-                    Text("Password", style: appStyles.sectionTitle),
+                    Text(title, style: appStyles.sectionTitle),
                     10.verticalSpacer,
                     Text(
-                      "Create a strong password to secure your identity.",
+                      description,
                       style: appStyles.bodyMedium,
                       textAlign: TextAlign.start,
                     ),
@@ -121,13 +133,13 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
               visible: password.isNotEmpty,
               child: FieldStatus(
                 success: password.length > 7,
-                message: password.length <= 7 ? "Weak" : "Strong",
+                message: password.length <= 7 ? helperText : actionText,
               ),
             ),
           ),
           40.verticalSpacer,
           AppButton(
-            text: "Continue",
+            text: actionText,
             color: password.length > 7
                 ? appColors.primary
                 : appColors.black.withAlpha(100),
