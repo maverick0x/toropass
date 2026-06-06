@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { CurrentUser } from 'src/core/decorators/user.decorator';
 import { AuthGuard } from 'src/core/guards/auth.guard';
-import { HmacAuthGuard } from 'src/core/guards/hmac.guard';
 import { User } from 'src/generated/prisma/client';
 import { OAuthService } from '../core/application/oauth.service';
 import { ApiGuard } from '../core/guards/api.guard';
@@ -19,12 +18,12 @@ import { CreateAppDto } from './dto/create-app.dto';
 
 @Controller({ path: 'oauth', version: '1' })
 export class OAuthController {
-  constructor(private oauthService: OAuthService) {}
+  constructor(private oauthService: OAuthService) { }
 
   @Post('apps/register')
   @UseGuards(ApiGuard)
   @UseGuards(AuthGuard)
-  @UseGuards(HmacAuthGuard)
+  // @UseGuards(HmacAuthGuard)
   async registerApp(@CurrentUser() user: User, @Body() payload: CreateAppDto) {
     const appDetails = await this.oauthService.registerApp(
       payload.name,
@@ -43,7 +42,7 @@ export class OAuthController {
   @Get('apps')
   @UseGuards(ApiGuard)
   @UseGuards(AuthGuard)
-  @UseGuards(HmacAuthGuard)
+  // @UseGuards(HmacAuthGuard)
   async listApps(@CurrentUser() user: User) {
     const apps = await this.oauthService.getApps(user.id);
     return {
@@ -55,7 +54,7 @@ export class OAuthController {
   @Delete('apps/:appId')
   @UseGuards(ApiGuard)
   @UseGuards(AuthGuard)
-  @UseGuards(HmacAuthGuard)
+  // @UseGuards(HmacAuthGuard)
   async deleteApp(@CurrentUser() user: User, @Param('appId') appId: string) {
     return await this.oauthService.deleteApp(user.id, appId);
   }
@@ -63,7 +62,7 @@ export class OAuthController {
   @Post('authorize')
   @UseGuards(ApiGuard)
   @UseGuards(AuthGuard)
-  @UseGuards(HmacAuthGuard)
+  // @UseGuards(HmacAuthGuard)
   async authorize(
     @CurrentUser() user: User,
     @Body('client_id') clientId: string,

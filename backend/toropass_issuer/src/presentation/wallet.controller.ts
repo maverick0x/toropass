@@ -10,7 +10,6 @@ import {
 import { CurrentUser } from 'src/core/decorators/user.decorator';
 import { ApiGuard } from 'src/core/guards/api.guard';
 import { AuthGuard } from 'src/core/guards/auth.guard';
-import { HmacAuthGuard } from 'src/core/guards/hmac.guard';
 import { User } from 'src/generated/prisma/client';
 import { WalletService } from '../core/application/wallet.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -20,7 +19,7 @@ import { ValidateWalletDto } from './dto/validate-wallet.dto';
 
 @Controller({ path: 'wallets', version: '1' })
 @UseGuards(ApiGuard)
-@UseGuards(HmacAuthGuard)
+// @UseGuards(HmacAuthGuard)
 export class WalletController {
   constructor(private readonly walletService: WalletService) { }
 
