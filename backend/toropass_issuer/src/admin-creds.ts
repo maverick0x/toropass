@@ -1,7 +1,7 @@
 import * as ToronetSDK from 'torosdk';
 
 async function generateAdminWallet() {
-  const configuredNetwork = process.env.TORONET_NETWORK?.toLowerCase() || 'testnet';
+  const configuredNetwork = process.env.BLOCKCHAIN_NETWORK?.toLowerCase() || 'testnet';
   const network = configuredNetwork === 'mainnet' ? 'mainnet' : 'testnet';
 
   ToronetSDK.initializeSDK({ network });

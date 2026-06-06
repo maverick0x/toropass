@@ -107,11 +107,11 @@ The current code depends on these values:
 - `APP_API_KEY`: required by `ApiGuard`
 - `APP_SECRET`: required by `HmacAuthGuard`
 - `JWT_SECRET`: used for first-party wallet JWTs
-- `TORONET_NETWORK`: Toronet SDK network, supported values are `mainnet` and `testnet`
-- `MAINNET_ADMIN_ADDRESS`: Toronet admin wallet for KYC when `TORONET_NETWORK=mainnet`
-- `MAINNET_ADMIN_PASSWORD`: Toronet admin wallet password for KYC when `TORONET_NETWORK=mainnet`
-- `TESTNET_ADMIN_ADDRESS`: Toronet admin wallet for KYC when `TORONET_NETWORK=testnet`
-- `TESTNET_ADMIN_PASSWORD`: Toronet admin wallet password for KYC when `TORONET_NETWORK=testnet`
+- `BLOCKCHAIN_NETWORK`: Toronet SDK network, supported values are `mainnet` and `testnet`
+- `MAINNET_ADMIN_ADDRESS`: Toronet admin wallet for KYC when `BLOCKCHAIN_NETWORK=mainnet`
+- `MAINNET_ADMIN_PASSWORD`: Toronet admin wallet password for KYC when `BLOCKCHAIN_NETWORK=mainnet`
+- `TESTNET_ADMIN_ADDRESS`: Toronet admin wallet for KYC when `BLOCKCHAIN_NETWORK=testnet`
+- `TESTNET_ADMIN_PASSWORD`: Toronet admin wallet password for KYC when `BLOCKCHAIN_NETWORK=testnet`
 - `PORT`: optional, defaults to `3000`
 
 ## Local Development
@@ -134,11 +134,18 @@ Generate Prisma client manually if needed:
 pnpm prisma generate
 ```
 
+Inspect the active blockchain configuration and run the SDK connectivity check:
+
+```bash
+pnpm run config
+```
+
 ## Important Implementation Notes
 
-- Toronet SDK network is selected from `TORONET_NETWORK` and defaults to `mainnet` when unset.
+- Toronet SDK network is selected from `BLOCKCHAIN_NETWORK` and defaults to `testnet` when unset.
 - The backend reads admin credentials from the env pair that matches the active Toronet network.
 - `Wallet.network` is persisted from the active Toronet adapter network during wallet creation and first-time wallet linking.
+- `pnpm run config` initializes the SDK with the configured network and attempts a test wallet creation for quick connectivity verification.
 - Newly created or newly linked users are stored with placeholder `bvnHash` and `dateOfBirth` until KYC completes.
 - All wallet routes now require HMAC signing in addition to the shared API key.
 - The consent route path is currently spelled `/conscents/...` in code. The docs preserve that exact live path to avoid integration mistakes.

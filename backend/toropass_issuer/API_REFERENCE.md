@@ -229,7 +229,7 @@ Success response:
 
 Important behavior:
 
-- `wallet.network` reflects the active Toronet SDK network selected by `TORONET_NETWORK`
+- `wallet.network` reflects the active Toronet SDK network selected by `BLOCKCHAIN_NETWORK`
 
 ### `POST /api/v1/wallets/change-password`
 

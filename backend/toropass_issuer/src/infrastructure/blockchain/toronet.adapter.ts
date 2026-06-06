@@ -18,8 +18,8 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
     @Inject(LOGGER_PORT) private logger: ILogger,
   ) {
     const configuredNetwork =
-      this.configService.get<string>('TORONET_NETWORK')?.toLowerCase() ||
-      'mainnet';
+      this.configService.get<string>('BLOCKCHAIN_NETWORK')?.toLowerCase() ||
+      'testnet';
     this.network = configuredNetwork === 'testnet' ? 'testnet' : 'mainnet';
 
     const adminAddressKey =
