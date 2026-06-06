@@ -2,7 +2,7 @@
 // ignore_for_file: constant_identifier_names
 
 class ApiEndpoints {
-  static final String BASE_URL = 'https://api.toropass.app/api/v1/';
+  static final String BASE_URL = 'http://localhost:3000/api/v1/';
 
   // WALLETS
   static const String WALLET = 'wallets';

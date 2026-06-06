@@ -92,7 +92,6 @@ class KycNotifier extends _$KycNotifier {
           currency: "NGN",
           phoneNumber: KycValidator.formatPhoneNumberForApi(phoneNumber),
           dob: formattedDob,
-          address: walletAddress,
         ),
       );
       state = state.copyWith(verifyKycState: response);

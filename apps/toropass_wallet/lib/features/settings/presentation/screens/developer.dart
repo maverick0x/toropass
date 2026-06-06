@@ -55,7 +55,6 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
   @override
   Widget build(BuildContext context) {
     final appStyles = context.appStyles;
-    final appColors = AppColors.of(context);
     final developerState = ref.watch(developerProvider);
     final appsState = developerState.appsState;
     final apps = appsState.data ?? const <DeveloperAppEntity>[];
@@ -74,49 +73,43 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
             mainAxisSize: .max,
             crossAxisAlignment: .start,
             children: [
-              TopBar(
-                title: "Developers",
-                action: AppInkWell(
-                  callback: () => ref.read(developerProvider.notifier).getApps(),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 40.width),
-                    child: Icon(
-                      Icons.refresh_rounded,
-                      size: 24.width,
-                      color: appColors.primary,
-                    ),
-                  ),
-                ),
-              ),
+              TopBar(title: "Developers"),
               Expanded(
                 child: Skeletonizer(
                   enabled: showSkeleton,
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: 30.height),
-                    children: [
-                      20.verticalSpacer,
-                      _buildHeader(),
-                      if (developerState.latestCreatedApp != null) ...[
+                  child: RefreshIndicator(
+                    onRefresh: () =>
+                        ref.read(developerProvider.notifier).getApps(),
+                    child: ListView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.only(bottom: 30.height),
+                      children: [
                         20.verticalSpacer,
-                        _buildSecretCard(developerState.latestCreatedApp!),
-                      ],
-                      20.verticalSpacer,
-                      _buildCreateSection(developerState),
-                      20.verticalSpacer,
-                      if (apps.isEmpty && !developerState.isCreating)
-                        _buildEmptyState()
-                      else ...[
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: AppDimens.horizontalPadding,
+                        _buildHeader(),
+                        if (developerState.latestCreatedApp != null) ...[
+                          20.verticalSpacer,
+                          _buildSecretCard(developerState.latestCreatedApp!),
+                        ],
+                        20.verticalSpacer,
+                        _buildCreateSection(developerState),
+                        20.verticalSpacer,
+                        if (apps.isEmpty && !developerState.isCreating)
+                          _buildEmptyState()
+                        else ...[
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppDimens.horizontalPadding,
+                            ),
+                            child: Text(
+                              "Registered Apps",
+                              style: appStyles.cardTitle,
+                            ),
                           ),
-                          child: Text("Registered Apps", style: appStyles.cardTitle),
-                        ),
-                        15.verticalSpacer,
-                        ...apps.map(_buildAppCard),
+                          15.verticalSpacer,
+                          ...apps.map(_buildAppCard),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -234,7 +227,8 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
               ),
               child: AppButton(
                 text: "Create Application",
-                callback: () => ref.read(developerProvider.notifier).showCreateForm(),
+                callback: () =>
+                    ref.read(developerProvider.notifier).showCreateForm(),
               ),
             ),
     );
@@ -304,29 +298,35 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
           12.verticalSpacer,
           _buildSecretField("Client ID", app.clientId ?? ''),
           12.verticalSpacer,
-          _buildSecretField("Client Secret", app.clientSecret ?? '', sensitive: true),
+          _buildSecretField(
+            "Client Secret",
+            app.clientSecret ?? '',
+            sensitive: true,
+          ),
           12.verticalSpacer,
           _buildSecretField("Redirect URI", app.redirectUri ?? ''),
           18.verticalSpacer,
           AppButton(
             text: "I've Saved It",
-            callback: () => ref.read(developerProvider.notifier).dismissLatestCreatedApp(),
+            callback: () =>
+                ref.read(developerProvider.notifier).dismissLatestCreatedApp(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSecretField(String label, String value, {bool sensitive = false}) {
+  Widget _buildSecretField(
+    String label,
+    String value, {
+    bool sensitive = false,
+  }) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 14.width,
-        vertical: 12.height,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 14.width, vertical: 12.height),
       decoration: BoxDecoration(
         color: appColors.surface,
         borderRadius: BorderRadius.circular(AppDimens.borderRadius),
@@ -423,10 +423,11 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
                   vertical: 4.height,
                 ),
                 decoration: BoxDecoration(
-                  color: (app.isActive == true
-                          ? appColors.success
-                          : appColors.error)
-                      .withAlpha(18),
+                  color:
+                      (app.isActive == true
+                              ? appColors.success
+                              : appColors.error)
+                          .withAlpha(18),
                   borderRadius: BorderRadius.circular(AppDimens.miniRadius),
                 ),
                 child: Text(
@@ -505,9 +506,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
         4.verticalSpacer,
         Text(
           value,
-          style: appStyles.body.copyWith(
-            color: appColors.text.withAlpha(210),
-          ),
+          style: appStyles.body.copyWith(color: appColors.text.withAlpha(210)),
         ),
       ],
     );
@@ -552,7 +551,9 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
   }
 
   Future<void> _registerApp() async {
-    final success = await ref.read(developerProvider.notifier).registerApp(
+    final success = await ref
+        .read(developerProvider.notifier)
+        .registerApp(
           name: _nameController.text,
           redirectUri: _callbackController.text,
         );

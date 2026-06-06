@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:toropass_client/toropass_client.dart';
 
@@ -96,6 +97,18 @@ void main() {
         const ToroPassAuthTransportError(message: 'Network unavailable'),
         isA<ToroPassAuthTransportError>(),
       );
+    });
+
+    test('maps denied and transport states into host-friendly messages', () {
+      final denied = const ToroPassAuthDenied().toStatusMessage();
+      final failed = const ToroPassAuthTransportError(
+        message: 'Network unavailable',
+      ).toStatusMessage();
+
+      expect(denied.title, 'Access denied');
+      expect(denied.tone, ToroPassStatusTone.warning);
+      expect(failed.message, 'Network unavailable');
+      expect(failed.tone, ToroPassStatusTone.error);
     });
   });
 
@@ -344,6 +357,52 @@ void main() {
         await listener.close();
       },
     );
+  });
+
+  group('ToroPassButton', () {
+    testWidgets('runs verifyIdentity and reports the result', (tester) async {
+      final launcher = _FakeWalletLauncher(canLaunchResult: true);
+      final listener = _FakeCallbackListener();
+      final httpClient = _FakeHttpClient();
+      final client = _buildClient(
+        callbackListener: listener,
+        walletLauncher: launcher,
+        httpClient: httpClient,
+      );
+      ToroPassAuthResult? capturedResult;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ToroPassButton(
+              client: client,
+              appName: 'Example App',
+              onResult: (result) => capturedResult = result,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ToroPassButton));
+      await tester.pump();
+
+      expect(find.text('Opening ToroPass...'), findsOneWidget);
+
+      final launchedUri = await _waitFor(() => launcher.launchedUri);
+      await tester.pump();
+      listener.add(
+        Uri.parse(
+          'myapp://callback?code=auth-code-123&state=${launchedUri.queryParameters['state']}',
+        ),
+      );
+
+      await _waitFor(() => capturedResult);
+      await tester.pump();
+
+      expect(capturedResult, isA<ToroPassAuthSuccess>());
+      expect(find.text('Verify with ToroPass'), findsOneWidget);
+      await listener.close();
+    });
   });
 }
 

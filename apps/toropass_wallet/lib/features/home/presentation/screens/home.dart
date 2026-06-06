@@ -50,8 +50,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         walletState is DataFailed ||
         consentState is DataLoading ||
         consentState is DataFailed;
-    final showRefresh =
-        walletState is DataFailed || consentState is DataFailed;
+    final showRefresh = walletState is DataFailed || consentState is DataFailed;
 
     return PopScope(
       canPop: false,
@@ -76,6 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
+              10.verticalSpacer,
               Expanded(
                 child: SingleChildScrollView(
                   child: Skeletonizer(
@@ -84,6 +84,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       mainAxisSize: .min,
                       crossAxisAlignment: .center,
                       children: [
+                        15.verticalSpacer,
                         _buildRefresh(showRefresh),
                         IdentityCard(),
                         _secureAction(profile),

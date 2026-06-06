@@ -93,18 +93,25 @@ Current result:
 
 ## Phase 5: Package UX Helpers
 
-- [ ] Expose a simple `verifyIdentity()` method
-- [ ] Add an optional `ToroPassButton` widget for common integration
-- [ ] Surface loading and error states that host apps can style
-- [ ] Provide clear messaging for wallet-missing, denied, expired, and revoked states
+- [x] Expose a simple `verifyIdentity()` method
+- [x] Add an optional `ToroPassButton` widget for common integration
+- [x] Surface loading and error states that host apps can style
+- [x] Provide clear messaging for wallet-missing, denied, expired, and revoked states
 
 Definition of done:
 
 - A third-party Flutter app can integrate ToroPass with minimal custom glue code.
 
+Current result:
+
+- `ToroPassClient.verifyIdentity()` now serves as the one-call launch, callback, token exchange, and profile fetch flow.
+- `ToroPassButton` provides an optional package widget with built-in loading state and result callback handling.
+- `ToroPassAuthResult.toStatusMessage()` maps package results into host-friendly titles, messages, and tones for app-specific UI.
+- Host apps still control final presentation, storage, and layout while reusing the package's flow and state mapping.
+
 ## Phase 6: Example App and Joint Testing
 
-- [ ] Create a package example app that registers a callback URI and launches ToroPass Wallet
+- [x] Create a package example app that registers a callback URI and launches ToroPass Wallet
 - [ ] Test logged-in wallet approval flow
 - [ ] Test logged-out wallet flow that redirects through sign-in before consent
 - [ ] Test `Deny` and top-right `X` callback behavior
@@ -115,6 +122,12 @@ Definition of done:
 Definition of done:
 
 - The package and wallet can be tested together against the live issuer contract.
+
+Current result:
+
+- Added a package `example/` app with the callback URI `toropassclient://oauth/callback`.
+- The example supports both one-step `verifyIdentity()` and a manual code-capture flow for exchange and reuse testing.
+- Added [`phase6-test.md`](./phase6-test.md) to walk through the remaining device-level scenarios.
 
 ## Phase 10 Joint Test Matrix
 
@@ -128,4 +141,4 @@ Definition of done:
 
 Current blocker:
 
-- The package itself is still the default Flutter template, so phase 10 cannot be completed until phases 1 through 6 are implemented.
+- The example app is now in place, but the live wallet/device scenarios still need to be executed manually to close out the remaining Phase 6 checks.

@@ -29,11 +29,9 @@ class FieldStatus extends StatelessWidget {
       duration: Animations.duration,
       padding: EdgeInsets.symmetric(vertical: 4.height, horizontal: 10.width),
       decoration: BoxDecoration(
-        color: loading
-            ? appColors.primary.withAlpha(20)
-            : success
+        color: success
             ? appColors.success.withAlpha(20)
-            : appColors.error.withAlpha(20),
+            : appColors.primary.withAlpha(20),
         borderRadius: BorderRadius.circular(AppDimens.borderRadius),
       ),
       child: Row(
@@ -66,7 +64,7 @@ class FieldStatus extends StatelessWidget {
                     path: Assets.icons.checkmarkCircle,
                     width: 14.width,
                     height: 14.height,
-                    color: success ? appColors.success : appColors.error,
+                    color: success ? appColors.success : appColors.primary,
                   ),
                   5.horizontalSpacer,
                   AnimatedSwitcher(
@@ -75,7 +73,7 @@ class FieldStatus extends StatelessWidget {
                       key: ValueKey(message),
                       message,
                       style: appStyles.caption.copyWith(
-                        color: success ? appColors.success : appColors.error,
+                        color: success ? appColors.success : appColors.primary,
                       ),
                     ),
                   ),
