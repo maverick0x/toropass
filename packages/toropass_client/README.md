@@ -8,6 +8,8 @@ ToroPass Client launches the ToroPass Wallet OAuth consent flow, receives the ap
 
 The package contract is defined. Deep link launch, callback capture, token exchange, profile fetch, and the example app are tracked in [tasks.md](tasks.md).
 
+For a runnable integration harness, see the package [example](example/README.md) and the Phase 6 [joint test guide](phase6-test.md).
+
 ## Contract
 
 Create a client with your OAuth app details:
@@ -89,6 +91,21 @@ switch (result) {
 }
 ```
 
+For a lighter integration path, the package also includes a ready-made button that manages its own loading state:
+
+```dart
+ToroPassButton(
+  client: client,
+  appName: 'Example App',
+  onResult: (result) {
+    final status = result.toStatusMessage();
+    debugPrint('${status.title}: ${status.message}');
+  },
+)
+```
+
+`ToroPassButton` is intentionally small and unopinionated. Host apps can still style it through `style`, replace the icon or loading indicator, and decide how to present the final result.
+
 ## Token Handling
 
 The package exposes `fetchProfile(accessToken:)` for silent profile refresh with an existing OAuth app token.
@@ -99,6 +116,22 @@ Token persistence is intentionally left to the host app. Do not ship a `client_s
 final profile = await client.fetchProfile(
   accessToken: session.token.accessToken,
 );
+```
+
+## Result Messaging
+
+Every auth result can be mapped into a host-friendly title, message, and tone:
+
+```dart
+final status = result.toStatusMessage();
+
+switch (status.tone) {
+  case ToroPassStatusTone.success:
+  case ToroPassStatusTone.info:
+  case ToroPassStatusTone.warning:
+  case ToroPassStatusTone.error:
+    debugPrint('${status.title}: ${status.message}');
+}
 ```
 
 ## Wallet Deep Link

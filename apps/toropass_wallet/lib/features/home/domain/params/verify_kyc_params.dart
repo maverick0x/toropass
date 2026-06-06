@@ -6,7 +6,6 @@ class VerifyKycParams {
   final String currency;
   final String phoneNumber;
   final String dob;
-  final String address;
 
   const VerifyKycParams({
     required this.firstName,
@@ -16,17 +15,15 @@ class VerifyKycParams {
     required this.currency,
     required this.phoneNumber,
     required this.dob,
-    required this.address,
   });
 
   Map<String, dynamic> toJson() => {
-        "firstName": firstName,
-        "middleName": middleName,
-        "lastName": lastName,
-        "bvn": bvn,
-        "currency": currency,
-        "phoneNumber": phoneNumber,
-        "dob": dob,
-        "address": address,
-      };
+    "firstName": firstName,
+    "middleName": middleName,
+    "lastName": lastName,
+    "bvn": bvn,
+    "currency": currency,
+    "phoneNumber": phoneNumber,
+    "dob": dob,
+  };
 }

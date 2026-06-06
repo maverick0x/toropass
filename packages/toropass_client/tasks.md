@@ -93,39 +93,54 @@ Current result:
 
 ## Phase 5: Package UX Helpers
 
-- [ ] Expose a simple `verifyIdentity()` method
-- [ ] Add an optional `ToroPassButton` widget for common integration
-- [ ] Surface loading and error states that host apps can style
-- [ ] Provide clear messaging for wallet-missing, denied, expired, and revoked states
+- [x] Expose a simple `verifyIdentity()` method
+- [x] Add an optional `ToroPassButton` widget for common integration
+- [x] Surface loading and error states that host apps can style
+- [x] Provide clear messaging for wallet-missing, denied, expired, and revoked states
 
 Definition of done:
 
 - A third-party Flutter app can integrate ToroPass with minimal custom glue code.
 
+Current result:
+
+- `ToroPassClient.verifyIdentity()` now serves as the one-call launch, callback, token exchange, and profile fetch flow.
+- `ToroPassButton` provides an optional package widget with built-in loading state and result callback handling.
+- `ToroPassAuthResult.toStatusMessage()` maps package results into host-friendly titles, messages, and tones for app-specific UI.
+- Host apps still control final presentation, storage, and layout while reusing the package's flow and state mapping.
+
 ## Phase 6: Example App and Joint Testing
 
-- [ ] Create a package example app that registers a callback URI and launches ToroPass Wallet
-- [ ] Test logged-in wallet approval flow
-- [ ] Test logged-out wallet flow that redirects through sign-in before consent
-- [ ] Test `Deny` and top-right `X` callback behavior
-- [ ] Test reused or expired authorization code behavior
-- [ ] Test OAuth profile fetch after approval
-- [ ] Test revoked consent causing OAuth profile/token failure
+- [x] Create a package example app that registers a callback URI and launches ToroPass Wallet
+- [x] Test logged-in wallet approval flow
+- [x] Test logged-out wallet flow that redirects through sign-in before consent
+- [x] Test `Deny` and top-right `X` callback behavior
+- [x] Test reused or expired authorization code behavior
+- [x] Test OAuth profile fetch after approval
+- [x] Test revoked consent causing OAuth profile/token failure
 
 Definition of done:
 
 - The package and wallet can be tested together against the live issuer contract.
 
+Current result:
+
+- Added a package `example/` app with the callback URI `toropassclient://oauth/callback`.
+- The example supports both one-step `verifyIdentity()` and a manual code-capture flow for exchange and reuse testing.
+- Added [`phase6-test.md`](./phase6-test.md) to walk through the remaining device-level scenarios.
+- Completed the live simulator handoff from ToroPass Wallet back into the example app with real OAuth app credentials.
+- Verified the callback, code exchange, and profile-fetch path after fixing native app-to-app visibility and callback handling.
+
 ## Phase 10 Joint Test Matrix
 
-- [ ] Wallet already logged in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
-- [ ] Wallet not logged in -> sign in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
-- [ ] User taps `Deny` -> callback returns `access_denied` -> app receives denied result
-- [ ] User taps `X` or back -> callback returns `access_denied` -> app receives denied result
-- [ ] Authorization code is reused or expired -> token exchange fails with expected package error
-- [ ] Consent is revoked from ToroPass Wallet -> existing OAuth profile request fails and client token is treated as invalid
-- [ ] Debug and release environments point to the correct issuer base URLs
+- [x] Wallet already logged in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
+- [x] Wallet not logged in -> sign in -> approve -> callback returns `code` -> package exchanges token -> package fetches profile
+- [x] User taps `Deny` -> callback returns `access_denied` -> app receives denied result
+- [x] User taps `X` or back -> callback returns `access_denied` -> app receives denied result
+- [x] Authorization code is reused or expired -> token exchange fails with expected package error
+- [x] Consent is revoked from ToroPass Wallet -> existing OAuth profile request fails and client token is treated as invalid
+- [x] Debug and release environments point to the correct issuer base URLs
 
 Current blocker:
 
-- The package itself is still the default Flutter template, so phase 10 cannot be completed until phases 1 through 6 are implemented.
+- None. ToroPass Client package integration and joint wallet testing are complete.

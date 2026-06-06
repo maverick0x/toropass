@@ -61,61 +61,45 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
             mainAxisSize: .min,
             crossAxisAlignment: .start,
             children: [
-              TopBar(
-                title: "Connections",
-                action: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: consentState is DataFailed
-                      ? AppInkWell(
-                          key: const ValueKey('refresh-consents'),
-                          callback: () =>
-                              ref.read(userProvider.notifier).getConsents(),
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 40.width),
-                            child: Icon(
-                              Icons.refresh_rounded,
-                              size: 24.width,
-                              color: appColors.primary,
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ),
+              TopBar(title: "Connections"),
               Expanded(
                 child: Skeletonizer(
                   enabled: showSkeleton,
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      20.verticalSpacer,
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 25.width),
-                        child: Column(
-                          mainAxisSize: .min,
-                          crossAxisAlignment: .start,
-                          children: [
-                            Text(
-                              "Active Connections",
-                              style: appStyles.cardTitle,
-                            ),
-                            5.verticalSpacer,
-                            Text(
-                              "Manage who has access to your verified status.",
-                              style: appStyles.caption.copyWith(
-                                color: appColors.text.withAlpha(200),
+                  child: RefreshIndicator(
+                    onRefresh: () async =>
+                        await ref.read(userProvider.notifier).getConsents(),
+                    child: ListView(
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        20.verticalSpacer,
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 25.width),
+                          child: Column(
+                            mainAxisSize: .min,
+                            crossAxisAlignment: .start,
+                            children: [
+                              Text(
+                                "Active Connections",
+                                style: appStyles.cardTitle,
                               ),
-                            ),
-                          ],
+                              5.verticalSpacer,
+                              Text(
+                                "Manage who has access to your verified status.",
+                                style: appStyles.caption.copyWith(
+                                  color: appColors.text.withAlpha(200),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      15.verticalSpacer,
-                      if (consents.isEmpty)
-                        _buildEmptyState()
-                      else
-                        ...consents.map(_buildConnectedApp),
-                      30.verticalSpacer,
-                    ],
+                        15.verticalSpacer,
+                        if (consents.isEmpty)
+                          _buildEmptyState()
+                        else
+                          ...consents.map(_buildConnectedApp),
+                        30.verticalSpacer,
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -263,9 +247,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(
-        horizontal: AppDimens.horizontalPadding,
-      ),
+      margin: EdgeInsets.symmetric(horizontal: AppDimens.horizontalPadding),
       padding: EdgeInsets.symmetric(
         horizontal: AppDimens.horizontalPadding,
         vertical: 24.height,
