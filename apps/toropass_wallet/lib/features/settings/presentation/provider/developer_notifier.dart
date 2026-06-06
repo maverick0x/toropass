@@ -57,9 +57,11 @@ class DeveloperNotifier extends _$DeveloperNotifier {
     if (state.appsState is DataFailed) {
       final failedState = state.appsState as DataFailed;
       if (!silentError) {
-        final message = "An error occurred while loading your applications.";
+        final message =
+            failedState.error ??
+            "An error occurred while loading your applications.";
         AppLogger.log(
-          failedState.error ?? message,
+          message,
           trace: failedState.trace,
           name: "DEVELOPERNOTIFIER",
         );
@@ -111,14 +113,15 @@ class DeveloperNotifier extends _$DeveloperNotifier {
 
       state = state.copyWith(registerAppState: response);
       if (response is DataFailed<DeveloperAppEntity>) {
+        final message =
+            response.error ??
+            "An error occurred while generating application keys.";
         AppLogger.log(
-          response.error ?? "Register app failed",
+          message,
           trace: response.trace,
           name: "DEVELOPERNOTIFIER",
         );
-        snackbar.display(
-          message: "An error occurred while generating application keys.",
-        );
+        snackbar.display(message: message);
       }
     });
 
@@ -144,14 +147,15 @@ class DeveloperNotifier extends _$DeveloperNotifier {
       }
 
       if (response is DataFailed<SuccessResponse>) {
+        final message =
+            response.error ??
+            "An error occurred while deleting the application.";
         AppLogger.log(
-          response.error ?? "Delete app failed",
+          message,
           trace: response.trace,
           name: "DEVELOPERNOTIFIER",
         );
-        snackbar.display(
-          message: "An error occurred while deleting the application.",
-        );
+        snackbar.display(message: message);
       }
     });
   }

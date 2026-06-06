@@ -150,17 +150,24 @@ Definition of done:
 
 ## Phase 9: Error Handling and Security Hardening
 
-- [ ] Normalize backend errors into app-level domain errors
-- [ ] Handle invalid wallet password responses
-- [ ] Handle expired access token flows
-- [ ] Handle revoked refresh token flows
-- [ ] Handle invalid HMAC responses
-- [ ] Handle revoked consent states
-- [ ] Review storage boundaries for tokens and other sensitive values
+- [x] Normalize backend errors into app-level domain errors
+- [x] Handle invalid wallet password responses
+- [x] Handle expired access token flows
+- [x] Handle revoked refresh token flows
+- [x] Handle invalid HMAC responses
+- [x] Handle revoked consent states
+- [x] Review storage boundaries for tokens and other sensitive values
 
 Definition of done:
 
 - Expected auth, session, and security failures are handled gracefully and consistently.
+
+Current result:
+
+- Shared failure mapping now normalizes backend, network, timeout, security, session, consent, and password failures before they reach feature notifiers.
+- Session-loss requests now preserve the underlying auth failure instead of collapsing into a generic cancellation message.
+- Backend validation arrays are collapsed into readable snackbar messages.
+- Refresh token remains in secure storage while the access token stays memory-only during runtime.
 
 ## Phase 10: End-to-End Verification
 
@@ -172,10 +179,15 @@ Definition of done:
 - [ ] Test consent list/revoke end-to-end
 - [ ] Test developer app register/list/delete end-to-end
 - [ ] Verify every protected route sends the documented headers
+- [ ] Test third-party client OAuth launch, callback, token exchange, and profile fetch end-to-end
 
 Definition of done:
 
 - The wallet app and issuer backend work together across all documented first-party flows.
+
+Cross-project dependency:
+
+- Phase 10 now depends on the third-party Flutter package task plan in [packages/toropass_client/tasks.md](../../packages/toropass_client/tasks.md)
 
 ## Suggested Working Order
 
@@ -187,5 +199,5 @@ Definition of done:
 - [x] Phase 6: Consent Management
 - [x] Phase 7: Developer Dashboard
 - [x] Phase 8: Wallet-Side OAuth Consent Flow
-- [ ] Phase 9: Error Handling and Security Hardening
+- [x] Phase 9: Error Handling and Security Hardening
 - [ ] Phase 10: End-to-End Verification

@@ -17,7 +17,12 @@ class ErrorResponse {
     path = json['path'];
     code = json['statusCode'];
     success = json['success'];
-    message = json['message'];
+    final rawMessage = json['message'];
+    if (rawMessage is List) {
+      message = rawMessage.map((item) => item.toString()).join('\n');
+    } else {
+      message = rawMessage?.toString();
+    }
     timestamp = DateTime.tryParse(json["timestamp"] ?? "");
   }
 }
