@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/config/resource/data_state.dart';
 import '../core/config/router/routes.dart';
 import '../core/config/themes/colors.dart';
 import '../core/config/themes/dimens.dart';
 import '../core/config/themes/styles.dart';
 import '../core/utilities/extensions/numbers.dart';
+import '../features/home/domain/entities/profile_entity.dart';
+import '../features/home/presentation/provider/user_notifier.dart';
 import '../generated/assets.gen.dart';
 import 'app_inkwell.dart';
 import 'app_svg.dart';
 
-class IdentityCard extends StatelessWidget {
+class IdentityCard extends ConsumerWidget {
   const IdentityCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
+    final walletState = ref.watch(userProvider.select((s) => s.walletState));
+    final profile = walletState is DataSuccess ? walletState.data : null;
+
+    final displayName = profile?.wallet?.tnsName?.isNotEmpty == true
+        ? '${profile!.wallet!.tnsName}.toro'
+        : 'ToroPass Identity';
+    final isVerified = profile?.kycVerified == true;
+    final walletAddress = _formatWalletAddress(profile);
+    final network = _formatNetwork(profile?.wallet?.network);
 
     return Hero(
       tag: "IDENTITY-CARD",
@@ -50,7 +63,7 @@ class IdentityCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      "alexander.toro",
+                      displayName,
                       style: appStyles.sectionTitle,
                     ),
                   ),
@@ -66,9 +79,11 @@ class IdentityCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppDimens.miniRadius),
                     ),
                     child: Text(
-                      "UNVERIFIED",
+                      isVerified ? "VERIFIED" : "UNVERIFIED",
                       style: appStyles.caption.copyWith(
-                        color: appColors.error.withAlpha(150),
+                        color: isVerified
+                            ? appColors.success.withAlpha(180)
+                            : appColors.error.withAlpha(150),
                       ),
                     ),
                   ),
@@ -76,7 +91,7 @@ class IdentityCard extends StatelessWidget {
               ),
               5.verticalSpacer,
               Text(
-                "0xfg3kddsdnwdwkd9...f2a1",
+                walletAddress,
                 style: appStyles.body.copyWith(
                   color: appColors.text.withAlpha(150),
                 ),
@@ -99,7 +114,7 @@ class IdentityCard extends StatelessWidget {
                         ),
                         5.verticalSpacer,
                         Text(
-                          "Testnet",
+                          network,
                           style: appStyles.body.copyWith(
                             color: appColors.text.withAlpha(220),
                           ),
@@ -125,5 +140,20 @@ class IdentityCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatWalletAddress(ProfileEntity? profile) {
+    final address = profile?.wallet?.address;
+    if (address == null || address.isEmpty) {
+      return "Wallet address unavailable";
+    }
+    if (address.length <= 16) return address;
+    return "${address.substring(0, 10)}...${address.substring(address.length - 6)}";
+  }
+
+  String _formatNetwork(String? network) {
+    if (network == null || network.isEmpty) return "Unknown";
+    final normalized = network.trim().toLowerCase();
+    return "${normalized[0].toUpperCase()}${normalized.substring(1)}";
   }
 }

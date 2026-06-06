@@ -58,7 +58,7 @@ class QueuedAuthInterceptor extends QueuedInterceptor {
       final notifier = _ref.read(tokenProvider.notifier);
 
       // Prevent infinite loops if the refresh token endpoint itself returns 401
-      if (err.requestOptions.path.contains('/refresh-token')) {
+      if (err.requestOptions.path.contains(ApiEndpoints.WALLET_REFRESH)) {
         return _forceLogout(err, handler);
       }
 
@@ -72,6 +72,7 @@ class QueuedAuthInterceptor extends QueuedInterceptor {
         // Re-generate HMAC for the refresh request
         final hmac = _ref.read(hmacProvider)();
         tokenDio.options.headers.addAll({
+          'x-api-key': dotenv.env['APP_API_KEY'] ?? '',
           'X-Timestamp': hmac.timestamp,
           'X-Device-ID': hmac.deviceId,
           'X-Signature': hmac.signature,

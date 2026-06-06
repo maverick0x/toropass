@@ -22,7 +22,7 @@ class UserRepositoryImpl implements UserRepository {
   Future<ProfileEntity> getWallet() async {
     final response = await _client.get(
       endpoint: ApiEndpoints.WALLET,
-      useToken: false,
+      useToken: true,
       silent: false,
     );
 
