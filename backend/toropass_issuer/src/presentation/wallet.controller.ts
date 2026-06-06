@@ -21,7 +21,7 @@ import { ValidateWalletDto } from './dto/validate-wallet.dto';
 @Controller({ path: 'wallets', version: '1' })
 @UseGuards(ApiGuard)
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(private readonly walletService: WalletService) { }
 
   @Get('tns')
   async checkTnsAvailability(@Query('username') username: string) {
@@ -80,6 +80,19 @@ export class WalletController {
     };
   }
 
+  @Get()
+  @UseGuards(AuthGuard)
+  @UseGuards(HmacAuthGuard)
+  async getWallet(@CurrentUser() user: User) {
+    const result = await this.walletService.getWalletProfile(user.id);
+
+    return {
+      status: 'success',
+      message: 'Wallet retrieved successfully.',
+      data: result,
+    };
+  }
+
   @Post('change-password')
   @UseGuards(AuthGuard)
   @UseGuards(HmacAuthGuard)
@@ -100,7 +113,7 @@ export class WalletController {
   }
 
   @Post('refresh')
-  @UseGuards(HmacAuthGuard)
+  // @UseGuards(HmacAuthGuard)
   async refreshTokens(@Body() payload: RefreshDto) {
     const tokens = await this.walletService.refreshSession(
       payload.refreshToken,

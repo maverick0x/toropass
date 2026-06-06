@@ -1,8 +1,7 @@
-class TokenModel {
-  TokenModel({this.accessToken, this.refreshToken});
+import 'token_entity.dart';
 
-  final String? accessToken;
-  final String? refreshToken;
+class TokenModel extends TokenEntity {
+  const TokenModel({super.accessToken, super.refreshToken});
 
   factory TokenModel.fromJson(Map<String, dynamic> json) {
     return TokenModel(

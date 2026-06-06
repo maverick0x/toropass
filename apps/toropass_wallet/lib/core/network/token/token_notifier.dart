@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/config/resource/data_state.dart';
 import '../../services/storage_service.dart';
-import 'token_model.dart';
+import 'token_entity.dart';
 import 'token_state_model.dart';
 import 'token_usecase.dart';
 
@@ -31,7 +31,7 @@ class TokenNotifier extends _$TokenNotifier {
     return TokenStateModel(refreshToken: refreshToken);
   }
 
-  Future updateTokens(TokenModel model) async {
+  Future updateTokens(TokenEntity model) async {
     if (model.accessToken == null || model.refreshToken == null) return;
 
     final storage = ref.read(storageServiceProvider);

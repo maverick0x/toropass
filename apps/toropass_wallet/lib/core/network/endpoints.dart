@@ -7,9 +7,10 @@ class ApiEndpoints {
   static final String BASE_URL = dotenv.env['API_BASE_URL'] ?? '';
 
   // WALLETS
-  static const String CHECK_TNS = 'wallets/tns';
-  static const String CREATE_WALLET = 'wallets/create';
-  static const String VALIDATE_WALLET = 'wallets/validate';
-  static const String CHANGE_PASSWORD = 'wallets/change-password';
-  static const String WALLET_REFRESH = 'wallets/refresh';
+  static const String WALLET = 'wallets';
+  static const String CHECK_TNS = '$WALLET/tns';
+  static const String CREATE_WALLET = '$WALLET/create';
+  static const String VALIDATE_WALLET = '$WALLET/validate';
+  static const String CHANGE_PASSWORD = '$WALLET/change-password';
+  static const String WALLET_REFRESH = '$WALLET/refresh';
 }
