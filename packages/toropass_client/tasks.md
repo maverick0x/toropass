@@ -17,14 +17,20 @@ Status legend:
 
 ## Phase 1: Package Contract
 
-- [ ] Define the public API for `ToroPassClient`
-- [ ] Define a config object for `clientId`, `redirectUri`, scopes, and optional base URL override
-- [ ] Define result types for success, cancel, denial, timeout, and transport error
-- [ ] Decide whether the package exposes silent profile refresh helpers or only the initial identity flow
+- [x] Define the public API for `ToroPassClient`
+- [x] Define a config object for `clientId`, `redirectUri`, scopes, and optional base URL override
+- [x] Define result types for success, cancel, denial, timeout, and transport error
+- [x] Decide whether the package exposes silent profile refresh helpers or only the initial identity flow
 
 Definition of done:
 
 - Third-party developers can understand exactly what they pass in and exactly what they get back.
+
+Current result:
+
+- `ToroPassClient` exposes `verifyIdentity()`, `exchangeAuthorizationCode()`, and `fetchProfile()` as the core package API.
+- `ToroPassClientConfig` carries `clientId`, `redirectUri`, scopes, issuer base URL, and callback timeout.
+- OAuth profile refresh is exposed through `fetchProfile(accessToken:)`, but token persistence remains the host app's responsibility.
 
 ## Phase 2: Wallet Launch and Deep Link Transport
 

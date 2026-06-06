@@ -1,39 +1,52 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# ToroPass Client
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Flutter client package for third-party apps that want to request ToroPass Wallet identity verification.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+ToroPass Client launches the ToroPass Wallet OAuth consent flow, receives the app callback, exchanges the authorization code for an app-scoped OAuth token, and fetches the approved identity profile.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## Current Status
 
-## Features
+The package contract is defined. Deep link launch, callback capture, token exchange, profile fetch, and the example app are tracked in [tasks.md](tasks.md).
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+## Contract
 
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Create a client with your OAuth app details:
 
 ```dart
-const like = 'sample';
+final client = ToroPassClient(
+  config: ToroPassClientConfig(
+    clientId: 'toro_client_...',
+    redirectUri: Uri.parse('myapp://toropass/callback'),
+    scopes: const {
+      ToroPassScope.kycStatus,
+      ToroPassScope.wallet,
+    },
+  ),
+);
 ```
 
-## Additional information
+The primary flow returns one of the typed auth results:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+final result = await client.verifyIdentity();
+
+switch (result) {
+  case ToroPassAuthSuccess(:final token, :final profile):
+    print(token.accessToken);
+    print(profile.wallet.tnsName);
+  case ToroPassAuthDenied():
+    print('User denied access.');
+  case ToroPassAuthCancelled():
+    print('User cancelled the flow.');
+  case ToroPassAuthTimeout():
+    print('ToroPass did not return in time.');
+  case ToroPassAuthTransportError(:final message):
+    print(message);
+}
+```
+
+## Token Handling
+
+The package exposes `fetchProfile(accessToken:)` for silent profile refresh with an existing OAuth app token.
+
+Token persistence is intentionally left to the host app. Do not ship a `client_secret` in a Flutter app; the issuer accepts it only for server-side flows.

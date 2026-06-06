@@ -1,5 +1,5 @@
 name: toropass_client
-description: "A new Flutter package project."
+description: "Flutter client package for launching ToroPass Wallet OAuth identity verification flows."
 version: 0.0.1
 homepage:
 
