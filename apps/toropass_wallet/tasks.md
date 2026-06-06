@@ -113,12 +113,12 @@ Definition of done:
 
 ## Phase 6: Consent Management
 
-- [ ] Wire `GET /api/v1/conscents/:userId`
-- [ ] Wire `DELETE /api/v1/conscents/:userId/:appId`
-- [ ] Build consent list models from the documented response
-- [ ] Build the Connected Apps screen using the live consent contract
-- [ ] Handle consent revocation success and failure states
-- [ ] Ensure app logic relies on authenticated user context even though the path still contains `:userId`
+- [x] Wire `GET /api/v1/conscents`
+- [x] Wire `DELETE /api/v1/conscents/:appId`
+- [x] Build consent list models from the documented response
+- [x] Build the Connected Apps screen using the live consent contract
+- [x] Handle consent revocation success and failure states
+- [x] Ensure app logic relies on authenticated user context from JWT
 
 Definition of done:
 
@@ -184,7 +184,7 @@ Definition of done:
 - [x] Phase 3: Wallet Auth and Session Flow
 - [x] Phase 4: Auth UI Completion
 - [ ] Phase 5: KYC Integration
-- [ ] Phase 6: Consent Management
+- [x] Phase 6: Consent Management
 - [ ] Phase 7: Developer Dashboard
 - [ ] Phase 8: Wallet-Side OAuth Consent Flow
 - [ ] Phase 9: Error Handling and Security Hardening

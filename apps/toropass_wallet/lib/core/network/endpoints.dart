@@ -22,9 +22,8 @@ class ApiEndpoints {
 
   // CONSENTS
   static const String CONSENTS = 'conscents';
-  static String userConsents(String userId) => '$CONSENTS/$userId';
-  static String revokeConsent(String userId, String appId) =>
-      '$CONSENTS/$userId/$appId';
+  static String userConsents() => CONSENTS;
+  static String revokeConsent(String appId) => '$CONSENTS/$appId';
 
   // OAUTH
   static const String OAUTH = 'oauth';

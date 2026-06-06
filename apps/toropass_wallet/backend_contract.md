@@ -22,8 +22,8 @@ Primary source docs:
 | `POST /api/v1/wallets/change-password` | Change wallet password | `x-api-key` + JWT + HMAC | Implemented in user repo |
 | `POST /api/v1/wallets/refresh` | Refresh wallet session | `x-api-key` + HMAC | Implemented in token repo / auth interceptor |
 | `POST /api/v1/kyc/verify` | Submit KYC | `x-api-key` + JWT + HMAC | Not implemented |
-| `GET /api/v1/conscents/:userId` | List connected apps | `x-api-key` + JWT + HMAC | Not implemented |
-| `DELETE /api/v1/conscents/:userId/:appId` | Revoke consent | `x-api-key` + JWT + HMAC | Not implemented |
+| `GET /api/v1/conscents` | List connected apps | `x-api-key` + JWT + HMAC | Implemented |
+| `DELETE /api/v1/conscents/:appId` | Revoke consent | `x-api-key` + JWT + HMAC | Implemented |
 | `POST /api/v1/oauth/apps/register` | Register developer app | `x-api-key` + JWT + HMAC | Not implemented |
 | `GET /api/v1/oauth/apps` | List developer apps | `x-api-key` + JWT + HMAC | Not implemented |
 | `DELETE /api/v1/oauth/apps/:appId` | Delete developer app | `x-api-key` + JWT + HMAC | Not implemented |

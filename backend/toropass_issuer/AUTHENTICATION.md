@@ -56,8 +56,8 @@ Used by:
 - `GET /api/v1/oauth/apps`
 - `DELETE /api/v1/oauth/apps/:appId`
 - `POST /api/v1/oauth/authorize`
-- `GET /api/v1/conscents/:userId`
-- `DELETE /api/v1/conscents/:userId/:appId`
+- `GET /api/v1/conscents`
+- `DELETE /api/v1/conscents/:appId`
 
 ### 3. HMAC Request Signing
 
@@ -98,8 +98,8 @@ Used by:
 - `GET /api/v1/oauth/apps`
 - `DELETE /api/v1/oauth/apps/:appId`
 - `POST /api/v1/oauth/authorize`
-- `GET /api/v1/conscents/:userId`
-- `DELETE /api/v1/conscents/:userId/:appId`
+- `GET /api/v1/conscents`
+- `DELETE /api/v1/conscents/:appId`
 
 ## HMAC Example
 
@@ -138,19 +138,14 @@ x-signature: 4f0c1f...
 | `POST /api/v1/oauth/authorize` | Yes | Yes | Yes |
 | `POST /api/v1/oauth/token` | No | No | No |
 | `GET /api/v1/oauth/profile` | No | No | OAuth token only |
-| `GET /api/v1/conscents/:userId` | Yes | Yes | Yes |
-| `DELETE /api/v1/conscents/:userId/:appId` | Yes | Yes | Yes |
+| `GET /api/v1/conscents` | Yes | Yes | Yes |
+| `DELETE /api/v1/conscents/:appId` | Yes | Yes | Yes |
 | `GET /` | No | No | No |
 
 Third-party package exception:
 
 - The third-party client package endpoints are `POST /api/v1/oauth/token` and `GET /api/v1/oauth/profile`.
 - Those two routes remain outside the HMAC layer so external clients can exchange authorization codes and fetch profiles with OAuth tokens alone.
-
-Consent route note:
-
-- The live consent route still includes `:userId` in the path.
-- The controller now uses the authenticated wallet user from the bearer token instead of trusting the path `userId`.
 
 ## Integration Advice For The Wallet App
 

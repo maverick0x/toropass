@@ -6,7 +6,7 @@ import { User } from 'src/generated/prisma/client';
 import { OAuthService } from '../core/application/oauth.service';
 import { ApiGuard } from '../core/guards/api.guard';
 
-@Controller({ path: 'conscents/:userId', version: '1' })
+@Controller({ path: 'conscents', version: '1' })
 @UseGuards(ApiGuard)
 @UseGuards(AuthGuard)
 @UseGuards(HmacAuthGuard)

@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/resource/response.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
+import '../../domain/entities/consent_entity.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/params/change_password_params.dart';
 import '../../domain/repository/user_repository.dart';
+import '../models/consent_model.dart';
 import '../models/profile_model.dart';
 
 final userRepositoryProvider = Provider((ref) {
@@ -27,6 +29,32 @@ class UserRepositoryImpl implements UserRepository {
     );
 
     return ProfileModel.fromJson(response.data);
+  }
+
+  @override
+  Future<List<ConsentEntity>> getConsents() async {
+    final response = await _client.get(
+      endpoint: ApiEndpoints.userConsents(),
+      useToken: true,
+      silent: false,
+    );
+
+    final list = response.data as List<dynamic>? ?? const [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(ConsentModel.fromJson)
+        .toList();
+  }
+
+  @override
+  Future<SuccessResponse> revokeConsent(String appId) async {
+    final response = await _client.delete(
+      endpoint: ApiEndpoints.revokeConsent(appId),
+      useToken: true,
+      silent: false,
+    );
+
+    return response;
   }
 
   @override

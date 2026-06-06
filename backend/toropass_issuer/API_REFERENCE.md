@@ -580,7 +580,7 @@ Note:
 
 - The current controller path is spelled `conscents` in code. The routes below intentionally match the live implementation.
 
-### `GET /api/v1/conscents/:userId`
+### `GET /api/v1/conscents`
 
 Auth:
 
@@ -612,9 +612,9 @@ Success response:
 Important behavior:
 
 - Expired consents are filtered out before response
-- The live route still includes `:userId`, but the controller now uses the authenticated wallet user from the bearer token
+- Consents are resolved for the authenticated wallet user from the bearer token
 
-### `DELETE /api/v1/conscents/:userId/:appId`
+### `DELETE /api/v1/conscents/:appId`
 
 Auth:
 
@@ -637,7 +637,7 @@ Success response:
 
 Important behavior:
 
-- The live route still includes `:userId`, but revocation is performed for the authenticated wallet user from the bearer token
+- Revocation is performed for the authenticated wallet user from the bearer token
 
 ## Suggested Wallet-App Integration Order
 
@@ -647,6 +647,6 @@ If you are integrating the Flutter wallet next, these backend routes are the lik
 2. `POST /api/v1/wallets/create` or `POST /api/v1/wallets/validate`
 3. `GET /api/v1/wallets`
 4. `POST /api/v1/kyc/verify`
-5. `GET /api/v1/conscents/:userId`
-6. `DELETE /api/v1/conscents/:userId/:appId`
+5. `GET /api/v1/conscents`
+6. `DELETE /api/v1/conscents/:appId`
 7. OAuth developer flows as needed

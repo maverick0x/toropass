@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../../core/config/resource/data_state.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
@@ -12,7 +14,9 @@ import '../../../../shared/app_bar.dart';
 import '../../../../shared/app_inkwell.dart';
 import '../../../../shared/app_svg.dart';
 import '../../../../shared/scope_chip.dart';
+import '../../domain/entities/consent_entity.dart';
 import '../../domain/entities/scope_entity.dart';
+import '../provider/user_notifier.dart';
 
 class ConnectionsScreen extends ConsumerStatefulWidget {
   const ConnectionsScreen({super.key});
@@ -23,87 +27,28 @@ class ConnectionsScreen extends ConsumerStatefulWidget {
 
 class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final notifier = ref.read(userProvider.notifier);
+      final walletState = ref.read(userProvider).walletState;
+
+      if (walletState is! DataSuccess) {
+        await notifier.getWallet();
+      }
+
+      await notifier.getConsents();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
-
-    final List<Widget> children = [
-      20.verticalSpacer,
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 25.width),
-        child: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: .start,
-          children: [
-            Text("Active Connections", style: appStyles.cardTitle),
-            5.verticalSpacer,
-            Text(
-              "Manage who has access to your verified status.",
-              style: appStyles.caption.copyWith(
-                color: appColors.text.withAlpha(200),
-              ),
-            ),
-          ],
-        ),
-      ),
-      15.verticalSpacer,
-      _buildConnectedApp(
-        name: "ToroRealEstate",
-        connectionDate: "Connected Oct 24, 2024",
-        scopes: [
-          ScopeEntity(
-            name: "KYC Status",
-            icon: Assets.icons.checkmarkOutlined,
-            color: appColors.success,
-          ),
-          ScopeEntity(
-            name: ".toro Name",
-            icon: Assets.icons.idCard,
-            color: appColors.primary,
-          ),
-        ],
-      ),
-      _buildConnectedApp(
-        name: "ToroDeFi",
-        connectionDate: "Connected Sep 12, 2024",
-        scopes: [
-          ScopeEntity(
-            name: "KYC Status",
-            icon: Assets.icons.checkmarkOutlined,
-            color: appColors.success,
-          ),
-          ScopeEntity(
-            name: "Address",
-            icon: Assets.icons.idCard,
-            color: appColors.secondary,
-          ),
-        ],
-      ),
-      _buildConnectedApp(
-        name: "ToroMarket",
-        connectionDate: "Connected Aug 05, 2024",
-        scopes: [
-          ScopeEntity(
-            name: ".toro Name",
-            icon: Assets.icons.checkmarkOutlined,
-            color: appColors.primary,
-          ),
-        ],
-      ),
-      _buildConnectedApp(
-        name: "ToroGames",
-        connectionDate: "Connected Aug 05, 2024",
-        scopes: [
-          ScopeEntity(
-            name: "Wallet Address",
-            icon: Assets.icons.checkmarkOutlined,
-            color: appColors.secondary,
-          ),
-        ],
-      ),
-      30.verticalSpacer,
-    ];
-
+    final consentState = ref.watch(userProvider.select((s) => s.consentState));
+    final consents = consentState.data ?? const <ConsentEntity>[];
+    final showSkeleton =
+        consentState is DataLoading || consentState is DataFailed;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -116,12 +61,62 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
             mainAxisSize: .min,
             crossAxisAlignment: .start,
             children: [
-              TopBar(title: "Connections"),
+              TopBar(
+                title: "Connections",
+                action: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: consentState is DataFailed
+                      ? AppInkWell(
+                          key: const ValueKey('refresh-consents'),
+                          callback: () =>
+                              ref.read(userProvider.notifier).getConsents(),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 40.width),
+                            child: Icon(
+                              Icons.refresh_rounded,
+                              size: 24.width,
+                              color: appColors.primary,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: children.length,
-                  physics: const BouncingScrollPhysics(),
-                  itemBuilder: (context, index) => children[index],
+                child: Skeletonizer(
+                  enabled: showSkeleton,
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      20.verticalSpacer,
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 25.width),
+                        child: Column(
+                          mainAxisSize: .min,
+                          crossAxisAlignment: .start,
+                          children: [
+                            Text(
+                              "Active Connections",
+                              style: appStyles.cardTitle,
+                            ),
+                            5.verticalSpacer,
+                            Text(
+                              "Manage who has access to your verified status.",
+                              style: appStyles.caption.copyWith(
+                                color: appColors.text.withAlpha(200),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      15.verticalSpacer,
+                      if (consents.isEmpty)
+                        _buildEmptyState()
+                      else
+                        ...consents.map(_buildConnectedApp),
+                      30.verticalSpacer,
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -131,13 +126,14 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     );
   }
 
-  Widget _buildConnectedApp({
-    required String name,
-    required String connectionDate,
-    required List<ScopeEntity> scopes,
-  }) {
+  Widget _buildConnectedApp(ConsentEntity consent) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
+    final appName = consent.appName ?? 'Unknown App';
+    final connectionDate = _formatConnectionDate(consent.grantedAt);
+    final scopes = consent.scopes
+        .map((scope) => _mapScope(scope, appColors))
+        .toList();
 
     return Container(
       margin: EdgeInsets.symmetric(
@@ -187,7 +183,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                   mainAxisSize: .min,
                   crossAxisAlignment: .start,
                   children: [
-                    Text(name, style: appStyles.cardTitle),
+                    Text(appName, style: appStyles.cardTitle),
                     3.verticalSpacer,
                     Text(
                       connectionDate,
@@ -224,19 +220,20 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
             ],
           ),
           10.verticalSpacer,
-          _buildRevokeAccess(),
+          _buildRevokeAccess(consent.appId ?? ''),
         ],
       ),
     );
   }
 
-  Widget _buildRevokeAccess() {
+  Widget _buildRevokeAccess(String appId) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
     return AppInkWell(
       callback: () {
-        // TODO: Add Revoke Confirmation Dialog
+        if (appId.isEmpty) return;
+        ref.read(userProvider.notifier).revokeConsent(appId);
       },
       child: Container(
         alignment: Alignment.center,
@@ -258,5 +255,94 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildEmptyState() {
+    final appStyles = context.appStyles;
+    final appColors = AppColors.of(context);
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(
+        horizontal: AppDimens.horizontalPadding,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppDimens.horizontalPadding,
+        vertical: 24.height,
+      ),
+      decoration: BoxDecoration(
+        color: appColors.white,
+        border: Border.all(color: appColors.primary.withAlpha(30)),
+        borderRadius: BorderRadius.circular(AppDimens.dialogBorderRadius),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppSvg(
+            path: Assets.icons.connection,
+            width: 28.width,
+            height: 28.height,
+            color: appColors.primary,
+          ),
+          12.verticalSpacer,
+          Text("No Active Connections", style: appStyles.cardTitle),
+          6.verticalSpacer,
+          Text(
+            "Apps you approve will appear here for review and revocation.",
+            textAlign: TextAlign.center,
+            style: appStyles.caption.copyWith(
+              color: appColors.text.withAlpha(180),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ScopeEntity _mapScope(String scope, AppColors appColors) {
+    switch (scope) {
+      case 'kyc_status':
+        return ScopeEntity(
+          name: "KYC Status",
+          icon: Assets.icons.checkmarkOutlined,
+          color: appColors.success,
+        );
+      case 'wallet':
+        return ScopeEntity(
+          name: "Wallet",
+          icon: Assets.icons.wallet,
+          color: appColors.secondary,
+        );
+      default:
+        return ScopeEntity(
+          name: scope.replaceAll('_', ' '),
+          icon: Assets.icons.idCard,
+          color: appColors.primary,
+        );
+    }
+  }
+
+  String _formatConnectionDate(DateTime? grantedAt) {
+    if (grantedAt == null) return "Connected recently";
+    final month = _monthName(grantedAt.month);
+    return "Connected $month ${grantedAt.day}, ${grantedAt.year}";
+  }
+
+  String _monthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months[month - 1];
   }
 }

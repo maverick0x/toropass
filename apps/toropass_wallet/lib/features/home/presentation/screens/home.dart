@@ -42,10 +42,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final appColors = AppColors.of(context);
     final walletState = ref.watch(userProvider.select((s) => s.walletState));
+    final consentState = ref.watch(userProvider.select((s) => s.consentState));
     final profile = walletState is DataSuccess ? walletState.data : null;
+    final consentCount = consentState.data?.length ?? 0;
     final showSkeleton =
-        walletState is DataLoading || walletState is DataFailed;
-    final showRefresh = walletState is DataFailed;
+        walletState is DataLoading ||
+        walletState is DataFailed ||
+        consentState is DataLoading ||
+        consentState is DataFailed;
+    final showRefresh =
+        walletState is DataFailed || consentState is DataFailed;
 
     return PopScope(
       canPop: false,
@@ -82,7 +88,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         IdentityCard(),
                         _secureAction(profile),
                         _buildPrivacyCard(),
-                        _buildConnectionCard(),
+                        _buildConnectionCard(consentCount),
                         30.verticalSpacer,
                       ],
                     ),
@@ -112,7 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               right: AppDimens.horizontalPadding,
             ),
             child: AppInkWell(
-              callback: ref.read(userProvider.notifier).getWallet,
+              callback: ref.read(userProvider.notifier).refreshHomeData,
               child: Container(
                 padding: EdgeInsets.all(10.radius),
                 decoration: BoxDecoration(
@@ -274,7 +280,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildConnectionCard() {
+  Widget _buildConnectionCard(int consentCount) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
@@ -330,7 +336,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             5.verticalSpacer,
             Text(
-              "5",
+              consentCount.toString(),
               style: appStyles.cardTitle.copyWith(
                 color: appColors.text,
                 fontFamily: FontFamily.interSemiBold,
