@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/config/resource/data_state.dart';
 import '../../../../core/providers/loading_notifier.dart';
@@ -10,11 +10,10 @@ import '../../domain/usecase/verify_kyc_usecase.dart';
 import '../validator/kyc_validator.dart';
 import 'user_notifier.dart';
 
-final kycProvider = NotifierProvider<KycNotifier, KycStateModel>(
-  KycNotifier.new,
-);
+part 'kyc_notifier.g.dart';
 
-class KycNotifier extends Notifier<KycStateModel> {
+@riverpod
+class KycNotifier extends _$KycNotifier {
   @override
   KycStateModel build() => KycStateModel();
 

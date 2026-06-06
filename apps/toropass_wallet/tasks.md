@@ -126,12 +126,12 @@ Definition of done:
 
 ## Phase 7: Developer Dashboard
 
-- [ ] Wire `POST /api/v1/oauth/apps/register`
-- [ ] Wire `GET /api/v1/oauth/apps`
-- [ ] Wire `DELETE /api/v1/oauth/apps/:appId`
-- [ ] Build models for developer app registration/listing
-- [ ] Build the hidden developer dashboard flow around the live backend
-- [ ] Show client secret once and handle it carefully in UI
+- [x] Wire `POST /api/v1/oauth/apps/register`
+- [x] Wire `GET /api/v1/oauth/apps`
+- [x] Wire `DELETE /api/v1/oauth/apps/:appId`
+- [x] Build models for developer app registration/listing
+- [x] Build the hidden developer dashboard flow around the live backend
+- [x] Show client secret once and handle it carefully in UI
 
 Definition of done:
 
@@ -185,7 +185,7 @@ Definition of done:
 - [x] Phase 4: Auth UI Completion
 - [x] Phase 5: KYC Integration
 - [x] Phase 6: Consent Management
-- [ ] Phase 7: Developer Dashboard
+- [x] Phase 7: Developer Dashboard
 - [ ] Phase 8: Wallet-Side OAuth Consent Flow
 - [ ] Phase 9: Error Handling and Security Hardening
 - [ ] Phase 10: End-to-End Verification

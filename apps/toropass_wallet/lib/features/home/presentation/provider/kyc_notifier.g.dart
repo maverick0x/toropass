@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_notifier.dart';
+part of 'kyc_notifier.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,51 +9,51 @@ part of 'user_notifier.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(UserNotifier)
-final userProvider = UserNotifierProvider._();
+@ProviderFor(KycNotifier)
+final kycProvider = KycNotifierProvider._();
 
-final class UserNotifierProvider
-    extends $NotifierProvider<UserNotifier, UserStateModel> {
-  UserNotifierProvider._()
+final class KycNotifierProvider
+    extends $NotifierProvider<KycNotifier, KycStateModel> {
+  KycNotifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'userProvider',
+        name: r'kycProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$userNotifierHash();
+  String debugGetCreateSourceHash() => _$kycNotifierHash();
 
   @$internal
   @override
-  UserNotifier create() => UserNotifier();
+  KycNotifier create() => KycNotifier();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(UserStateModel value) {
+  Override overrideWithValue(KycStateModel value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<UserStateModel>(value),
+      providerOverride: $SyncValueProvider<KycStateModel>(value),
     );
   }
 }
 
-String _$userNotifierHash() => r'ed09317224e63e71c7dd86a6f4d35c3c554cc0fd';
+String _$kycNotifierHash() => r'66aaca9a5670781c4baf71ee6866006fdc1e0dc9';
 
-abstract class _$UserNotifier extends $Notifier<UserStateModel> {
-  UserStateModel build();
+abstract class _$KycNotifier extends $Notifier<KycStateModel> {
+  KycStateModel build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<UserStateModel, UserStateModel>;
+    final ref = this.ref as $Ref<KycStateModel, KycStateModel>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<UserStateModel, UserStateModel>,
-              UserStateModel,
+              AnyNotifier<KycStateModel, KycStateModel>,
+              KycStateModel,
               Object?,
               Object?
             >;
