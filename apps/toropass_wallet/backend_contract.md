@@ -27,7 +27,7 @@ Primary source docs:
 | `POST /api/v1/oauth/apps/register` | Register developer app | `x-api-key` + JWT + HMAC | Implemented |
 | `GET /api/v1/oauth/apps` | List developer apps | `x-api-key` + JWT + HMAC | Implemented |
 | `DELETE /api/v1/oauth/apps/:appId` | Delete developer app | `x-api-key` + JWT + HMAC | Implemented |
-| `POST /api/v1/oauth/authorize` | Approve app consent and issue code | `x-api-key` + JWT + HMAC | Not implemented |
+| `POST /api/v1/oauth/authorize` | Approve app consent and issue code | `x-api-key` + JWT + HMAC | Implemented |
 
 ### Third-Party Client Package Routes
 

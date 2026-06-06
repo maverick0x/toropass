@@ -5,6 +5,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../domain/entities/developer_app_entity.dart';
 import '../../domain/params/register_oauth_app_params.dart';
+import '../../domain/repository/developer_repository.dart';
 import '../models/developer_app_model.dart';
 
 final developerRepositoryProvider = Provider((ref) {
@@ -12,11 +13,12 @@ final developerRepositoryProvider = Provider((ref) {
   return DeveloperRepositoryImpl(client);
 });
 
-class DeveloperRepositoryImpl {
+class DeveloperRepositoryImpl implements DeveloperRepository {
   final ApiClient _client;
 
   DeveloperRepositoryImpl(this._client);
 
+  @override
   Future<DeveloperAppEntity> registerApp(RegisterOAuthAppParams params) async {
     final response = await _client.post(
       endpoint: ApiEndpoints.REGISTER_OAUTH_APP,
@@ -30,6 +32,7 @@ class DeveloperRepositoryImpl {
     );
   }
 
+  @override
   Future<List<DeveloperAppEntity>> getApps() async {
     final response = await _client.get(
       endpoint: ApiEndpoints.LIST_OAUTH_APPS,
@@ -44,6 +47,7 @@ class DeveloperRepositoryImpl {
         .toList();
   }
 
+  @override
   Future<SuccessResponse> deleteApp(String appId) async {
     final response = await _client.delete(
       endpoint: ApiEndpoints.deleteOAuthApp(appId),

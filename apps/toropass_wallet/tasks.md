@@ -139,10 +139,10 @@ Definition of done:
 
 ## Phase 8: Wallet-Side OAuth Consent Flow
 
-- [ ] Wire `POST /api/v1/oauth/authorize`
-- [ ] Model scopes and redirect URI handling in the wallet
-- [ ] Build consent approval UI for third-party apps
-- [ ] Keep wallet-auth flows separate from third-party OAuth token/profile flows
+- [x] Wire `POST /api/v1/oauth/authorize`
+- [x] Model scopes and redirect URI handling in the wallet
+- [x] Build consent approval UI for third-party apps
+- [x] Keep wallet-auth flows separate from third-party OAuth token/profile flows
 
 Definition of done:
 
@@ -186,6 +186,6 @@ Definition of done:
 - [x] Phase 5: KYC Integration
 - [x] Phase 6: Consent Management
 - [x] Phase 7: Developer Dashboard
-- [ ] Phase 8: Wallet-Side OAuth Consent Flow
+- [x] Phase 8: Wallet-Side OAuth Consent Flow
 - [ ] Phase 9: Error Handling and Security Hardening
 - [ ] Phase 10: End-to-End Verification

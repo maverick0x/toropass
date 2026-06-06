@@ -8,7 +8,7 @@ class DeveloperStateModel {
   final String? redirectUriError;
   final DeveloperAppEntity? latestCreatedApp;
   final DataState<List<DeveloperAppEntity>> appsState;
-  final DataState<SuccessResponse> registerAppState;
+  final DataState<DeveloperAppEntity> registerAppState;
   final DataState<SuccessResponse> deleteAppState;
 
   DeveloperStateModel({
@@ -30,7 +30,7 @@ class DeveloperStateModel {
     DeveloperAppEntity? latestCreatedApp,
     bool clearLatestCreatedApp = false,
     DataState<List<DeveloperAppEntity>>? appsState,
-    DataState<SuccessResponse>? registerAppState,
+    DataState<DeveloperAppEntity>? registerAppState,
     DataState<SuccessResponse>? deleteAppState,
   }) {
     return DeveloperStateModel(

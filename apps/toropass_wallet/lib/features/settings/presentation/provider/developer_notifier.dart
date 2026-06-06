@@ -1,12 +1,16 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/config/resource/data_state.dart';
+import '../../../../core/config/resource/response.dart';
 import '../../../../core/providers/loading_notifier.dart';
 import '../../../../core/services/snackbar_service.dart';
 import '../../../../core/utilities/logger.dart';
 import '../../data/models/developer_state_model.dart';
-import '../../data/repository/developer_repository_impl.dart';
+import '../../domain/entities/developer_app_entity.dart';
 import '../../domain/params/register_oauth_app_params.dart';
+import '../../domain/usecase/delete_oauth_app_usecase.dart';
+import '../../domain/usecase/get_oauth_apps_usecase.dart';
+import '../../domain/usecase/register_oauth_app_usecase.dart';
 import '../validator/developer_validator.dart';
 
 part 'developer_notifier.g.dart';
@@ -44,19 +48,21 @@ class DeveloperNotifier extends _$DeveloperNotifier {
 
   Future<void> getApps({bool silentError = false}) async {
     final snackbar = ref.read(snackbarProvider);
-    final repo = ref.read(developerRepositoryProvider);
+    final useCase = ref.read(getOAuthAppsUseCaseProvider);
 
     state = state.copyWith(appsState: const DataLoading());
+    final response = await useCase(null);
+    state = state.copyWith(appsState: response);
 
-    try {
-      final apps = await repo.getApps();
-      state = state.copyWith(appsState: DataSuccess(data: apps));
-    } catch (e, st) {
-      state = state.copyWith(appsState: DataFailed(error: e.toString(), trace: st));
-
+    if (state.appsState is DataFailed) {
+      final failedState = state.appsState as DataFailed;
       if (!silentError) {
         final message = "An error occurred while loading your applications.";
-        AppLogger.log(e.toString(), trace: st, name: "DEVELOPERNOTIFIER");
+        AppLogger.log(
+          failedState.error ?? message,
+          trace: failedState.trace,
+          name: "DEVELOPERNOTIFIER",
+        );
         snackbar.display(message: message);
       }
     }
@@ -67,7 +73,7 @@ class DeveloperNotifier extends _$DeveloperNotifier {
     required String redirectUri,
   }) async {
     final snackbar = ref.read(snackbarProvider);
-    final repo = ref.read(developerRepositoryProvider);
+    final useCase = ref.read(registerOAuthAppUseCaseProvider);
 
     state = state.copyWith(
       nameError: DeveloperValidator.validateName(name),
@@ -82,16 +88,17 @@ class DeveloperNotifier extends _$DeveloperNotifier {
 
     await ref.read(loadingProvider.notifier).wrap(() async {
       state = state.copyWith(registerAppState: const DataLoading());
+      final response = await useCase(
+        RegisterOAuthAppParams(
+          name: name.trim(),
+          redirectUri: redirectUri.trim(),
+        ),
+      );
 
-      try {
-        final app = await repo.registerApp(
-          RegisterOAuthAppParams(
-            name: name.trim(),
-            redirectUri: redirectUri.trim(),
-          ),
-        );
+      if (response is DataSuccess) {
+        final app = response.data;
         state = state.copyWith(
-          registerAppState: const DataSuccess(),
+          registerAppState: response,
           latestCreatedApp: app,
           isCreating: false,
           clearNameError: true,
@@ -99,11 +106,16 @@ class DeveloperNotifier extends _$DeveloperNotifier {
         );
         await getApps(silentError: true);
         success = true;
-      } catch (e, st) {
-        state = state.copyWith(
-          registerAppState: DataFailed(error: e.toString(), trace: st),
+        return;
+      }
+
+      state = state.copyWith(registerAppState: response);
+      if (response is DataFailed<DeveloperAppEntity>) {
+        AppLogger.log(
+          response.error ?? "Register app failed",
+          trace: response.trace,
+          name: "DEVELOPERNOTIFIER",
         );
-        AppLogger.log(e.toString(), trace: st, name: "DEVELOPERNOTIFIER");
         snackbar.display(
           message: "An error occurred while generating application keys.",
         );
@@ -115,23 +127,28 @@ class DeveloperNotifier extends _$DeveloperNotifier {
 
   Future<void> deleteApp(String appId) async {
     final snackbar = ref.read(snackbarProvider);
-    final repo = ref.read(developerRepositoryProvider);
+    final useCase = ref.read(deleteOAuthAppUseCaseProvider);
 
     await ref.read(loadingProvider.notifier).wrap(() async {
       state = state.copyWith(deleteAppState: const DataLoading());
+      final response = await useCase(appId);
+      state = state.copyWith(deleteAppState: response);
 
-      try {
-        final response = await repo.deleteApp(appId);
-        state = state.copyWith(deleteAppState: DataSuccess(data: response));
+      if (response is DataSuccess) {
         snackbar.display(
-          message: response.message ?? "Application successfully deleted.",
+          message:
+              response.data?.message ?? "Application successfully deleted.",
         );
         await getApps(silentError: true);
-      } catch (e, st) {
-        state = state.copyWith(
-          deleteAppState: DataFailed(error: e.toString(), trace: st),
+        return;
+      }
+
+      if (response is DataFailed<SuccessResponse>) {
+        AppLogger.log(
+          response.error ?? "Delete app failed",
+          trace: response.trace,
+          name: "DEVELOPERNOTIFIER",
         );
-        AppLogger.log(e.toString(), trace: st, name: "DEVELOPERNOTIFIER");
         snackbar.display(
           message: "An error occurred while deleting the application.",
         );
