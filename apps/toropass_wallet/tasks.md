@@ -142,11 +142,18 @@ Definition of done:
 - [x] Wire `POST /api/v1/oauth/authorize`
 - [x] Model scopes and redirect URI handling in the wallet
 - [x] Build consent approval UI for third-party apps
+- [x] Register the `toropass` native deep link scheme for wallet consent requests
 - [x] Keep wallet-auth flows separate from third-party OAuth token/profile flows
 
 Definition of done:
 
 - The wallet can approve app access and issue authorization codes through the documented backend contract.
+
+Current result:
+
+- Third-party apps can open the wallet consent flow with `toropass:/permission?...`.
+- Android registers the `toropass` scheme through a `VIEW` intent filter.
+- iOS registers the `toropass` scheme through `CFBundleURLTypes`.
 
 ## Phase 9: Error Handling and Security Hardening
 

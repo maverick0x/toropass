@@ -5,6 +5,7 @@ class OAuthPermissionRequestModel extends OAuthPermissionRequestEntity {
     required super.clientId,
     required super.redirectUri,
     required super.appName,
+    super.state,
     super.scopes,
   });
 
@@ -32,6 +33,7 @@ class OAuthPermissionRequestModel extends OAuthPermissionRequestEntity {
           query['name']?.trim() ??
           query['client_id']?.trim() ??
           'Connected App',
+      state: query['state']?.trim(),
       scopes: scopes,
     );
   }

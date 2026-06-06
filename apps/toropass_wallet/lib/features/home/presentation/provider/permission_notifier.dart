@@ -51,7 +51,11 @@ class PermissionNotifier extends _$PermissionNotifier {
       final message =
           failedState.error ??
           "An error occurred while approving app permissions.";
-      AppLogger.log(message, trace: failedState.trace, name: "PERMISSIONNOTIFIER");
+      AppLogger.log(
+        message,
+        trace: failedState.trace,
+        name: "PERMISSIONNOTIFIER",
+      );
       snackbar.display(message: message);
       return false;
     }
@@ -63,7 +67,11 @@ class PermissionNotifier extends _$PermissionNotifier {
         return false;
       }
 
-      final callbackUri = buildSuccessCallbackUri(request.redirectUri, code);
+      final callbackUri = buildSuccessCallbackUri(
+        request.redirectUri,
+        code,
+        state: request.state,
+      );
       state = state.copyWith(callbackUri: callbackUri);
       snackbar.display(message: "Authorization code issued successfully.");
       return true;
@@ -72,18 +80,24 @@ class PermissionNotifier extends _$PermissionNotifier {
     return false;
   }
 
-  String buildSuccessCallbackUri(String redirectUri, String code) {
+  String buildSuccessCallbackUri(
+    String redirectUri,
+    String code, {
+    String? state,
+  }) {
     final uri = Uri.parse(redirectUri);
     final query = Map<String, String>.from(uri.queryParameters);
     query['code'] = code;
+    if (state?.isNotEmpty == true) query['state'] = state!;
     return uri.replace(queryParameters: query).toString();
   }
 
-  String buildDeniedCallbackUri(String redirectUri) {
+  String buildDeniedCallbackUri(String redirectUri, {String? state}) {
     final uri = Uri.parse(redirectUri);
     final query = Map<String, String>.from(uri.queryParameters);
     query['error'] = 'access_denied';
     query['error_description'] = 'The user denied the authorization request.';
+    if (state?.isNotEmpty == true) query['state'] = state!;
     return uri.replace(queryParameters: query).toString();
   }
 }

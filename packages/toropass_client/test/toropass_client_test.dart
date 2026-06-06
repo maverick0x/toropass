@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:toropass_client/toropass_client.dart';
 
@@ -156,6 +158,110 @@ void main() {
       expect(launcher.launchedUri, isNull);
     });
   });
+
+  group('ToroPass callback capture', () {
+    test('parses authorization code callbacks', () {
+      final client = _buildClient();
+
+      final result = client.parseCallbackUri(
+        Uri.parse('myapp://callback?code=auth-code-123&state=state-123'),
+        expectedState: 'state-123',
+      );
+
+      expect(result, isA<ToroPassAuthorizationCodeReceived>());
+      final codeResult = result as ToroPassAuthorizationCodeReceived;
+      expect(codeResult.code, 'auth-code-123');
+      expect(codeResult.state, 'state-123');
+    });
+
+    test('parses denied callbacks', () {
+      final client = _buildClient();
+
+      final result = client.parseCallbackUri(
+        Uri.parse(
+          'myapp://callback?error=access_denied&error_description=Denied&state=state-123',
+        ),
+        expectedState: 'state-123',
+      );
+
+      expect(result, isA<ToroPassAuthDenied>());
+      final denied = result as ToroPassAuthDenied;
+      expect(denied.error, 'access_denied');
+      expect(denied.description, 'Denied');
+    });
+
+    test('maps empty callbacks to cancelled', () {
+      final client = _buildClient();
+
+      final result = client.parseCallbackUri(
+        Uri.parse('myapp://callback?state=state-123'),
+        expectedState: 'state-123',
+      );
+
+      expect(result, isA<ToroPassAuthCancelled>());
+    });
+
+    test('rejects callbacks with mismatched state', () {
+      final client = _buildClient();
+
+      final result = client.parseCallbackUri(
+        Uri.parse('myapp://callback?code=auth-code-123&state=other-state'),
+        expectedState: 'state-123',
+      );
+
+      expect(result, isA<ToroPassAuthStateMismatch>());
+      final mismatch = result as ToroPassAuthStateMismatch;
+      expect(mismatch.expectedState, 'state-123');
+      expect(mismatch.actualState, 'other-state');
+    });
+
+    test('waits for the matching redirect URI callback', () async {
+      final listener = _FakeCallbackListener();
+      final client = _buildClient(callbackListener: listener);
+      final request = client.createAuthorizationRequest(state: 'state-123');
+
+      final resultFuture = client.waitForCallback(request);
+      listener.add(
+        Uri.parse('otherapp://callback?code=ignored&state=state-123'),
+      );
+      listener.add(
+        Uri.parse('myapp://callback?code=auth-code-123&state=state-123'),
+      );
+
+      final result = await resultFuture;
+
+      expect(result, isA<ToroPassAuthorizationCodeReceived>());
+      expect(
+        (result as ToroPassAuthorizationCodeReceived).code,
+        'auth-code-123',
+      );
+      await listener.close();
+    });
+
+    test('times out when no callback is received', () async {
+      final listener = _FakeCallbackListener();
+      final client = _buildClient(callbackListener: listener);
+      final request = client.createAuthorizationRequest(state: 'state-123');
+
+      final result = await client.waitForCallback(
+        request,
+        timeout: const Duration(milliseconds: 5),
+      );
+
+      expect(result, isA<ToroPassAuthTimeout>());
+      await listener.close();
+    });
+  });
+}
+
+ToroPassClient _buildClient({ToroPassCallbackListener? callbackListener}) {
+  return ToroPassClient(
+    config: ToroPassClientConfig(
+      clientId: 'toro_client_123',
+      redirectUri: Uri.parse('myapp://callback'),
+    ),
+    callbackListener: callbackListener,
+  );
 }
 
 class _FakeWalletLauncher implements ToroPassWalletLauncher {
@@ -172,4 +278,15 @@ class _FakeWalletLauncher implements ToroPassWalletLauncher {
     launchedUri = uri;
     return true;
   }
+}
+
+class _FakeCallbackListener implements ToroPassCallbackListener {
+  final _controller = StreamController<Uri>();
+
+  @override
+  Stream<Uri> get uriStream => _controller.stream;
+
+  void add(Uri uri) => _controller.add(uri);
+
+  Future<void> close() => _controller.close();
 }

@@ -13,6 +13,16 @@ class ToroPassAuthSuccess extends ToroPassAuthResult {
   const ToroPassAuthSuccess({required this.token, required this.profile});
 }
 
+class ToroPassAuthorizationCodeReceived extends ToroPassAuthResult {
+  final String code;
+  final String state;
+
+  const ToroPassAuthorizationCodeReceived({
+    required this.code,
+    required this.state,
+  });
+}
+
 class ToroPassAuthDenied extends ToroPassAuthResult {
   final String error;
   final String? description;
@@ -39,5 +49,15 @@ class ToroPassAuthTransportError extends ToroPassAuthResult {
     required this.message,
     this.cause,
     this.stackTrace,
+  });
+}
+
+class ToroPassAuthStateMismatch extends ToroPassAuthResult {
+  final String expectedState;
+  final String? actualState;
+
+  const ToroPassAuthStateMismatch({
+    required this.expectedState,
+    this.actualState,
   });
 }

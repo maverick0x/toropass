@@ -40,6 +40,30 @@ final launchedRequest = await client.launchWallet(
 
 if (launchedRequest == null) {
   print('ToroPass Wallet is not installed or cannot be opened.');
+  return;
+}
+```
+
+Wait for the callback from ToroPass Wallet:
+
+```dart
+final callbackResult = await client.waitForCallback(launchedRequest);
+
+switch (callbackResult) {
+  case ToroPassAuthorizationCodeReceived(:final code):
+    print(code);
+  case ToroPassAuthDenied():
+    print('User denied access.');
+  case ToroPassAuthCancelled():
+    print('No authorization code was returned.');
+  case ToroPassAuthTimeout():
+    print('ToroPass did not return in time.');
+  case ToroPassAuthStateMismatch():
+    print('Callback state did not match the request.');
+  case ToroPassAuthTransportError(:final message):
+    print(message);
+  case ToroPassAuthSuccess():
+    break;
 }
 ```
 

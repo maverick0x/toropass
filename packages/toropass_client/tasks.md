@@ -48,18 +48,25 @@ Current result:
 - Default wallet launch URI is `toropass:/permission`, with override support through `ToroPassClientConfig.walletLaunchUri`.
 - `ToroPassClient.createAuthorizationRequest()` builds the launch URI with `client_id`, `redirect_uri`, comma-separated `scopes`, `state`, and optional `app_name`.
 - `ToroPassClient.launchWallet()` checks app availability through `url_launcher` before opening the wallet and returns `null` when the wallet is unavailable.
+- ToroPass Wallet now registers the matching `toropass` native scheme on Android and iOS.
 
 ## Phase 3: Callback Capture and Result Mapping
 
-- [ ] Listen for the app callback deep link
-- [ ] Parse success callbacks with `code`
-- [ ] Parse denial callbacks with `error=access_denied`
-- [ ] Handle user-aborted or timed-out flows cleanly
-- [ ] Validate callback correlation before accepting a response
+- [x] Listen for the app callback deep link
+- [x] Parse success callbacks with `code`
+- [x] Parse denial callbacks with `error=access_denied`
+- [x] Handle user-aborted or timed-out flows cleanly
+- [x] Validate callback correlation before accepting a response
 
 Definition of done:
 
 - The package can convert wallet callback deep links into safe, typed results.
+
+Current result:
+
+- `ToroPassClient.waitForCallback()` listens for callback URIs through `app_links`.
+- `ToroPassClient.parseCallbackUri()` maps callback codes, denial errors, cancelled callbacks, timeouts, and state mismatches into typed results.
+- Callback matching is scoped to the configured `redirectUri` scheme, host, and path.
 
 ## Phase 4: OAuth Token and Profile Flow
 

@@ -296,16 +296,16 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
   }
 
   Future<void> _authorize() async {
-    final success = await ref.read(permissionProvider.notifier).authorize(
-          widget.request,
-        );
+    final success = await ref
+        .read(permissionProvider.notifier)
+        .authorize(widget.request);
     if (!mounted || !success) return;
 
     final callbackUri = ref.read(permissionProvider).callbackUri;
     if (callbackUri == null || callbackUri.isEmpty) {
-      ref.read(snackbarProvider).display(
-        message: "Unable to complete the callback for this app.",
-      );
+      ref
+          .read(snackbarProvider)
+          .display(message: "Unable to complete the callback for this app.");
       return;
     }
 
@@ -315,7 +315,10 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
   Future<void> _denyAndExit() async {
     final callbackUri = ref
         .read(permissionProvider.notifier)
-        .buildDeniedCallbackUri(widget.request.redirectUri);
+        .buildDeniedCallbackUri(
+          widget.request.redirectUri,
+          state: widget.request.state,
+        );
     await _launchCallbackAndExit(callbackUri);
   }
 
@@ -327,27 +330,25 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
 
     if (!launched) {
       if (!mounted) return;
-      ref.read(snackbarProvider).display(
-        message: "Unable to open the callback URL for this app.",
-      );
+      ref
+          .read(snackbarProvider)
+          .display(message: "Unable to open the callback URL for this app.");
       return;
     }
 
     await SystemNavigator.pop();
   }
 
-  List<_PermissionScope> _buildDeniedItems(List<_PermissionScope> allowedScopes) {
+  List<_PermissionScope> _buildDeniedItems(
+    List<_PermissionScope> allowedScopes,
+  ) {
     const privateScopes = [
       _PermissionScope(
         key: 'real_name',
         title: 'Real Name',
         description: 'Private',
       ),
-      _PermissionScope(
-        key: 'bvn',
-        title: 'BVN',
-        description: 'Private',
-      ),
+      _PermissionScope(key: 'bvn', title: 'BVN', description: 'Private'),
     ];
 
     final allowedKeys = allowedScopes.map((scope) => scope.key).toSet();

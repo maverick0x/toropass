@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'toropass_authorization_request.dart';
+import 'toropass_callback_listener.dart';
 import 'toropass_client_config.dart';
 import 'toropass_profile.dart';
 import 'toropass_result.dart';
@@ -11,10 +13,16 @@ import 'toropass_wallet_launcher.dart';
 class ToroPassClient {
   final ToroPassClientConfig config;
   final ToroPassWalletLauncher _walletLauncher;
+  final ToroPassCallbackListener _callbackListener;
 
-  ToroPassClient({required this.config, ToroPassWalletLauncher? walletLauncher})
-    : _walletLauncher =
-          walletLauncher ?? const UrlLauncherToroPassWalletLauncher();
+  ToroPassClient({
+    required this.config,
+    ToroPassWalletLauncher? walletLauncher,
+    ToroPassCallbackListener? callbackListener,
+  }) : _walletLauncher =
+           walletLauncher ?? const UrlLauncherToroPassWalletLauncher(),
+       _callbackListener =
+           callbackListener ?? AppLinksToroPassCallbackListener();
 
   ToroPassAuthorizationRequest createAuthorizationRequest({
     String? appName,
@@ -57,6 +65,61 @@ class ToroPassClient {
     return launched ? request : null;
   }
 
+  Future<ToroPassAuthResult> waitForCallback(
+    ToroPassAuthorizationRequest request, {
+    Duration? timeout,
+  }) async {
+    final waitDuration = timeout ?? config.callbackTimeout;
+
+    try {
+      final callbackUri = await _callbackListener.uriStream
+          .where((uri) => _matchesRedirectUri(uri, request.redirectUri))
+          .first
+          .timeout(waitDuration);
+
+      return parseCallbackUri(callbackUri, expectedState: request.state);
+    } on TimeoutException {
+      return ToroPassAuthTimeout(waitDuration);
+    } catch (error, stackTrace) {
+      return ToroPassAuthTransportError(
+        message: 'Unable to receive the ToroPass callback.',
+        cause: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  ToroPassAuthResult parseCallbackUri(
+    Uri uri, {
+    required String expectedState,
+  }) {
+    final actualState = uri.queryParameters['state'];
+    if (actualState != expectedState) {
+      return ToroPassAuthStateMismatch(
+        expectedState: expectedState,
+        actualState: actualState,
+      );
+    }
+
+    final error = uri.queryParameters['error'];
+    if (error != null && error.isNotEmpty) {
+      return ToroPassAuthDenied(
+        error: error,
+        description: uri.queryParameters['error_description'],
+      );
+    }
+
+    final code = uri.queryParameters['code'];
+    if (code != null && code.isNotEmpty) {
+      return ToroPassAuthorizationCodeReceived(
+        code: code,
+        state: actualState ?? '',
+      );
+    }
+
+    return const ToroPassAuthCancelled();
+  }
+
   Future<ToroPassAuthResult> verifyIdentity() {
     throw UnimplementedError(
       'verifyIdentity will be implemented in the wallet launch and OAuth phases.',
@@ -90,5 +153,11 @@ class ToroPassClient {
       throw ArgumentError.value(value, 'state', 'State is required.');
     }
     return trimmed;
+  }
+
+  static bool _matchesRedirectUri(Uri uri, Uri redirectUri) {
+    return uri.scheme == redirectUri.scheme &&
+        uri.host == redirectUri.host &&
+        uri.path == redirectUri.path;
   }
 }
