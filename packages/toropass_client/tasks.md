@@ -34,14 +34,20 @@ Current result:
 
 ## Phase 2: Wallet Launch and Deep Link Transport
 
-- [ ] Define the wallet-launch URI format for `/permission`
-- [ ] Include `client_id`, `redirect_uri`, and scopes in the outbound request
-- [ ] Add request correlation via `state` or nonce so callback responses can be validated
-- [ ] Add wallet availability detection and failure fallback when ToroPass Wallet is not installed
+- [x] Define the wallet-launch URI format for `/permission`
+- [x] Include `client_id`, `redirect_uri`, and scopes in the outbound request
+- [x] Add request correlation via `state` or nonce so callback responses can be validated
+- [x] Add wallet availability detection and failure fallback when ToroPass Wallet is not installed
 
 Definition of done:
 
 - The package can launch ToroPass Wallet reliably with a valid permission request payload.
+
+Current result:
+
+- Default wallet launch URI is `toropass:/permission`, with override support through `ToroPassClientConfig.walletLaunchUri`.
+- `ToroPassClient.createAuthorizationRequest()` builds the launch URI with `client_id`, `redirect_uri`, comma-separated `scopes`, `state`, and optional `app_name`.
+- `ToroPassClient.launchWallet()` checks app availability through `url_launcher` before opening the wallet and returns `null` when the wallet is unavailable.
 
 ## Phase 3: Callback Capture and Result Mapping
 

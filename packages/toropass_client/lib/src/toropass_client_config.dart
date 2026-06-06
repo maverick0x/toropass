@@ -5,6 +5,11 @@ class ToroPassClientConfig {
     'https://api.toropass.app/api/v1',
   );
 
+  static final Uri defaultWalletLaunchUri = Uri(
+    scheme: 'toropass',
+    path: '/permission',
+  );
+
   static const Set<ToroPassScope> defaultScopes = {
     ToroPassScope.kycStatus,
     ToroPassScope.wallet,
@@ -14,6 +19,7 @@ class ToroPassClientConfig {
   final Uri redirectUri;
   final Set<ToroPassScope> scopes;
   final Uri issuerBaseUrl;
+  final Uri walletLaunchUri;
   final Duration callbackTimeout;
 
   ToroPassClientConfig({
@@ -21,6 +27,7 @@ class ToroPassClientConfig {
     required Uri redirectUri,
     Set<ToroPassScope> scopes = defaultScopes,
     Uri? issuerBaseUrl,
+    Uri? walletLaunchUri,
     Duration callbackTimeout = const Duration(minutes: 2),
   }) : clientId = _requireClientId(clientId),
        redirectUri = _requireAbsoluteUri(redirectUri, 'redirectUri'),
@@ -28,6 +35,10 @@ class ToroPassClientConfig {
        issuerBaseUrl = _requireAbsoluteUri(
          issuerBaseUrl ?? defaultIssuerBaseUrl,
          'issuerBaseUrl',
+       ),
+       walletLaunchUri = _requireAbsoluteUri(
+         walletLaunchUri ?? defaultWalletLaunchUri,
+         'walletLaunchUri',
        ),
        callbackTimeout = _requirePositiveDuration(
          callbackTimeout,

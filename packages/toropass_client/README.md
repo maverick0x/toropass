@@ -25,6 +25,24 @@ final client = ToroPassClient(
 );
 ```
 
+Build or launch the ToroPass Wallet permission request:
+
+```dart
+final request = client.createAuthorizationRequest(
+  appName: 'Example App',
+);
+
+print(request.launchUri);
+
+final launchedRequest = await client.launchWallet(
+  appName: 'Example App',
+);
+
+if (launchedRequest == null) {
+  print('ToroPass Wallet is not installed or cannot be opened.');
+}
+```
+
 The primary flow returns one of the typed auth results:
 
 ```dart
@@ -50,3 +68,9 @@ switch (result) {
 The package exposes `fetchProfile(accessToken:)` for silent profile refresh with an existing OAuth app token.
 
 Token persistence is intentionally left to the host app. Do not ship a `client_secret` in a Flutter app; the issuer accepts it only for server-side flows.
+
+## Wallet Deep Link
+
+The default wallet launch URI is `toropass:/permission`.
+
+Override `walletLaunchUri` in `ToroPassClientConfig` if your environment uses a different wallet scheme.

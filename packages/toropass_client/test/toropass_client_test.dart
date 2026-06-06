@@ -15,6 +15,7 @@ void main() {
         config.issuerBaseUrl.toString(),
         'https://api.toropass.app/api/v1',
       );
+      expect(config.walletLaunchUri.toString(), 'toropass:/permission');
       expect(config.scopes, ToroPassClientConfig.defaultScopes);
       expect(config.scopeValues, ['kyc_status', 'wallet']);
       expect(config.callbackTimeout, const Duration(minutes: 2));
@@ -25,10 +26,12 @@ void main() {
         clientId: 'toro_client_123',
         redirectUri: Uri.parse('myapp://callback'),
         issuerBaseUrl: Uri.parse('http://localhost:3000/api/v1'),
+        walletLaunchUri: Uri.parse('toropass-dev:///permission'),
         scopes: {ToroPassScope.kycStatus},
       );
 
       expect(config.issuerBaseUrl.toString(), 'http://localhost:3000/api/v1');
+      expect(config.walletLaunchUri.toString(), 'toropass-dev:///permission');
       expect(config.scopeValues, ['kyc_status']);
     });
 
@@ -93,4 +96,80 @@ void main() {
       );
     });
   });
+
+  group('ToroPass wallet launch transport', () {
+    test('builds a wallet permission URI with OAuth query parameters', () {
+      final client = ToroPassClient(
+        config: ToroPassClientConfig(
+          clientId: 'toro_client_123',
+          redirectUri: Uri.parse('myapp://toropass/callback'),
+        ),
+      );
+
+      final request = client.createAuthorizationRequest(
+        appName: 'Example App',
+        state: 'state-123',
+      );
+
+      expect(request.state, 'state-123');
+      expect(request.launchUri.scheme, 'toropass');
+      expect(request.launchUri.path, '/permission');
+      expect(request.launchUri.queryParameters['client_id'], 'toro_client_123');
+      expect(
+        request.launchUri.queryParameters['redirect_uri'],
+        'myapp://toropass/callback',
+      );
+      expect(request.launchUri.queryParameters['scopes'], 'kyc_status,wallet');
+      expect(request.launchUri.queryParameters['state'], 'state-123');
+      expect(request.launchUri.queryParameters['app_name'], 'Example App');
+    });
+
+    test('launches wallet when available', () async {
+      final launcher = _FakeWalletLauncher(canLaunchResult: true);
+      final client = ToroPassClient(
+        config: ToroPassClientConfig(
+          clientId: 'toro_client_123',
+          redirectUri: Uri.parse('myapp://callback'),
+        ),
+        walletLauncher: launcher,
+      );
+
+      final request = await client.launchWallet(state: 'state-123');
+
+      expect(request, isNotNull);
+      expect(launcher.launchedUri, request!.launchUri);
+    });
+
+    test('returns null when wallet is unavailable', () async {
+      final launcher = _FakeWalletLauncher(canLaunchResult: false);
+      final client = ToroPassClient(
+        config: ToroPassClientConfig(
+          clientId: 'toro_client_123',
+          redirectUri: Uri.parse('myapp://callback'),
+        ),
+        walletLauncher: launcher,
+      );
+
+      final request = await client.launchWallet(state: 'state-123');
+
+      expect(request, isNull);
+      expect(launcher.launchedUri, isNull);
+    });
+  });
+}
+
+class _FakeWalletLauncher implements ToroPassWalletLauncher {
+  final bool canLaunchResult;
+  Uri? launchedUri;
+
+  _FakeWalletLauncher({required this.canLaunchResult});
+
+  @override
+  Future<bool> canLaunch(Uri uri) async => canLaunchResult;
+
+  @override
+  Future<bool> launch(Uri uri) async {
+    launchedUri = uri;
+    return true;
+  }
 }
