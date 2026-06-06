@@ -252,15 +252,114 @@ void main() {
       await listener.close();
     });
   });
+
+  group('ToroPass OAuth API flow', () {
+    test('exchanges authorization code for token and profile', () async {
+      final httpClient = _FakeHttpClient();
+      final client = _buildClient(httpClient: httpClient);
+
+      final session = await client.exchangeAuthorizationCode(
+        code: ' auth-code-123 ',
+      );
+
+      expect(
+        httpClient.lastPostUri.toString(),
+        'https://api.toropass.app/api/v1/oauth/token',
+      );
+      expect(httpClient.lastPostBody, {
+        'client_id': 'toro_client_123',
+        'code': 'auth-code-123',
+        'redirect_uri': 'myapp://callback',
+      });
+      expect(session.token.accessToken, 'toro_tk_123');
+      expect(session.profile.id, 'user-1');
+      expect(session.profile.wallet.address, '0x123');
+    });
+
+    test('includes optional client secret for server-side exchange', () async {
+      final httpClient = _FakeHttpClient();
+      final client = _buildClient(httpClient: httpClient);
+
+      await client.exchangeAuthorizationCode(
+        code: 'auth-code-123',
+        clientSecret: ' toro_sk_123 ',
+      );
+
+      expect(httpClient.lastPostBody?['client_secret'], 'toro_sk_123');
+    });
+
+    test('fetches profile with app-scoped OAuth token', () async {
+      final httpClient = _FakeHttpClient();
+      final client = _buildClient(httpClient: httpClient);
+
+      final profile = await client.fetchProfile(accessToken: ' toro_tk_123 ');
+
+      expect(
+        httpClient.lastGetUri.toString(),
+        'https://api.toropass.app/api/v1/oauth/profile',
+      );
+      expect(httpClient.lastGetHeaders, {
+        'Authorization': 'Bearer toro_tk_123',
+      });
+      expect(profile.kycVerified, isTrue);
+      expect(profile.wallet.tnsName, 'alice');
+    });
+
+    test('surfaces expired or revoked OAuth tokens', () async {
+      final httpClient = _FakeHttpClient(
+        getError: const ToroPassTokenInvalidException(statusCode: 401),
+      );
+      final client = _buildClient(httpClient: httpClient);
+
+      expect(
+        () => client.fetchProfile(accessToken: 'toro_tk_revoked'),
+        throwsA(isA<ToroPassTokenInvalidException>()),
+      );
+    });
+
+    test(
+      'verifyIdentity launches wallet, waits for code, exchanges token, and returns success',
+      () async {
+        final launcher = _FakeWalletLauncher(canLaunchResult: true);
+        final listener = _FakeCallbackListener();
+        final httpClient = _FakeHttpClient();
+        final client = _buildClient(
+          callbackListener: listener,
+          walletLauncher: launcher,
+          httpClient: httpClient,
+        );
+
+        final resultFuture = client.verifyIdentity(appName: 'Example App');
+        final launchedUri = await _waitFor(() => launcher.launchedUri);
+        listener.add(
+          Uri.parse(
+            'myapp://callback?code=auth-code-123&state=${launchedUri.queryParameters['state']}',
+          ),
+        );
+
+        final result = await resultFuture;
+
+        expect(result, isA<ToroPassAuthSuccess>());
+        expect((result as ToroPassAuthSuccess).profile.wallet.tnsName, 'alice');
+        await listener.close();
+      },
+    );
+  });
 }
 
-ToroPassClient _buildClient({ToroPassCallbackListener? callbackListener}) {
+ToroPassClient _buildClient({
+  ToroPassCallbackListener? callbackListener,
+  ToroPassWalletLauncher? walletLauncher,
+  ToroPassHttpClient? httpClient,
+}) {
   return ToroPassClient(
     config: ToroPassClientConfig(
       clientId: 'toro_client_123',
       redirectUri: Uri.parse('myapp://callback'),
     ),
     callbackListener: callbackListener,
+    walletLauncher: walletLauncher,
+    httpClient: httpClient,
   );
 }
 
@@ -289,4 +388,54 @@ class _FakeCallbackListener implements ToroPassCallbackListener {
   void add(Uri uri) => _controller.add(uri);
 
   Future<void> close() => _controller.close();
+}
+
+class _FakeHttpClient implements ToroPassHttpClient {
+  final Object? getError;
+  Uri? lastPostUri;
+  Map<String, dynamic>? lastPostBody;
+  Uri? lastGetUri;
+  Map<String, String>? lastGetHeaders;
+
+  _FakeHttpClient({this.getError});
+
+  @override
+  Future<Map<String, dynamic>> postJson(
+    Uri uri, {
+    required Map<String, dynamic> body,
+  }) async {
+    lastPostUri = uri;
+    lastPostBody = body;
+    return {
+      'status': 'success',
+      'data': {'accessToken': 'toro_tk_123', 'profile': _profileJson()},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> getJson(
+    Uri uri, {
+    Map<String, String>? headers,
+  }) async {
+    if (getError != null) throw getError!;
+    lastGetUri = uri;
+    lastGetHeaders = headers;
+    return {'status': 'success', 'data': _profileJson()};
+  }
+
+  static Map<String, dynamic> _profileJson() => {
+    'id': 'user-1',
+    'kycVerified': true,
+    'kycAnchorHash': null,
+    'wallet': {'address': '0x123', 'tnsName': 'alice', 'network': 'testnet'},
+  };
+}
+
+Future<T> _waitFor<T extends Object>(T? Function() read) async {
+  for (var i = 0; i < 10; i++) {
+    final value = read();
+    if (value != null) return value;
+    await Future<void>.delayed(const Duration(milliseconds: 1));
+  }
+  throw StateError('Timed out waiting for value.');
 }

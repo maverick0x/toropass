@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'toropass_authorization_request.dart';
 import 'toropass_callback_listener.dart';
 import 'toropass_client_config.dart';
+import 'toropass_exception.dart';
+import 'toropass_http_client.dart';
 import 'toropass_profile.dart';
 import 'toropass_result.dart';
 import 'toropass_wallet_launcher.dart';
@@ -14,15 +16,18 @@ class ToroPassClient {
   final ToroPassClientConfig config;
   final ToroPassWalletLauncher _walletLauncher;
   final ToroPassCallbackListener _callbackListener;
+  final ToroPassHttpClient _httpClient;
 
   ToroPassClient({
     required this.config,
     ToroPassWalletLauncher? walletLauncher,
     ToroPassCallbackListener? callbackListener,
+    ToroPassHttpClient? httpClient,
   }) : _walletLauncher =
            walletLauncher ?? const UrlLauncherToroPassWalletLauncher(),
        _callbackListener =
-           callbackListener ?? AppLinksToroPassCallbackListener();
+           callbackListener ?? AppLinksToroPassCallbackListener(),
+       _httpClient = httpClient ?? HttpToroPassClient();
 
   ToroPassAuthorizationRequest createAuthorizationRequest({
     String? appName,
@@ -120,21 +125,113 @@ class ToroPassClient {
     return const ToroPassAuthCancelled();
   }
 
-  Future<ToroPassAuthResult> verifyIdentity() {
-    throw UnimplementedError(
-      'verifyIdentity will be implemented in the wallet launch and OAuth phases.',
-    );
+  Future<ToroPassAuthResult> verifyIdentity({String? appName}) async {
+    final request = await launchWallet(appName: appName);
+    if (request == null) {
+      return const ToroPassAuthTransportError(
+        message: 'ToroPass Wallet is not installed or cannot be opened.',
+      );
+    }
+
+    final callbackResult = await waitForCallback(request);
+    if (callbackResult is! ToroPassAuthorizationCodeReceived) {
+      return callbackResult;
+    }
+
+    try {
+      final session = await exchangeAuthorizationCode(
+        code: callbackResult.code,
+      );
+      return ToroPassAuthSuccess(
+        token: session.token,
+        profile: session.profile,
+      );
+    } catch (error, stackTrace) {
+      return _transportError(error, stackTrace);
+    }
   }
 
-  Future<ToroPassOAuthToken> exchangeAuthorizationCode({required String code}) {
-    throw UnimplementedError(
-      'exchangeAuthorizationCode will be implemented with /oauth/token.',
+  Future<ToroPassOAuthSession> exchangeAuthorizationCode({
+    required String code,
+    String? clientSecret,
+  }) async {
+    final body = <String, dynamic>{
+      'client_id': config.clientId,
+      'code': _requireCode(code),
+      'redirect_uri': config.redirectUri.toString(),
+      if (clientSecret?.trim().isNotEmpty == true)
+        'client_secret': clientSecret!.trim(),
+    };
+
+    final response = await _httpClient.postJson(
+      _endpoint('/oauth/token'),
+      body: body,
     );
+
+    return ToroPassOAuthSession.fromJson(_data(response));
   }
 
-  Future<ToroPassProfile> fetchProfile({required String accessToken}) {
-    throw UnimplementedError(
-      'fetchProfile will be implemented with /oauth/profile.',
+  Future<ToroPassProfile> fetchProfile({required String accessToken}) async {
+    final token = _requireAccessToken(accessToken);
+    final response = await _httpClient.getJson(
+      _endpoint('/oauth/profile'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    return ToroPassProfile.fromJson(_data(response));
+  }
+
+  static Map<String, dynamic> _data(Map<String, dynamic> response) {
+    final data = response['data'];
+    if (data is Map<String, dynamic>) return data;
+    return const {};
+  }
+
+  Uri _endpoint(String path) {
+    final basePath = config.issuerBaseUrl.path.endsWith('/')
+        ? config.issuerBaseUrl.path.substring(
+            0,
+            config.issuerBaseUrl.path.length - 1,
+          )
+        : config.issuerBaseUrl.path;
+
+    return config.issuerBaseUrl.replace(path: '$basePath$path');
+  }
+
+  static String _requireCode(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError.value(
+        value,
+        'code',
+        'Authorization code is required.',
+      );
+    }
+    return trimmed;
+  }
+
+  static String _requireAccessToken(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError.value(
+        value,
+        'accessToken',
+        'Access token is required.',
+      );
+    }
+    return trimmed;
+  }
+
+  static ToroPassAuthTransportError _transportError(
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    return ToroPassAuthTransportError(
+      message: error is ToroPassException
+          ? error.message
+          : 'ToroPass verification failed.',
+      cause: error,
+      stackTrace: stackTrace,
     );
   }
 

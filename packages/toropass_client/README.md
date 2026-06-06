@@ -51,7 +51,9 @@ final callbackResult = await client.waitForCallback(launchedRequest);
 
 switch (callbackResult) {
   case ToroPassAuthorizationCodeReceived(:final code):
-    print(code);
+    final session = await client.exchangeAuthorizationCode(code: code);
+    print(session.token.accessToken);
+    print(session.profile.wallet.tnsName);
   case ToroPassAuthDenied():
     print('User denied access.');
   case ToroPassAuthCancelled():
@@ -92,6 +94,12 @@ switch (result) {
 The package exposes `fetchProfile(accessToken:)` for silent profile refresh with an existing OAuth app token.
 
 Token persistence is intentionally left to the host app. Do not ship a `client_secret` in a Flutter app; the issuer accepts it only for server-side flows.
+
+```dart
+final profile = await client.fetchProfile(
+  accessToken: session.token.accessToken,
+);
+```
 
 ## Wallet Deep Link
 

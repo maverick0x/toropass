@@ -70,11 +70,11 @@ Current result:
 
 ## Phase 4: OAuth Token and Profile Flow
 
-- [ ] Implement `POST /api/v1/oauth/token`
-- [ ] Implement `GET /api/v1/oauth/profile`
-- [ ] Keep OAuth app access tokens separate from first-party wallet tokens
-- [ ] Decide whether OAuth app tokens live only in memory or can optionally be persisted by host apps
-- [ ] Handle expired OAuth tokens and revoked consent responses consistently
+- [x] Implement `POST /api/v1/oauth/token`
+- [x] Implement `GET /api/v1/oauth/profile`
+- [x] Keep OAuth app access tokens separate from first-party wallet tokens
+- [x] Decide whether OAuth app tokens live only in memory or can optionally be persisted by host apps
+- [x] Handle expired OAuth tokens and revoked consent responses consistently
 
 Definition of done:
 
@@ -83,6 +83,13 @@ Definition of done:
 Important note:
 
 - `client_secret` is optional at the backend controller level, but shipping a secret inside a mobile client should be avoided by default.
+
+Current result:
+
+- `ToroPassClient.exchangeAuthorizationCode()` calls `/oauth/token` and returns a `ToroPassOAuthSession`.
+- `ToroPassClient.fetchProfile()` calls `/oauth/profile` with the app-scoped OAuth access token.
+- The package does not persist OAuth app tokens; host apps own storage policy.
+- Expired or revoked OAuth app tokens surface as `ToroPassTokenInvalidException`.
 
 ## Phase 5: Package UX Helpers
 

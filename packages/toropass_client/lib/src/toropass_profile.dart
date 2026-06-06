@@ -54,3 +54,19 @@ class ToroPassOAuthToken {
     );
   }
 }
+
+class ToroPassOAuthSession {
+  final ToroPassOAuthToken token;
+  final ToroPassProfile profile;
+
+  const ToroPassOAuthSession({required this.token, required this.profile});
+
+  factory ToroPassOAuthSession.fromJson(Map<String, dynamic> json) {
+    return ToroPassOAuthSession(
+      token: ToroPassOAuthToken.fromJson(json),
+      profile: ToroPassProfile.fromJson(
+        json['profile'] as Map<String, dynamic>? ?? const {},
+      ),
+    );
+  }
+}
