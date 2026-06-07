@@ -31,10 +31,10 @@ dependencies:
   cached_network_image: ^3.4.1
   dio: ^5.9.2
   device_info_plus: ^13.1.0
+  package_info_plus: ^10.1.0
   screen_protector: ^1.5.1
   crypto: ^3.0.7
   riverpod_annotation: ^4.0.2
-  freerasp: ^7.5.1
   equatable: ^2.0.8
 
 dev_dependencies:

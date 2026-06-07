@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
 import '../../../../core/network/token/token_notifier.dart';
 import '../../../../core/providers/loading_notifier.dart';
+import '../../../../core/providers/package_info_provider.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
 import '../../../../generated/assets.gen.dart';
 import '../../../../generated/fonts.gen.dart';
@@ -38,6 +40,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
+    final packageInfo = ref.watch(packageInfoProvider);
+    final versionLabel = packageInfo.when(
+      data: (info) => 'v${info.version} (Build ${info.buildNumber})',
+      loading: () => 'Loading version...',
+      error: (_, _) => 'Version unavailable',
+    );
 
     return PopScope(
       canPop: false,
@@ -58,21 +66,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _buildLogout(),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _tapCount++;
-                    if (_tapCount > 4) _tapCount = 0;
-                  });
-                  if (_tapCount >= 4) {
-                    context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
-                  }
-                },
+                onTap: _openDeveloperScreen,
                 child: Container(
                   alignment: Alignment.center,
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(vertical: 10.height),
                   child: Text(
-                    "v1.0.0 (Build 42)",
+                    versionLabel,
                     style: appStyles.body.copyWith(
                       color: appColors.text.withAlpha(100),
                     ),
@@ -282,5 +282,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await ref.read(loadingProvider.notifier).wrap(() async {
       await ref.read(tokenProvider.notifier).clearTokens();
     });
+  }
+
+  void _openDeveloperScreen() {
+    if (!kDebugMode) return;
+
+    setState(() {
+      _tapCount++;
+      if (_tapCount > 4) _tapCount = 0;
+    });
+
+    if (_tapCount >= 4) {
+      context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
+    }
   }
 }

@@ -1,18 +1,14 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freerasp/freerasp.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../core/config/themes/colors.dart';
-import '../../core/config/themes/styles.dart';
 import '../../core/config/themes/themes.dart';
 import '../../core/providers/loading_notifier.dart';
-import '../../core/services/storage_service.dart';
 import '../../core/utilities/animations.dart';
 import '../../core/utilities/extensions/numbers.dart';
 import '../../generated/assets.gen.dart';
@@ -28,7 +24,6 @@ class AppWrapper extends ConsumerStatefulWidget {
 
 class _AppWrapperState extends ConsumerState<AppWrapper>
     with WidgetsBindingObserver {
-  bool _isCompromised = false;
   bool _showPrivacyOverlay = false;
 
   final _scaleTween = Tween<double>(
@@ -40,40 +35,6 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initSecurity();
-  }
-
-  Future<void> _initSecurity() async {
-    // TODO: Configure the security parameters before release.
-    final config = TalsecConfig(
-      androidConfig: AndroidConfig(
-        packageName: 'app.toropass',
-        signingCertHashes: ['YOUR_BASE64_CERT_HASH'],
-      ),
-      iosConfig: IOSConfig(bundleIds: ['app.toropass'], teamId: 'YOUR_TEAM_ID'),
-      watcherMail: 'mhiztahymodder@gmail.com',
-      isProd: !kDebugMode,
-    );
-
-    // Define what happens when a threat is detected
-    final callback = ThreatCallback(
-      onPrivilegedAccess: () => _handleThreat(),
-      onHooks: () => _handleThreat(),
-      onAppIntegrity: () => _handleThreat(),
-      onSimulator: () => _handleThreat(debug: kDebugMode),
-    );
-
-    // Attach the listener and start Talsec
-    Talsec.instance.attachListener(callback);
-    await Talsec.instance.start(config);
-  }
-
-  void _handleThreat({bool debug = false}) {
-    if (debug) return;
-
-    if (_isCompromised) return;
-    ref.read(storageServiceProvider).clearAllDataFromDisk();
-    setState(() => _isCompromised = true);
   }
 
   @override
@@ -98,51 +59,6 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
       default:
         break;
     }
-  }
-
-  Widget _buildCompromisedWidget() {
-    final appStyles = context.appStyles;
-    final appColors = AppColors.of(context);
-
-    return Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .center,
-            children: [
-              Icon(
-                Icons.security_update_warning,
-                size: 128.radius,
-                color: appColors.error,
-              ),
-              64.verticalSpacer,
-              Text(
-                'Security Risk Detected',
-                style: appStyles.sectionTitle.copyWith(color: appColors.error),
-                textAlign: TextAlign.center,
-              ),
-              32.verticalSpacer,
-              Text(
-                'This device appears to be compromised',
-                style: appStyles.cardTitle.copyWith(color: appColors.error),
-                textAlign: TextAlign.center,
-              ),
-              12.verticalSpacer,
-              Text(
-                'For your security, the application has blocked access until the issue is resolved.',
-                style: appStyles.body.copyWith(
-                  color: appColors.neutral.withAlpha(180),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildOverlay() {
@@ -217,11 +133,7 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
       ),
       child: Stack(
         children: [
-          // Main app content or compromised warning based on security status
-          switch (_isCompromised) {
-            true => _buildCompromisedWidget(),
-            false => widget.child,
-          },
+          widget.child,
 
           // Overlay for loading state or privacy when app is backgrounded
           Positioned.fill(
