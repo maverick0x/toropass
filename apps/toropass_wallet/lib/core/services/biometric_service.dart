@@ -21,8 +21,18 @@ final biometricLabelProvider = FutureProvider<String>((ref) async {
 class BiometricService {
   final LocalAuthentication localAuthentication;
   String biometricTypeLabel = '';
+  bool _isAuthenticating = false;
+  bool _skipNextResumePrompt = false;
 
   BiometricService({required this.localAuthentication});
+
+  bool get isAuthenticating => _isAuthenticating;
+
+  bool consumeSkipNextResumePrompt() {
+    if (!_skipNextResumePrompt) return false;
+    _skipNextResumePrompt = false;
+    return true;
+  }
 
   Future<bool> isBiometricAvailable() async {
     try {
@@ -60,6 +70,8 @@ class BiometricService {
 
   Future<bool> authenticate() async {
     try {
+      _isAuthenticating = true;
+      _skipNextResumePrompt = true;
       final label = biometricTypeLabel == 'Face ID'
           ? "Scan your face"
           : 'Scan your fingerprint';
@@ -67,6 +79,7 @@ class BiometricService {
       return await localAuthentication.authenticate(
         localizedReason: label,
         biometricOnly: true,
+        persistAcrossBackgrounding: true,
         authMessages: [
           IOSAuthMessages(cancelButton: 'Cancel'),
           AndroidAuthMessages(cancelButton: 'Cancel'),
@@ -76,6 +89,8 @@ class BiometricService {
       return false;
     } on LocalAuthException catch (_) {
       return false;
+    } finally {
+      _isAuthenticating = false;
     }
   }
 

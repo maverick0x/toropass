@@ -56,6 +56,9 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final biometricService = ref.read(biometricServiceProvider);
+    if (biometricService.isAuthenticating) return;
+
     switch (state) {
       case AppLifecycleState.inactive:
         setState(() => _showPrivacyOverlay = true);
@@ -63,6 +66,9 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
 
       case AppLifecycleState.resumed:
         setState(() => _showPrivacyOverlay = false);
+        if (biometricService.consumeSkipNextResumePrompt()) {
+          break;
+        }
         _checkBiometricGate(prompt: true);
         break;
 
@@ -168,61 +174,65 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
     final appColors = AppColors.of(context);
     final appStyles = context.appStyles;
 
-    return Container(
+    return Material(
       key: const ValueKey('biometric-lock'),
-      width: double.infinity,
-      height: double.infinity,
       color: appColors.surface,
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 28.width),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(18.radius),
-                decoration: BoxDecoration(
-                  color: appColors.primary.withAlpha(12),
-                  shape: BoxShape.circle,
+      child: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 28.width),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(18.radius),
+                  decoration: BoxDecoration(
+                    color: appColors.primary.withAlpha(12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.fingerprint_rounded,
+                    size: 48.width,
+                    color: appColors.primary,
+                  ),
                 ),
-                child: Icon(
-                  Icons.fingerprint_rounded,
-                  size: 48.width,
-                  color: appColors.primary,
+                28.verticalSpacer,
+                Text(
+                  'ToroPass',
+                  style: appStyles.sectionTitle.copyWith(
+                    color: appColors.header,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              28.verticalSpacer,
-              Text(
-                'Unlock ToroPass',
-                style: appStyles.sectionTitle.copyWith(color: appColors.header),
-                textAlign: TextAlign.center,
-              ),
-              10.verticalSpacer,
-              Text(
-                'Use your biometrics to continue into your wallet securely.',
-                style: appStyles.body.copyWith(
-                  color: appColors.text.withAlpha(190),
+                15.verticalSpacer,
+                Text(
+                  'Use your biometrics to continue into your wallet securely.',
+                  style: appStyles.body.copyWith(
+                    color: appColors.text.withAlpha(190),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              28.verticalSpacer,
-              SizedBox(
-                width: double.infinity,
-                child: AppButton(
-                  text: _isAuthenticating ? 'Checking...' : 'Unlock',
-                  callback: _isAuthenticating ? null : _promptBiometricUnlock,
+                40.verticalSpacer,
+                SizedBox(
+                  width: double.infinity,
+                  child: AppButton(
+                    text: _isAuthenticating ? 'Checking...' : 'Unlock',
+                    callback: _isAuthenticating ? null : _promptBiometricUnlock,
+                  ),
                 ),
-              ),
-              12.verticalSpacer,
-              Text(
-                'Biometric unlock is enabled for this device.',
-                style: appStyles.caption.copyWith(
-                  color: appColors.text.withAlpha(150),
-                  fontFamily: FontFamily.interRegular,
+                20.verticalSpacer,
+                Text(
+                  'Biometric unlock is enabled for this device.',
+                  style: appStyles.caption.copyWith(
+                    color: appColors.text.withAlpha(150),
+                    fontFamily: FontFamily.interRegular,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
