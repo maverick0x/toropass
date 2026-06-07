@@ -3,7 +3,7 @@
 ToroPass is a full-stack Toronet identity reference project.
 
 It gives Flutter developers a working identity flow they can use today:
-- a published Flutter client package for third-party apps
+- a published Flutter SDK package for third-party apps on pub.dev
 - a deployable ToroPass Wallet APK for end users
 - an issuer-backed OAuth consent and identity verification flow
 - the backend and wallet source code used to build the reference stack
@@ -13,7 +13,7 @@ It gives Flutter developers a working identity flow they can use today:
 If your goal is to understand or use ToroPass, do **not** start by cloning this repository and trying to run the entire stack end to end.
 
 The most useful path is:
-1. Install the published `toropass_client` package in your Flutter app.
+1. Install the published [`toropass_client`](https://pub.dev/packages/toropass_client) package in your Flutter app.
 2. Install the ToroPass Wallet APK from the GitHub Releases page.
 3. Register an OAuth app through ToroPass Wallet.
 4. Launch the verification flow from your own Flutter app.
@@ -33,7 +33,7 @@ Instead of every Toronet app building its own KYC collection, consent, and walle
 
 ### 1. ToroPass Client Package
 
-The Flutter client package is intended for third-party Flutter developers.
+The published Flutter SDK package is intended for third-party Flutter developers.
 
 Use it to:
 - launch ToroPass Wallet
@@ -43,6 +43,7 @@ Use it to:
 - fetch the approved ToroPass profile
 
 See:
+- [`toropass_client` on pub.dev](https://pub.dev/packages/toropass_client)
 - [ToroPass Client README](packages/toropass_client/README.md)
 - [ToroPass Client Example README](packages/toropass_client/example/README.md)
 
@@ -57,7 +58,7 @@ Users can:
 - approve or deny OAuth consent requests
 - enable biometric protection
 
-For most reviewers, testers, and Flutter developers, the released APK is the correct way to use ToroPass.
+For most testers and Flutter developers, the released APK is the correct way to use ToroPass.
 
 ### 3. Download the Wallet APK
 
@@ -71,7 +72,7 @@ This is the recommended way to test the live holder-side experience without rebu
 
 If you are building a Flutter app on Toronet, this is the path ToroPass is optimized for:
 
-1. Add `toropass_client` to your Flutter app.
+1. Add [`toropass_client`](https://pub.dev/packages/toropass_client) to your Flutter app.
 2. Configure your redirect URI / deep link.
 3. Create a ToroPass OAuth app through the wallet.
 4. Trigger the ToroPass verification flow from your app.
@@ -109,7 +110,7 @@ Responsibilities:
 
 ### `packages/toropass_client`
 
-The Flutter package used by third-party Flutter apps.
+The source code for the published Flutter SDK used by third-party Flutter apps.
 
 Responsibilities:
 - wallet launch
@@ -175,8 +176,11 @@ Clone this repository if you want to:
 ## Best Entry Points
 
 For usage:
+- [`toropass_client` on pub.dev](https://pub.dev/packages/toropass_client)
 - [ToroPass Client README](packages/toropass_client/README.md)
 - [ToroPass Client Example README](packages/toropass_client/example/README.md)
+- [ToroPass SDK Integration Guide](TOROPASS_SDK_INTEGRATION.md)
+- [ToroPass Review Guide](REVIEW_GUIDE.md)
 
 For architecture:
 - [Project Context](context/project.md)

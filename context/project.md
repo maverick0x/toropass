@@ -23,7 +23,7 @@ The project is a unified monorepo managed by **Melos** (for Dart) and **pnpm** (
 * **Who it is for:** Internal infrastructure (managed by the ToroPass team).
 * **How it works:** Uses the `torosdk` TypeScript package. It receives encrypted PII from the Wallet, validates it, and uses whitelisted Admin credentials to execute `kycService.performKYCForCustomer()`, permanently anchoring the "Verified" state on-chain. It also maintains an off-chain PostgreSQL database tracking OAuth-style developer apps and user consent permissions.
 
-### C. The Ecosystem Backend: ToroPass Verifier (`packages/toropass_verifier`)
+### C. The Ecosystem Backend: ToroPass Verifier (`packages/toropass_verifier`) _(Future)_
 * **What it is:** An open-source NPM package (NestJS Dynamic Module) middleware.
 * **Who it is for:** Third-party Toronet developers building Node.js backends (e.g., a Real Estate dApp).
 * **How it works:** Developers install this in their backend. It takes a user's TNS name, resolves the `0x` address, and calls `isAddressKYCVerified` on-chain. It cross-references this with the ToroPass Issuer API to ensure the user actually granted permission to this specific app. It returns a definitive "Verified" or "Unauthorized" status to protect high-value backend routes.

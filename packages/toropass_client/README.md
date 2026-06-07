@@ -2,6 +2,10 @@
 
 `toropass_client` is a Flutter package for launching ToroPass Wallet OAuth identity verification flows from third-party apps.
 
+Published package:
+
+- https://pub.dev/packages/toropass_client
+
 It handles:
 
 - launching ToroPass Wallet through a native deep link
