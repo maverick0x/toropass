@@ -1,3 +1,8 @@
+## 0.1.1
+
+- Refresh package metadata for the next published release.
+- Align the installation documentation with the current package version.
+
 ## 0.1.0
 
 - Add `ToroPassClient` core OAuth flow support for wallet launch, callback capture,

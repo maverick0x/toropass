@@ -23,7 +23,7 @@ It handles:
 
 ```yaml
 dependencies:
-  toropass_client: ^0.1.0
+  toropass_client: ^0.1.1
 ```
 
 Then run:
