@@ -43,8 +43,8 @@ Use it to:
 - fetch the approved ToroPass profile
 
 See:
-- [packages/toropass_client/README.md](/Users/maverick/Projects/toropass/packages/toropass_client/README.md)
-- [packages/toropass_client/example/README.md](/Users/maverick/Projects/toropass/packages/toropass_client/example/README.md)
+- [ToroPass Client README](packages/toropass_client/README.md)
+- [ToroPass Client Example README](packages/toropass_client/example/README.md)
 
 ### 2. ToroPass Wallet APK
 
@@ -175,14 +175,14 @@ Clone this repository if you want to:
 ## Best Entry Points
 
 For usage:
-- [packages/toropass_client/README.md](/Users/maverick/Projects/toropass/packages/toropass_client/README.md)
-- [packages/toropass_client/example/README.md](/Users/maverick/Projects/toropass/packages/toropass_client/example/README.md)
+- [ToroPass Client README](packages/toropass_client/README.md)
+- [ToroPass Client Example README](packages/toropass_client/example/README.md)
 
 For architecture:
-- [context/project.md](/Users/maverick/Projects/toropass/context/project.md)
+- [Project Context](context/project.md)
 
 For wallet integration work:
-- [apps/toropass_wallet/tasks.md](/Users/maverick/Projects/toropass/apps/toropass_wallet/tasks.md)
+- [ToroPass Wallet Tasks](apps/toropass_wallet/tasks.md)
 
 ## Alignment
 
