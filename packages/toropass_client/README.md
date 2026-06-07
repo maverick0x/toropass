@@ -1,80 +1,52 @@
 # ToroPass Client
 
-Flutter client package for third-party apps that want to request ToroPass Wallet identity verification.
+`toropass_client` is a Flutter package for launching ToroPass Wallet OAuth identity verification flows from third-party apps.
 
-ToroPass Client launches the ToroPass Wallet OAuth consent flow, receives the app callback, exchanges the authorization code for an app-scoped OAuth token, and fetches the approved identity profile.
+It handles:
 
-## Current Status
+- launching ToroPass Wallet through a native deep link
+- receiving the callback URI in your app
+- validating the OAuth `state`
+- exchanging the authorization code for an app-scoped access token
+- fetching the approved ToroPass profile
 
-The package contract is defined. Deep link launch, callback capture, token exchange, profile fetch, and the example app are tracked in [tasks.md](tasks.md).
+## Features
 
-For a runnable integration harness, see the package [example](example/README.md) and the Phase 6 [joint test guide](phase6-test.md).
+- `ToroPassClient.verifyIdentity()` for the one-call authorization flow
+- `ToroPassClient.createAuthorizationRequest()` and `waitForCallback()` for lower-level control
+- `ToroPassClient.exchangeAuthorizationCode()` and `fetchProfile()` for manual token/profile flows
+- typed auth results for success, denial, cancellation, timeout, transport failure, and state mismatch
+- `ToroPassButton` for lightweight UI integration
+- `toStatusMessage()` for host-friendly result messaging
 
-## Contract
+## Installation
 
-Create a client with your OAuth app details:
+```yaml
+dependencies:
+  toropass_client: ^0.1.0
+```
+
+Then run:
+
+```sh
+flutter pub get
+```
+
+## Quick Start
 
 ```dart
 final client = ToroPassClient(
   config: ToroPassClientConfig(
-    clientId: 'toro_client_...',
-    redirectUri: Uri.parse('myapp://toropass/callback'),
+    clientId: 'toro_client_123',
+    redirectUri: Uri.parse('myapp://oauth/callback'),
     scopes: const {
       ToroPassScope.kycStatus,
       ToroPassScope.wallet,
     },
   ),
 );
-```
 
-Build or launch the ToroPass Wallet permission request:
-
-```dart
-final request = client.createAuthorizationRequest(
-  appName: 'Example App',
-);
-
-print(request.launchUri);
-
-final launchedRequest = await client.launchWallet(
-  appName: 'Example App',
-);
-
-if (launchedRequest == null) {
-  print('ToroPass Wallet is not installed or cannot be opened.');
-  return;
-}
-```
-
-Wait for the callback from ToroPass Wallet:
-
-```dart
-final callbackResult = await client.waitForCallback(launchedRequest);
-
-switch (callbackResult) {
-  case ToroPassAuthorizationCodeReceived(:final code):
-    final session = await client.exchangeAuthorizationCode(code: code);
-    print(session.token.accessToken);
-    print(session.profile.wallet.tnsName);
-  case ToroPassAuthDenied():
-    print('User denied access.');
-  case ToroPassAuthCancelled():
-    print('No authorization code was returned.');
-  case ToroPassAuthTimeout():
-    print('ToroPass did not return in time.');
-  case ToroPassAuthStateMismatch():
-    print('Callback state did not match the request.');
-  case ToroPassAuthTransportError(:final message):
-    print(message);
-  case ToroPassAuthSuccess():
-    break;
-}
-```
-
-The primary flow returns one of the typed auth results:
-
-```dart
-final result = await client.verifyIdentity();
+final result = await client.verifyIdentity(appName: 'Example App');
 
 switch (result) {
   case ToroPassAuthSuccess(:final token, :final profile):
@@ -88,10 +60,14 @@ switch (result) {
     print('ToroPass did not return in time.');
   case ToroPassAuthTransportError(:final message):
     print(message);
+  case ToroPassAuthStateMismatch():
+    print('Callback state mismatch.');
+  case ToroPassAuthorizationCodeReceived():
+    break;
 }
 ```
 
-For a lighter integration path, the package also includes a ready-made button that manages its own loading state:
+## UI Helper
 
 ```dart
 ToroPassButton(
@@ -104,38 +80,106 @@ ToroPassButton(
 )
 ```
 
-`ToroPassButton` is intentionally small and unopinionated. Host apps can still style it through `style`, replace the icon or loading indicator, and decide how to present the final result.
+## Manual Flow
 
-## Token Handling
-
-The package exposes `fetchProfile(accessToken:)` for silent profile refresh with an existing OAuth app token.
-
-Token persistence is intentionally left to the host app. Do not ship a `client_secret` in a Flutter app; the issuer accepts it only for server-side flows.
+If you want more control over the handoff:
 
 ```dart
-final profile = await client.fetchProfile(
-  accessToken: session.token.accessToken,
+final request = client.createAuthorizationRequest(appName: 'Example App');
+final launched = await client.launchWallet(
+  appName: request.appName,
+  state: request.state,
 );
-```
 
-## Result Messaging
+if (launched == null) {
+  print('ToroPass Wallet is unavailable.');
+  return;
+}
 
-Every auth result can be mapped into a host-friendly title, message, and tone:
+final callback = await client.waitForCallback(launched);
 
-```dart
-final status = result.toStatusMessage();
-
-switch (status.tone) {
-  case ToroPassStatusTone.success:
-  case ToroPassStatusTone.info:
-  case ToroPassStatusTone.warning:
-  case ToroPassStatusTone.error:
-    debugPrint('${status.title}: ${status.message}');
+if (callback case ToroPassAuthorizationCodeReceived(:final code)) {
+  final session = await client.exchangeAuthorizationCode(code: code);
+  final profile = await client.fetchProfile(
+    accessToken: session.token.accessToken,
+  );
+  print(profile.wallet.address);
 }
 ```
 
-## Wallet Deep Link
+## Native Setup
 
-The default wallet launch URI is `toropass:/permission`.
+Your client app must do two things:
 
-Override `walletLaunchUri` in `ToroPassClientConfig` if your environment uses a different wallet scheme.
+1. Register your callback URI scheme, for example `myapp://oauth/callback`
+2. Allow wallet-scheme discovery for `toropass`
+
+### Android
+
+Register your callback URI in `AndroidManifest.xml`:
+
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data
+      android:scheme="myapp"
+      android:host="oauth"
+      android:path="/callback" />
+</intent-filter>
+```
+
+Add a visibility query so `canLaunchUrl` can detect ToroPass Wallet:
+
+```xml
+<queries>
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="toropass" />
+  </intent>
+</queries>
+```
+
+### iOS
+
+Register your callback URI in `Info.plist`:
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>myapp</string>
+    </array>
+  </dict>
+</array>
+```
+
+Allow wallet-scheme discovery:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>toropass</string>
+</array>
+```
+
+## Tokens
+
+`toropass_client` does not persist OAuth access tokens for you.
+
+Host apps are responsible for deciding:
+
+- where to store tokens
+- how to refresh app state
+- when to clear tokens after revocation or expiry
+
+## Example
+
+A runnable integration harness is included in [example](example/README.md).
+
+There is also a manual [verification guide](verification-guide.md).

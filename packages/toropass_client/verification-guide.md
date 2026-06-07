@@ -1,4 +1,4 @@
-# ToroPass Client Phase 6 Joint Test Guide
+# ToroPass Client Verification Test Guide
 
 Use the package example app in [`example/`](./example) together with ToroPass Wallet to verify the real OAuth handoff.
 

@@ -32,3 +32,6 @@ flutter run
 ```
 
 Use a real `client_id` and make sure the issuer knows the callback URI `toropassclient://oauth/callback`.
+
+For the full end-to-end simulator and device checklist, see the package
+[`verification-guide.md`](../verification-guide.md).
