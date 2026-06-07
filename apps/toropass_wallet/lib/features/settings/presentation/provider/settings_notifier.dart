@@ -42,7 +42,22 @@ class SettingsNotifier extends Notifier<SettingsStateModel> {
   Future<void> toggleBiometrics(bool enabled) async {
     if (!state.biometricsAvailable) return;
 
+    final biometricService = ref.read(biometricServiceProvider);
+    final snackbar = ref.read(snackbarProvider);
     final storage = ref.read(storageServiceProvider);
+
+    if (enabled) {
+      final authenticated = await biometricService.authenticate();
+      if (!authenticated) {
+        snackbar.display(
+          message:
+              'Biometric verification was not completed. Biometrics remains disabled.',
+        );
+        state = state.copyWith(biometricsEnabled: false);
+        return;
+      }
+    }
+
     await storage.saveDataToDisk(AppKeys.biometricsEnabled, enabled);
     state = state.copyWith(biometricsEnabled: enabled);
   }

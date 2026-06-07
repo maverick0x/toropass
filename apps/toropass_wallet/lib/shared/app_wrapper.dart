@@ -1,17 +1,22 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../core/config/keys.dart';
 import '../../core/config/themes/colors.dart';
+import '../../core/config/themes/styles.dart';
 import '../../core/config/themes/themes.dart';
 import '../../core/providers/loading_notifier.dart';
+import '../../core/services/biometric_service.dart';
+import '../../core/services/storage_service.dart';
 import '../../core/utilities/animations.dart';
 import '../../core/utilities/extensions/numbers.dart';
 import '../../generated/assets.gen.dart';
+import '../../generated/fonts.gen.dart';
+import 'app_button.dart';
 
 class AppWrapper extends ConsumerStatefulWidget {
   final Widget child;
@@ -25,6 +30,8 @@ class AppWrapper extends ConsumerStatefulWidget {
 class _AppWrapperState extends ConsumerState<AppWrapper>
     with WidgetsBindingObserver {
   bool _showPrivacyOverlay = false;
+  bool _isBiometricLocked = false;
+  bool _isAuthenticating = false;
 
   final _scaleTween = Tween<double>(
     begin: 1.0,
@@ -35,11 +42,15 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkBiometricGate(prompt: true);
+    });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    ref.read(biometricServiceProvider).cancelAuthentication();
     super.dispose();
   }
 
@@ -47,18 +58,64 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.inactive:
-        if (kDebugMode) return;
         setState(() => _showPrivacyOverlay = true);
         break;
 
       case AppLifecycleState.resumed:
-        if (kDebugMode) return;
         setState(() => _showPrivacyOverlay = false);
+        _checkBiometricGate(prompt: true);
         break;
 
       default:
         break;
     }
+  }
+
+  Future<void> _checkBiometricGate({required bool prompt}) async {
+    final shouldLock = await _shouldRequireBiometricUnlock();
+    if (!mounted) return;
+
+    if (!shouldLock) {
+      if (_isBiometricLocked) {
+        setState(() => _isBiometricLocked = false);
+      }
+      return;
+    }
+
+    if (!_isBiometricLocked) {
+      setState(() => _isBiometricLocked = true);
+    }
+
+    if (prompt) {
+      await _promptBiometricUnlock();
+    }
+  }
+
+  Future<bool> _shouldRequireBiometricUnlock() async {
+    final storage = ref.read(storageServiceProvider);
+    final biometricsEnabled =
+        storage.getDataFromDisk(AppKeys.biometricsEnabled) as bool? ?? false;
+    if (!biometricsEnabled) return false;
+
+    final refreshToken = await storage.getRefreshTokenFromDisk();
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    final biometricService = ref.read(biometricServiceProvider);
+    return biometricService.isBiometricAvailable();
+  }
+
+  Future<void> _promptBiometricUnlock() async {
+    if (_isAuthenticating) return;
+
+    setState(() => _isAuthenticating = true);
+    final biometricService = ref.read(biometricServiceProvider);
+    final unlocked = await biometricService.authenticate();
+    if (!mounted) return;
+
+    setState(() {
+      _isAuthenticating = false;
+      _isBiometricLocked = !unlocked;
+    });
   }
 
   Widget _buildOverlay() {
@@ -107,6 +164,71 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
     );
   }
 
+  Widget _buildBiometricLockOverlay() {
+    final appColors = AppColors.of(context);
+    final appStyles = context.appStyles;
+
+    return Container(
+      key: const ValueKey('biometric-lock'),
+      width: double.infinity,
+      height: double.infinity,
+      color: appColors.surface,
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 28.width),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(18.radius),
+                decoration: BoxDecoration(
+                  color: appColors.primary.withAlpha(12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.fingerprint_rounded,
+                  size: 48.width,
+                  color: appColors.primary,
+                ),
+              ),
+              28.verticalSpacer,
+              Text(
+                'Unlock ToroPass',
+                style: appStyles.sectionTitle.copyWith(color: appColors.header),
+                textAlign: TextAlign.center,
+              ),
+              10.verticalSpacer,
+              Text(
+                'Use your biometrics to continue into your wallet securely.',
+                style: appStyles.body.copyWith(
+                  color: appColors.text.withAlpha(190),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              28.verticalSpacer,
+              SizedBox(
+                width: double.infinity,
+                child: AppButton(
+                  text: _isAuthenticating ? 'Checking...' : 'Unlock',
+                  callback: _isAuthenticating ? null : _promptBiometricUnlock,
+                ),
+              ),
+              12.verticalSpacer,
+              Text(
+                'Biometric unlock is enabled for this device.',
+                style: appStyles.caption.copyWith(
+                  color: appColors.text.withAlpha(150),
+                  fontFamily: FontFamily.interRegular,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appColors = AppColors.of(context);
@@ -148,10 +270,14 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
                 // ).animate(animation);
                 return FadeTransition(opacity: animation, child: child);
               },
-              child: switch (loading || _showPrivacyOverlay) {
-                true => _buildOverlay(),
-                false => const SizedBox.shrink(key: ValueKey('not-loading')),
-              },
+              child: _isBiometricLocked
+                  ? _buildBiometricLockOverlay()
+                  : switch (loading || _showPrivacyOverlay) {
+                      true => _buildOverlay(),
+                      false => const SizedBox.shrink(
+                        key: ValueKey('not-loading'),
+                      ),
+                    },
             ),
           ),
         ],
