@@ -37,6 +37,7 @@ flutter pub get
 ```dart
 final client = ToroPassClient(
   config: ToroPassClientConfig(
+    appName: 'Example App',
     clientId: 'toro_client_123',
     redirectUri: Uri.parse('myapp://oauth/callback'),
     scopes: const {
@@ -46,7 +47,7 @@ final client = ToroPassClient(
   ),
 );
 
-final result = await client.verifyIdentity(appName: 'Example App');
+final result = await client.verifyIdentity();
 
 switch (result) {
   case ToroPassAuthSuccess(:final token, :final profile):
@@ -72,7 +73,6 @@ switch (result) {
 ```dart
 ToroPassButton(
   client: client,
-  appName: 'Example App',
   onResult: (result) {
     final status = result.toStatusMessage();
     debugPrint('${status.title}: ${status.message}');
@@ -85,9 +85,8 @@ ToroPassButton(
 If you want more control over the handoff:
 
 ```dart
-final request = client.createAuthorizationRequest(appName: 'Example App');
+final request = client.createAuthorizationRequest();
 final launched = await client.launchWallet(
-  appName: request.appName,
   state: request.state,
 );
 
@@ -177,6 +176,11 @@ Host apps are responsible for deciding:
 - where to store tokens
 - how to refresh app state
 - when to clear tokens after revocation or expiry
+
+## Configuration Notes
+
+- `appName` is required in `ToroPassClientConfig` and is sent to ToroPass Wallet as the requesting app label.
+- The package currently uses the default ToroPass issuer base URL and wallet launch URI exposed by `ToroPassClientConfig`.
 
 ## Example
 

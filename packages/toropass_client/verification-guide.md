@@ -22,9 +22,10 @@ toropassclient://oauth/callback
 
 1. Open the example app.
 2. Enter the correct `client_id`.
-3. Tap `Verify Identity`.
-4. Approve in ToroPass Wallet.
-5. Confirm the example app receives:
+3. Enter the app name that should be shown inside ToroPass Wallet.
+4. Tap `Verify Identity`.
+5. Approve in ToroPass Wallet.
+6. Confirm the example app receives:
    - success status
    - access token
    - authorized profile

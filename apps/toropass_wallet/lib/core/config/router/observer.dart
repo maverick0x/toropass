@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../network/token/token_notifier.dart';
 import '../../utilities/logger.dart';
 
 final observerProvider = Provider((ref) {
-  ref.watch(tokenProvider.select((m) => m.value?.refreshToken?.isNotEmpty));
   return Observer();
 });
 

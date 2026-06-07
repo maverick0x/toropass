@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'package:flutter/foundation.dart';
 
 class AppLogger {
@@ -11,9 +9,26 @@ class AppLogger {
     StackTrace? trace,
   }) {
     if (kDebugMode) {
-      dev.log(message, time: DateTime.now(), name: name, error: error, stackTrace: trace);
+      final buffer = StringBuffer();
+
+      if (name.isNotEmpty) {
+        buffer.write('[$name] ');
+      }
+
+      buffer.write(message);
+
+      if (error != null) {
+        buffer.write('\nError: $error');
+      }
+
+      if (trace != null) {
+        buffer.write('\nStackTrace: $trace');
+      }
+
+      debugPrint(buffer.toString());
+
       if (object != null) {
-        dev.inspect(object);
+        debugPrint('Object: $object');
       }
     }
   }

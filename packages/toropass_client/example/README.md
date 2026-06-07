@@ -1,6 +1,7 @@
 # ToroPass Client Example
 
-This example app exercises the wallet OAuth flow exposed by `toropass_client`.
+This example app exercises the wallet OAuth flow exposed by the published
+`toropass_client` package.
 
 ## Callback URI
 

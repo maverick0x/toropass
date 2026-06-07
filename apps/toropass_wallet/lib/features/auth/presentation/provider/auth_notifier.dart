@@ -38,7 +38,7 @@ class AuthNotifier extends _$AuthNotifier {
       validateWalletState: const DataInitial(),
     );
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       checkTNSName();
     });
   }
@@ -162,7 +162,8 @@ class AuthNotifier extends _$AuthNotifier {
 
   Future<TnsEntity?> _ensureFreshTnsState(String username) async {
     final currentState = state.tnsState;
-    if (currentState is DataSuccess && currentState.data?.username == username) {
+    if (currentState is DataSuccess &&
+        currentState.data?.username == username) {
       return currentState.data;
     }
 

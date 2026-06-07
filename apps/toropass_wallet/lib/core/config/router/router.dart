@@ -10,6 +10,7 @@ import '../../../features/home/presentation/screens/home.dart';
 import '../../../features/home/presentation/screens/permission.dart';
 import '../../../features/home/presentation/screens/success.dart';
 import '../../../features/home/presentation/screens/verification.dart';
+import '../../../features/settings/presentation/screens/change_password.dart';
 import '../../../features/settings/presentation/screens/developer.dart';
 import '../../../features/settings/presentation/screens/settings.dart';
 import '../../../features/splash/presentation/screens/splash.dart';
@@ -18,7 +19,6 @@ import 'observer.dart';
 import 'routes.dart';
 
 final navKeyProvider = Provider((ref) {
-  ref.watch(tokenProvider.select((m) => m.value?.refreshToken?.isNotEmpty));
   return GlobalKey<NavigatorState>();
 });
 
@@ -83,7 +83,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 queryParameters: permissionQuery,
               ).toString();
             }
-            return AppRoutes.INTRO_SCREEN; // Redirect to intro
+            return AppRoutes.INTRO_SCREEN;
           }
           // User is logged in and trying to access an auth route
           if (isLoggedIn && isGoingToAuth) {
@@ -148,6 +148,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.SETTINGS_SCREEN,
         path: AppRoutes.SETTINGS_SCREEN,
         builder: ((context, state) => const SettingsScreen()),
+      ),
+      GoRoute(
+        name: AppRoutes.CHANGE_PASSWORD_SCREEN,
+        path: AppRoutes.CHANGE_PASSWORD_SCREEN,
+        builder: ((context, state) => const ChangePasswordScreen()),
       ),
       GoRoute(
         name: AppRoutes.DEVELOPER_SCREEN,

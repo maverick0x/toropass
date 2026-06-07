@@ -5,7 +5,7 @@ class ChangePasswordParams {
   ChangePasswordParams({required this.oldPassword, required this.newPassword});
 
   Map<String, dynamic> toJson() => {
-        "oldPassword": oldPassword,
-        "newPassword": newPassword,
-      };
+    "oldPassword": oldPassword,
+    "newPassword": newPassword,
+  };
 }

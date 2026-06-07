@@ -3,7 +3,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/hmac_provider.dart';
-import '../../utilities/logger.dart';
 import '../endpoints.dart';
 import '../token/token_model.dart';
 import '../token/token_notifier.dart';
@@ -25,12 +24,6 @@ class QueuedAuthInterceptor extends QueuedInterceptor {
     options.headers['X-Timestamp'] = hmac.timestamp;
     options.headers['X-Signature'] = hmac.signature;
     options.headers['x-api-key'] = dotenv.env['APP_API_KEY'] ?? '';
-
-    AppLogger.log(
-      "HMAC Headers Added:\n${options.headers['X-Device-ID']},\n"
-      "${options.headers['X-Timestamp']},\n"
-      "${options.headers['X-Signature']}",
-    );
 
     if (options.extra['useToken'] == true) {
       final token = _ref.read(tokenProvider).value?.token;

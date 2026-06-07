@@ -5,4 +5,4 @@ build/
 .flutter-plugins-dependencies
 example/android/app/src/main/kotlin/com/example/example/MainActivity.kt
 tasks.md
-phase6-test.md
+verification-guide.md

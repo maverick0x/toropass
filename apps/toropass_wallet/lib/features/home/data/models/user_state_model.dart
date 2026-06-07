@@ -9,7 +9,6 @@ class UserStateModel {
   final DataState<ProfileEntity> walletState;
   final DataState<List<ConsentEntity>> consentState;
   final DataState<SuccessResponse> revokeConsentState;
-  final DataState<SuccessResponse> changePasswordState;
 
   UserStateModel({
     this.username = '',
@@ -17,7 +16,6 @@ class UserStateModel {
     this.walletState = const DataInitial(),
     this.consentState = const DataInitial(),
     this.revokeConsentState = const DataInitial(),
-    this.changePasswordState = const DataInitial(),
   });
 
   UserStateModel copyWith({
@@ -26,7 +24,6 @@ class UserStateModel {
     DataState<ProfileEntity>? walletState,
     DataState<List<ConsentEntity>>? consentState,
     DataState<SuccessResponse>? revokeConsentState,
-    DataState<SuccessResponse>? changePasswordState,
   }) {
     return UserStateModel(
       username: username ?? this.username,
@@ -34,7 +31,6 @@ class UserStateModel {
       walletState: walletState ?? this.walletState,
       consentState: consentState ?? this.consentState,
       revokeConsentState: revokeConsentState ?? this.revokeConsentState,
-      changePasswordState: changePasswordState ?? this.changePasswordState,
     );
   }
 }

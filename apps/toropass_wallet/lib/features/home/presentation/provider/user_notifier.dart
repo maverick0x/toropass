@@ -5,8 +5,6 @@ import '../../../../core/providers/loading_notifier.dart';
 import '../../../../core/services/snackbar_service.dart';
 import '../../../../core/utilities/logger.dart';
 import '../../data/models/user_state_model.dart';
-import '../../domain/params/change_password_params.dart';
-import '../../domain/usecase/change_password_usecase.dart';
 import '../../domain/usecase/get_consents_usecase.dart';
 import '../../domain/usecase/get_wallet_usecase.dart';
 import '../../domain/usecase/revoke_consent_usecase.dart';
@@ -93,25 +91,6 @@ class UserNotifier extends _$UserNotifier {
           "Access revoked successfully.";
       snackbar.display(message: message);
       await getConsents(silentError: true);
-    }
-  }
-
-  Future submitChangePassword(ChangePasswordParams params) async {
-    final snackbar = ref.read(snackbarProvider);
-    final useCase = ref.read(changePasswordUseCaseProvider);
-
-    await ref.read(loadingProvider.notifier).wrap(() async {
-      state = state.copyWith(changePasswordState: const DataLoading());
-      final response = await useCase(params);
-      state = state.copyWith(changePasswordState: response);
-    });
-
-    if (state.changePasswordState is DataFailed) {
-      final failedState = state.changePasswordState as DataFailed;
-      final message =
-          failedState.error ?? "An error occurred while changing the password.";
-      AppLogger.log(message, trace: failedState.trace, name: "USERNOTIFIER");
-      snackbar.display(message: message);
     }
   }
 }

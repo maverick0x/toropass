@@ -47,9 +47,9 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
 
   ToroPassClient get _client => ToroPassClient(
     config: ToroPassClientConfig(
+      appName: _appNameController.text.trim(),
       clientId: _clientIdController.text,
       redirectUri: _redirectUri,
-      issuerBaseUrl: ToroPassClientConfig.defaultIssuerBaseUrl,
     ),
   );
 
@@ -168,7 +168,6 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
             const SizedBox(height: 16),
             ToroPassButton(
               client: _client,
-              appName: _appNameController.text.trim(),
               label: 'Verify Identity',
               onResult: _handleQuickFlowResult,
             ),
@@ -336,9 +335,7 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
     setState(() => _isAuthorizing = true);
 
     try {
-      final request = await _client.launchWallet(
-        appName: _appNameController.text.trim(),
-      );
+      final request = await _client.launchWallet();
 
       if (request == null) {
         _setResult(

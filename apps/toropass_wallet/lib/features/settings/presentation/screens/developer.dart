@@ -18,6 +18,7 @@ import '../../../../shared/app_button.dart';
 import '../../../../shared/app_inkwell.dart';
 import '../../../../shared/app_svg.dart';
 import '../../../../shared/app_textfield.dart';
+import '../../../../shared/confirmation_dialog.dart';
 import '../../../../shared/field_widget.dart';
 import '../../data/models/developer_state_model.dart';
 import '../../domain/entities/developer_app_entity.dart';
@@ -449,11 +450,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
           Align(
             alignment: Alignment.centerRight,
             child: AppInkWell(
-              callback: () {
-                final appId = app.id;
-                if (appId == null || appId.isEmpty) return;
-                ref.read(developerProvider.notifier).deleteApp(appId);
-              },
+              callback: () => _confirmDeleteApp(app),
               child: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: 14.width,
@@ -488,6 +485,23 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDeleteApp(DeveloperAppEntity app) async {
+    final appId = app.id;
+    if (appId == null || appId.isEmpty) return;
+
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: 'Delete App?',
+      message:
+          'This will permanently remove ${app.name ?? 'this app'} and invalidate its OAuth credentials.',
+      confirmText: 'Delete',
+      destructive: true,
+    );
+
+    if (!confirmed) return;
+    await ref.read(developerProvider.notifier).deleteApp(appId);
   }
 
   Widget _buildAppDetail(String label, String value) {

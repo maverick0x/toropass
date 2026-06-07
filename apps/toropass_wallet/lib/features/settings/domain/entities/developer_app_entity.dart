@@ -21,12 +21,12 @@ class DeveloperAppEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        clientId,
-        clientSecret,
-        redirectUri,
-        isActive,
-        createdAt,
-      ];
+    id,
+    name,
+    clientId,
+    clientSecret,
+    redirectUri,
+    isActive,
+    createdAt,
+  ];
 }

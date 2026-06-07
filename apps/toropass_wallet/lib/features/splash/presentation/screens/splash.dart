@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/config/themes/colors.dart';
-import '../../../../core/network/token/token_notifier.dart';
 import '../../../../core/utilities/animations.dart';
 import '../../../../core/utilities/global.dart';
 import '../../../../generated/assets.gen.dart';
@@ -21,7 +20,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(tokenProvider.notifier).clearTokens();
       ref.read(splashProvider.notifier).animateSplash();
       Global.precacheAssets(context, Assets.icons.values);
     });
