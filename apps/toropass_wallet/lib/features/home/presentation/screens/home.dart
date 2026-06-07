@@ -88,7 +88,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         _buildRefresh(showRefresh),
                         IdentityCard(),
                         _secureAction(profile),
-                        _buildPrivacyCard(),
+                        _buildVerificationLevel(profile),
                         _buildConnectionCard(consentCount),
                         30.verticalSpacer,
                       ],
@@ -209,9 +209,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return "${value.substring(0, 10)}...${value.substring(value.length - 8)}";
   }
 
-  Widget _buildPrivacyCard() {
+  Widget _buildVerificationLevel(ProfileEntity? profile) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
+    final isVerified = profile?.kycVerified == true;
+    final level = isVerified ? "Verified" : "Basic";
+    final helperText = isVerified
+        ? "Your identity is fully verified and partner-ready."
+        : "Verification is pending. Complete KYC to reach full privacy coverage.";
+    final progress = isVerified ? 1.0 : 0.5;
 
     return Container(
       width: double.infinity,
@@ -255,16 +261,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           10.verticalSpacer,
           Text(
-            "Privacy Level",
-            style: appStyles.captionBold.copyWith(
+            level,
+            style: appStyles.cardTitle.copyWith(
               color: appColors.text,
               fontFamily: FontFamily.interSemiBold,
             ),
           ),
           5.verticalSpacer,
           Text(
-            "Basic",
-            style: appStyles.cardTitle.copyWith(
+            "Verification Level",
+            style: appStyles.captionBold.copyWith(
               color: appColors.text,
               fontFamily: FontFamily.interSemiBold,
             ),
@@ -282,7 +288,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               builder: (context, constraints) {
                 return AnimatedContainer(
                   duration: Animations.shortDuration,
-                  width: constraints.maxWidth * 0.35,
+                  width: constraints.maxWidth * progress,
                   height: 7.height,
                   decoration: BoxDecoration(
                     color: appColors.primary,
@@ -290,6 +296,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 );
               },
+            ),
+          ),
+          10.verticalSpacer,
+          Text(
+            helperText,
+            style: appStyles.caption.copyWith(
+              color: appColors.text.withAlpha(180),
             ),
           ),
         ],
@@ -345,16 +358,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             10.verticalSpacer,
             Text(
-              "Connected Apps",
-              style: appStyles.captionBold.copyWith(
+              consentCount.toString(),
+              style: appStyles.cardTitle.copyWith(
                 color: appColors.text,
                 fontFamily: FontFamily.interSemiBold,
               ),
             ),
             5.verticalSpacer,
             Text(
-              consentCount.toString(),
-              style: appStyles.cardTitle.copyWith(
+              "Connected Apps",
+              style: appStyles.captionBold.copyWith(
                 color: appColors.text,
                 fontFamily: FontFamily.interSemiBold,
               ),

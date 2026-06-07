@@ -19,3 +19,6 @@ pubspec.lock
 .env.development
 .env.test
 .env.production
+
+# Project
+toro_market

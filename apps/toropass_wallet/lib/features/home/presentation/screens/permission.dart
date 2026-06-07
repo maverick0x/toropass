@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/config/router/routes.dart';
 import '../../../../core/config/resource/data_state.dart';
 import '../../../../core/config/themes/colors.dart';
 import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
+import '../../../../core/network/token/token_notifier.dart';
 import '../../../../core/services/snackbar_service.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
 import '../../../../generated/assets.gen.dart';
@@ -323,6 +326,15 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
   }
 
   Future<void> _launchCallbackAndExit(String callbackUri) async {
+    final refreshToken = ref.read(tokenProvider).value?.refreshToken;
+    final safeRoute = refreshToken?.isNotEmpty == true
+        ? AppRoutes.HOME_SCREEN
+        : AppRoutes.INTRO_SCREEN;
+
+    context.go(safeRoute);
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    if (!mounted) return;
+
     final launched = await launchUrl(
       Uri.parse(callbackUri),
       mode: LaunchMode.externalApplication,

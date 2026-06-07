@@ -5,7 +5,6 @@ import 'toropass_result.dart';
 
 class ToroPassButton extends StatefulWidget {
   final ToroPassClient client;
-  final String? appName;
   final String label;
   final String loadingLabel;
   final ButtonStyle? style;
@@ -16,7 +15,6 @@ class ToroPassButton extends StatefulWidget {
   const ToroPassButton({
     super.key,
     required this.client,
-    this.appName,
     this.label = 'Verify with ToroPass',
     this.loadingLabel = 'Opening ToroPass...',
     this.style,
@@ -39,15 +37,14 @@ class _ToroPassButtonState extends State<ToroPassButton> {
     return FilledButton.icon(
       onPressed: onPressed,
       style: widget.style,
-      icon:
-          _isLoading
-              ? widget.loadingIndicator ??
-                  const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-              : (widget.icon ?? const Icon(Icons.verified_user_outlined)),
+      icon: _isLoading
+          ? widget.loadingIndicator ??
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+          : (widget.icon ?? const Icon(Icons.verified_user_outlined)),
       label: Text(_isLoading ? widget.loadingLabel : widget.label),
     );
   }
@@ -56,7 +53,7 @@ class _ToroPassButtonState extends State<ToroPassButton> {
     setState(() => _isLoading = true);
 
     try {
-      final result = await widget.client.verifyIdentity(appName: widget.appName);
+      final result = await widget.client.verifyIdentity();
       widget.onResult?.call(result);
     } finally {
       if (mounted) {

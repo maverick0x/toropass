@@ -8,6 +8,7 @@ void main() {
   group('ToroPassClientConfig', () {
     test('sets safe defaults for issuer, scopes, and timeout', () {
       final config = ToroPassClientConfig(
+        appName: 'Example App',
         clientId: ' toro_client_123 ',
         redirectUri: Uri.parse('myapp://toropass/callback'),
       );
@@ -24,17 +25,19 @@ void main() {
       expect(config.callbackTimeout, const Duration(minutes: 2));
     });
 
-    test('allows custom scopes and issuer base URL', () {
+    test('allows custom scopes while keeping default endpoints', () {
       final config = ToroPassClientConfig(
+        appName: 'Example App',
         clientId: 'toro_client_123',
         redirectUri: Uri.parse('myapp://callback'),
-        issuerBaseUrl: Uri.parse('http://localhost:3000/api/v1'),
-        walletLaunchUri: Uri.parse('toropass-dev:///permission'),
         scopes: {ToroPassScope.kycStatus},
       );
 
-      expect(config.issuerBaseUrl.toString(), 'http://localhost:3000/api/v1');
-      expect(config.walletLaunchUri.toString(), 'toropass-dev:///permission');
+      expect(
+        config.issuerBaseUrl.toString(),
+        'https://api.toropass.app/api/v1',
+      );
+      expect(config.walletLaunchUri.toString(), 'toropass:/permission');
       expect(config.scopeValues, ['kyc_status']);
     });
 
@@ -42,6 +45,7 @@ void main() {
       expect(
         () => ToroPassClientConfig(
           clientId: '',
+          appName: 'Example App',
           redirectUri: Uri.parse('myapp://callback'),
         ),
         throwsArgumentError,
@@ -51,6 +55,7 @@ void main() {
         () => ToroPassClientConfig(
           clientId: 'toro_client_123',
           redirectUri: Uri.parse('/callback'),
+          appName: 'Example App',
         ),
         throwsArgumentError,
       );
@@ -60,6 +65,7 @@ void main() {
           clientId: 'toro_client_123',
           redirectUri: Uri.parse('myapp://callback'),
           scopes: const {},
+          appName: 'Example App',
         ),
         throwsArgumentError,
       );
@@ -116,13 +122,13 @@ void main() {
     test('builds a wallet permission URI with OAuth query parameters', () {
       final client = ToroPassClient(
         config: ToroPassClientConfig(
+          appName: 'Example App',
           clientId: 'toro_client_123',
           redirectUri: Uri.parse('myapp://toropass/callback'),
         ),
       );
 
       final request = client.createAuthorizationRequest(
-        appName: 'Example App',
         state: 'state-123',
       );
 
@@ -143,6 +149,7 @@ void main() {
       final launcher = _FakeWalletLauncher(canLaunchResult: true);
       final client = ToroPassClient(
         config: ToroPassClientConfig(
+          appName: 'Example App',
           clientId: 'toro_client_123',
           redirectUri: Uri.parse('myapp://callback'),
         ),
@@ -159,6 +166,7 @@ void main() {
       final launcher = _FakeWalletLauncher(canLaunchResult: false);
       final client = ToroPassClient(
         config: ToroPassClientConfig(
+          appName: 'Example App',
           clientId: 'toro_client_123',
           redirectUri: Uri.parse('myapp://callback'),
         ),
@@ -342,7 +350,7 @@ void main() {
           httpClient: httpClient,
         );
 
-        final resultFuture = client.verifyIdentity(appName: 'Example App');
+        final resultFuture = client.verifyIdentity();
         final launchedUri = await _waitFor(() => launcher.launchedUri);
         listener.add(
           Uri.parse(
@@ -376,7 +384,6 @@ void main() {
           home: Scaffold(
             body: ToroPassButton(
               client: client,
-              appName: 'Example App',
               onResult: (result) => capturedResult = result,
             ),
           ),
@@ -413,6 +420,7 @@ ToroPassClient _buildClient({
 }) {
   return ToroPassClient(
     config: ToroPassClientConfig(
+      appName: 'Example App',
       clientId: 'toro_client_123',
       redirectUri: Uri.parse('myapp://callback'),
     ),
@@ -483,11 +491,15 @@ class _FakeHttpClient implements ToroPassHttpClient {
   }
 
   static Map<String, dynamic> _profileJson() => {
-    'id': 'user-1',
-    'kycVerified': true,
-    'kycAnchorHash': null,
-    'wallet': {'address': '0x123', 'tnsName': 'alice', 'network': 'testnet'},
-  };
+        'id': 'user-1',
+        'kycVerified': true,
+        'kycAnchorHash': null,
+        'wallet': {
+          'address': '0x123',
+          'tnsName': 'alice',
+          'network': 'testnet'
+        },
+      };
 }
 
 Future<T> _waitFor<T extends Object>(T? Function() read) async {

@@ -1,21 +1,22 @@
-import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freerasp/freerasp.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../core/config/keys.dart';
 import '../../core/config/themes/colors.dart';
 import '../../core/config/themes/styles.dart';
 import '../../core/config/themes/themes.dart';
 import '../../core/providers/loading_notifier.dart';
+import '../../core/services/biometric_service.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/utilities/animations.dart';
 import '../../core/utilities/extensions/numbers.dart';
 import '../../generated/assets.gen.dart';
+import '../../generated/fonts.gen.dart';
+import 'app_button.dart';
 
 class AppWrapper extends ConsumerStatefulWidget {
   final Widget child;
@@ -28,8 +29,9 @@ class AppWrapper extends ConsumerStatefulWidget {
 
 class _AppWrapperState extends ConsumerState<AppWrapper>
     with WidgetsBindingObserver {
-  bool _isCompromised = false;
   bool _showPrivacyOverlay = false;
+  bool _isBiometricLocked = false;
+  bool _isAuthenticating = false;
 
   final _scaleTween = Tween<double>(
     begin: 1.0,
@@ -40,59 +42,34 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initSecurity();
-  }
-
-  Future<void> _initSecurity() async {
-    // TODO: Configure the security parameters before release.
-    final config = TalsecConfig(
-      androidConfig: AndroidConfig(
-        packageName: 'app.toropass',
-        signingCertHashes: ['YOUR_BASE64_CERT_HASH'],
-      ),
-      iosConfig: IOSConfig(bundleIds: ['app.toropass'], teamId: 'YOUR_TEAM_ID'),
-      watcherMail: 'mhiztahymodder@gmail.com',
-      isProd: !kDebugMode,
-    );
-
-    // Define what happens when a threat is detected
-    final callback = ThreatCallback(
-      onPrivilegedAccess: () => _handleThreat(),
-      onHooks: () => _handleThreat(),
-      onAppIntegrity: () => _handleThreat(),
-      onSimulator: () => _handleThreat(debug: kDebugMode),
-    );
-
-    // Attach the listener and start Talsec
-    Talsec.instance.attachListener(callback);
-    await Talsec.instance.start(config);
-  }
-
-  void _handleThreat({bool debug = false}) {
-    if (debug) return;
-
-    if (_isCompromised) return;
-    ref.read(storageServiceProvider).clearAllDataFromDisk();
-    setState(() => _isCompromised = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkBiometricGate(prompt: true);
+    });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    ref.read(biometricServiceProvider).cancelAuthentication();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final biometricService = ref.read(biometricServiceProvider);
+    if (biometricService.isAuthenticating) return;
+
     switch (state) {
       case AppLifecycleState.inactive:
-        if (kDebugMode) return;
         setState(() => _showPrivacyOverlay = true);
         break;
 
       case AppLifecycleState.resumed:
-        if (kDebugMode) return;
         setState(() => _showPrivacyOverlay = false);
+        if (biometricService.consumeSkipNextResumePrompt()) {
+          break;
+        }
+        _checkBiometricGate(prompt: true);
         break;
 
       default:
@@ -100,49 +77,51 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
     }
   }
 
-  Widget _buildCompromisedWidget() {
-    final appStyles = context.appStyles;
-    final appColors = AppColors.of(context);
+  Future<void> _checkBiometricGate({required bool prompt}) async {
+    final shouldLock = await _shouldRequireBiometricUnlock();
+    if (!mounted) return;
 
-    return Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .center,
-            children: [
-              Icon(
-                Icons.security_update_warning,
-                size: 128.radius,
-                color: appColors.error,
-              ),
-              64.verticalSpacer,
-              Text(
-                'Security Risk Detected',
-                style: appStyles.sectionTitle.copyWith(color: appColors.error),
-                textAlign: TextAlign.center,
-              ),
-              32.verticalSpacer,
-              Text(
-                'This device appears to be compromised',
-                style: appStyles.cardTitle.copyWith(color: appColors.error),
-                textAlign: TextAlign.center,
-              ),
-              12.verticalSpacer,
-              Text(
-                'For your security, the application has blocked access until the issue is resolved.',
-                style: appStyles.body.copyWith(
-                  color: appColors.neutral.withAlpha(180),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    if (!shouldLock) {
+      if (_isBiometricLocked) {
+        setState(() => _isBiometricLocked = false);
+      }
+      return;
+    }
+
+    if (!_isBiometricLocked) {
+      setState(() => _isBiometricLocked = true);
+    }
+
+    if (prompt) {
+      await _promptBiometricUnlock();
+    }
+  }
+
+  Future<bool> _shouldRequireBiometricUnlock() async {
+    final storage = ref.read(storageServiceProvider);
+    final biometricsEnabled =
+        storage.getDataFromDisk(AppKeys.biometricsEnabled) as bool? ?? false;
+    if (!biometricsEnabled) return false;
+
+    final refreshToken = await storage.getRefreshTokenFromDisk();
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    final biometricService = ref.read(biometricServiceProvider);
+    return biometricService.isBiometricAvailable();
+  }
+
+  Future<void> _promptBiometricUnlock() async {
+    if (_isAuthenticating) return;
+
+    setState(() => _isAuthenticating = true);
+    final biometricService = ref.read(biometricServiceProvider);
+    final unlocked = await biometricService.authenticate();
+    if (!mounted) return;
+
+    setState(() {
+      _isAuthenticating = false;
+      _isBiometricLocked = !unlocked;
+    });
   }
 
   Widget _buildOverlay() {
@@ -191,6 +170,75 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
     );
   }
 
+  Widget _buildBiometricLockOverlay() {
+    final appColors = AppColors.of(context);
+    final appStyles = context.appStyles;
+
+    return Material(
+      key: const ValueKey('biometric-lock'),
+      color: appColors.surface,
+      child: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 28.width),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(18.radius),
+                  decoration: BoxDecoration(
+                    color: appColors.primary.withAlpha(12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.fingerprint_rounded,
+                    size: 48.width,
+                    color: appColors.primary,
+                  ),
+                ),
+                28.verticalSpacer,
+                Text(
+                  'ToroPass',
+                  style: appStyles.sectionTitle.copyWith(
+                    color: appColors.header,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                15.verticalSpacer,
+                Text(
+                  'Use your biometrics to continue into your wallet securely.',
+                  style: appStyles.body.copyWith(
+                    color: appColors.text.withAlpha(190),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                40.verticalSpacer,
+                SizedBox(
+                  width: double.infinity,
+                  child: AppButton(
+                    text: _isAuthenticating ? 'Checking...' : 'Unlock',
+                    callback: _isAuthenticating ? null : _promptBiometricUnlock,
+                  ),
+                ),
+                20.verticalSpacer,
+                Text(
+                  'Biometric unlock is enabled for this device.',
+                  style: appStyles.caption.copyWith(
+                    color: appColors.text.withAlpha(150),
+                    fontFamily: FontFamily.interRegular,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appColors = AppColors.of(context);
@@ -217,11 +265,7 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
       ),
       child: Stack(
         children: [
-          // Main app content or compromised warning based on security status
-          switch (_isCompromised) {
-            true => _buildCompromisedWidget(),
-            false => widget.child,
-          },
+          widget.child,
 
           // Overlay for loading state or privacy when app is backgrounded
           Positioned.fill(
@@ -236,10 +280,14 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
                 // ).animate(animation);
                 return FadeTransition(opacity: animation, child: child);
               },
-              child: switch (loading || _showPrivacyOverlay) {
-                true => _buildOverlay(),
-                false => const SizedBox.shrink(key: ValueKey('not-loading')),
-              },
+              child: _isBiometricLocked
+                  ? _buildBiometricLockOverlay()
+                  : switch (loading || _showPrivacyOverlay) {
+                      true => _buildOverlay(),
+                      false => const SizedBox.shrink(
+                        key: ValueKey('not-loading'),
+                      ),
+                    },
             ),
           ),
         ],

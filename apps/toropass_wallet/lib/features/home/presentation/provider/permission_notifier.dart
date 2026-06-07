@@ -63,7 +63,6 @@ class PermissionNotifier extends _$PermissionNotifier {
     if (state.authorizeState is DataSuccess) {
       final code = state.authorizeState.data?.code;
       if (code == null || code.isEmpty) {
-        snackbar.display(message: "Authorization code was not returned.");
         return false;
       }
 
@@ -73,7 +72,6 @@ class PermissionNotifier extends _$PermissionNotifier {
         state: request.state,
       );
       state = state.copyWith(callbackUri: callbackUri);
-      snackbar.display(message: "Authorization code issued successfully.");
       return true;
     }
 

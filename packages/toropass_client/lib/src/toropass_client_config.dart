@@ -15,6 +15,7 @@ class ToroPassClientConfig {
     ToroPassScope.wallet,
   };
 
+  final String appName;
   final String clientId;
   final Uri redirectUri;
   final Set<ToroPassScope> scopes;
@@ -23,29 +24,37 @@ class ToroPassClientConfig {
   final Duration callbackTimeout;
 
   ToroPassClientConfig({
+    required String appName,
     required String clientId,
     required Uri redirectUri,
     Set<ToroPassScope> scopes = defaultScopes,
-    Uri? issuerBaseUrl,
-    Uri? walletLaunchUri,
     Duration callbackTimeout = const Duration(minutes: 2),
-  }) : clientId = _requireClientId(clientId),
-       redirectUri = _requireAbsoluteUri(redirectUri, 'redirectUri'),
-       scopes = _requireScopes(scopes),
-       issuerBaseUrl = _requireAbsoluteUri(
-         issuerBaseUrl ?? defaultIssuerBaseUrl,
-         'issuerBaseUrl',
-       ),
-       walletLaunchUri = _requireAbsoluteUri(
-         walletLaunchUri ?? defaultWalletLaunchUri,
-         'walletLaunchUri',
-       ),
-       callbackTimeout = _requirePositiveDuration(
-         callbackTimeout,
-         'callbackTimeout',
-       );
+  })  : appName = _requireAppName(appName),
+        clientId = _requireClientId(clientId),
+        redirectUri = _requireAbsoluteUri(redirectUri, 'redirectUri'),
+        scopes = _requireScopes(scopes),
+        issuerBaseUrl = _requireAbsoluteUri(
+          defaultIssuerBaseUrl,
+          'issuerBaseUrl',
+        ),
+        walletLaunchUri = _requireAbsoluteUri(
+          defaultWalletLaunchUri,
+          'walletLaunchUri',
+        ),
+        callbackTimeout = _requirePositiveDuration(
+          callbackTimeout,
+          'callbackTimeout',
+        );
 
   List<String> get scopeValues => scopes.map((scope) => scope.value).toList();
+
+  static String _requireAppName(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError.value(value, 'appName', 'App name is required.');
+    }
+    return trimmed;
+  }
 
   static String _requireClientId(String value) {
     final trimmed = value.trim();

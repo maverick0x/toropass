@@ -31,10 +31,7 @@ class ToroPassExampleScreen extends StatefulWidget {
 
 class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
   final _clientIdController = TextEditingController(
-    text: 'toro_client_c9b31514f78a7ce1aed5bb0a',
-  );
-  final _issuerBaseUrlController = TextEditingController(
-    text: "http://localhost:3000/api/v1",
+    text: 'toro_client_xxxxxxxxxxxx',
   );
   final _appNameController = TextEditingController(text: 'Example');
 
@@ -50,16 +47,15 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
 
   ToroPassClient get _client => ToroPassClient(
     config: ToroPassClientConfig(
+      appName: _appNameController.text.trim(),
       clientId: _clientIdController.text,
       redirectUri: _redirectUri,
-      issuerBaseUrl: Uri.parse(_issuerBaseUrlController.text.trim()),
     ),
   );
 
   @override
   void dispose() {
     _clientIdController.dispose();
-    _issuerBaseUrlController.dispose();
     _appNameController.dispose();
     super.dispose();
   }
@@ -85,8 +81,6 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
             _buildStatusCard(status),
             const SizedBox(height: 20),
             _buildSessionCard(),
-            const SizedBox(height: 20),
-            _buildChecklistCard(),
           ],
         ),
       ),
@@ -143,16 +137,6 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _issuerBaseUrlController,
-              decoration: const InputDecoration(
-                labelText: 'Issuer Base URL',
-                border: OutlineInputBorder(),
-                helperText:
-                    'Example: https://api.toropass.app/api/v1 or http://localhost:3000/api/v1',
-              ),
-            ),
-            const SizedBox(height: 12),
             InputDecorator(
               decoration: const InputDecoration(
                 labelText: 'Callback URI',
@@ -184,7 +168,6 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
             const SizedBox(height: 16),
             ToroPassButton(
               client: _client,
-              appName: _appNameController.text.trim(),
               label: 'Verify Identity',
               onResult: _handleQuickFlowResult,
             ),
@@ -331,49 +314,6 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
     );
   }
 
-  Widget _buildChecklistCard() {
-    const items = [
-      'Approve while already logged in',
-      'Approve after wallet sign-in redirect',
-      'Deny from the permission screen',
-      'Cancel with the top-right X or system back',
-      'Exchange the same stored code twice',
-      'Fetch profile with the returned OAuth token',
-      'Revoke consent in ToroPass Wallet, then retry profile fetch',
-    ];
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Phase 6 Manual Checklist',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 12),
-            for (final item in items)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child: Icon(Icons.check_circle_outline, size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(child: Text(item)),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -395,9 +335,7 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
     setState(() => _isAuthorizing = true);
 
     try {
-      final request = await _client.launchWallet(
-        appName: _appNameController.text.trim(),
-      );
+      final request = await _client.launchWallet();
 
       if (request == null) {
         _setResult(

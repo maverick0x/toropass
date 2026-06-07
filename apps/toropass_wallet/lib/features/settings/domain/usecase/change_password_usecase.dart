@@ -4,18 +4,18 @@ import '../../../../core/config/resource/data_state.dart';
 import '../../../../core/config/resource/failure_mapper.dart';
 import '../../../../core/config/resource/response.dart';
 import '../../../../core/config/resource/usecase.dart';
-import '../../data/repository/user_repository_impl.dart';
+import '../../data/repository/settings_repository_impl.dart';
 import '../params/change_password_params.dart';
-import '../repository/user_repository.dart';
+import '../repository/settings_repository.dart';
 
 final changePasswordUseCaseProvider = Provider((ref) {
-  final repo = ref.watch(userRepositoryProvider);
+  final repo = ref.watch(settingsRepositoryProvider);
   return ChangePasswordUseCase(repo);
 });
 
 class ChangePasswordUseCase
     extends UseCase<DataState<SuccessResponse>, ChangePasswordParams> {
-  final UserRepository _repo;
+  final SettingsRepository _repo;
 
   ChangePasswordUseCase(this._repo);
 
@@ -24,8 +24,8 @@ class ChangePasswordUseCase
     try {
       final result = await _repo.changePassword(params);
       return DataSuccess(data: result);
-    } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+    } catch (error, trace) {
+      return AppFailureMapper.toDataFailed(error, trace);
     }
   }
 }

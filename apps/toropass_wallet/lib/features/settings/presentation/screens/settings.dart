@@ -8,13 +8,16 @@ import '../../../../core/config/themes/dimens.dart';
 import '../../../../core/config/themes/styles.dart';
 import '../../../../core/network/token/token_notifier.dart';
 import '../../../../core/providers/loading_notifier.dart';
+import '../../../../core/providers/package_info_provider.dart';
 import '../../../../core/utilities/extensions/numbers.dart';
 import '../../../../generated/assets.gen.dart';
 import '../../../../generated/fonts.gen.dart';
 import '../../../../shared/app_bar.dart';
 import '../../../../shared/app_inkwell.dart';
 import '../../../../shared/app_svg.dart';
+import '../../../../shared/confirmation_dialog.dart';
 import '../../../../shared/identity_card.dart';
+import '../provider/settings_notifier.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -27,9 +30,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _tapCount = 0;
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(settingsProvider.notifier).loadSettings());
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
+    final packageInfo = ref.watch(packageInfoProvider);
+    final versionLabel = packageInfo.when(
+      data: (info) => 'v${info.version} (Build ${info.buildNumber})',
+      loading: () => 'Loading version...',
+      error: (_, _) => 'Version unavailable',
+    );
 
     return PopScope(
       canPop: false,
@@ -50,21 +65,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _buildLogout(),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _tapCount++;
-                    if (_tapCount > 4) _tapCount = 0;
-                  });
-                  if (_tapCount >= 4) {
-                    context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
-                  }
-                },
+                onTap: _openDeveloperScreen,
                 child: Container(
                   alignment: Alignment.center,
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(vertical: 10.height),
                   child: Text(
-                    "v1.0.0 (Build 42)",
+                    versionLabel,
                     style: appStyles.body.copyWith(
                       color: appColors.text.withAlpha(100),
                     ),
@@ -81,6 +88,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildSettingsCard() {
     final appColors = AppColors.of(context);
+    final appStyles = context.appStyles;
+    final settingsState = ref.watch(settingsProvider);
+    final biometricsAvailable = settingsState.biometricsAvailable;
+    final biometricsEnabled =
+        biometricsAvailable && settingsState.biometricsEnabled;
+    final biometricLabel = settingsState.biometricLabel;
+    final biometricsDescription = biometricsAvailable
+        ? 'Use $biometricLabel to unlock ToroPass faster.'
+        : 'Biometrics is not available on this device.';
 
     return Container(
       margin: EdgeInsets.symmetric(
@@ -106,11 +122,45 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         mainAxisSize: .min,
         crossAxisAlignment: .start,
         children: [
-          _settingsMenu(
-            name: "Security",
-            iconPath: Assets.icons.lock,
-            description: "Biometrics, and other settings",
-            callback: () => {},
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildMenuIcon(Assets.icons.lock),
+              15.horizontalSpacer,
+              Expanded(
+                child: Column(
+                  mainAxisSize: .min,
+                  crossAxisAlignment: .start,
+                  children: [
+                    Text(
+                      'Biometrics',
+                      style: appStyles.body.copyWith(
+                        color: appColors.text,
+                        fontFamily: FontFamily.interSemiBold,
+                      ),
+                    ),
+                    Text(
+                      biometricsDescription,
+                      style: appStyles.caption.copyWith(
+                        color: appColors.text.withAlpha(150),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              12.horizontalSpacer,
+              Switch.adaptive(
+                value: biometricsEnabled,
+                activeThumbColor: appColors.primary,
+                activeTrackColor: appColors.primary.withAlpha(90),
+                onChanged: biometricsAvailable
+                    ? (value) => ref
+                          .read(settingsProvider.notifier)
+                          .toggleBiometrics(value)
+                    : null,
+              ),
+            ],
           ),
           Divider(
             color: appColors.black.withAlpha(60),
@@ -118,24 +168,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             height: 40.height,
           ),
           _settingsMenu(
-            name: "Backup",
+            name: "Change Password",
             iconPath: Assets.icons.key,
-            description: "Backup your private keys",
-            callback: () => {},
-          ),
-          Divider(
-            color: appColors.black.withAlpha(60),
-            thickness: 1.height,
-            height: 40.height,
-          ),
-          _settingsMenu(
-            name: "Support",
-            iconPath: Assets.icons.helpCircle,
-            description: "Get help and support",
-            callback: () => {},
+            description: "Update the password for your Toronet wallet",
+            callback: () => context.pushNamed(AppRoutes.CHANGE_PASSWORD_SCREEN),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMenuIcon(String iconPath) {
+    final appColors = AppColors.of(context);
+
+    return Container(
+      padding: EdgeInsets.all(10.radius),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: appColors.surfaceContainer,
+      ),
+      child: AppSvg(width: 24.width, height: 24.height, path: iconPath),
     );
   }
 
@@ -148,50 +200,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
-    return Row(
-      mainAxisSize: .max,
-      crossAxisAlignment: .center,
-      children: [
-        Container(
-          padding: EdgeInsets.all(10.radius),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: appColors.surfaceContainer,
-          ),
-          child: AppSvg(width: 24.width, height: 24.height, path: iconPath),
-        ),
-        15.horizontalSpacer,
-        Expanded(
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .start,
-            children: [
-              Text(
-                name,
-                style: appStyles.body.copyWith(
-                  color: appColors.text,
-                  fontFamily: FontFamily.interSemiBold,
+    return AppInkWell(
+      callback: callback,
+      child: Row(
+        mainAxisSize: .max,
+        crossAxisAlignment: .center,
+        children: [
+          _buildMenuIcon(iconPath),
+          15.horizontalSpacer,
+          Expanded(
+            child: Column(
+              mainAxisSize: .min,
+              crossAxisAlignment: .start,
+              children: [
+                Text(
+                  name,
+                  style: appStyles.body.copyWith(
+                    color: appColors.text,
+                    fontFamily: FontFamily.interSemiBold,
+                  ),
+                  textAlign: TextAlign.start,
                 ),
-                textAlign: TextAlign.start,
-              ),
-              Text(
-                description,
-                style: appStyles.caption.copyWith(
-                  color: appColors.text.withAlpha(150),
+                Text(
+                  description,
+                  style: appStyles.caption.copyWith(
+                    color: appColors.text.withAlpha(150),
+                  ),
+                  textAlign: TextAlign.start,
                 ),
-                textAlign: TextAlign.start,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        20.horizontalSpacer,
-        AppSvg(
-          width: 16.width,
-          height: 16.height,
-          color: appColors.primary,
-          path: Assets.icons.downArrow,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -200,10 +241,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final appColors = AppColors.of(context);
 
     return AppInkWell(
-      callback: () => ref.read(loadingProvider.notifier).wrap(() async {
-        await Future.delayed(const Duration(seconds: 3));
-        ref.read(tokenProvider.notifier).clearTokens();
-      }),
+      callback: _confirmLogout,
       child: Container(
         alignment: Alignment.center,
         margin: EdgeInsets.symmetric(
@@ -226,5 +264,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmLogout() async {
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: 'Log Out?',
+      message:
+          'You will be signed out of your ToroPass wallet on this device. You can sign in again anytime with your credentials.',
+      confirmText: 'LOG OUT',
+      destructive: true,
+    );
+
+    if (!confirmed) return;
+
+    await ref.read(loadingProvider.notifier).wrap(() async {
+      await ref.read(tokenProvider.notifier).clearTokens();
+    });
+  }
+
+  void _openDeveloperScreen() {
+    setState(() {
+      _tapCount++;
+      if (_tapCount > 4) _tapCount = 0;
+    });
+
+    if (_tapCount >= 4) {
+      context.pushNamed(AppRoutes.DEVELOPER_SCREEN);
+    }
   }
 }

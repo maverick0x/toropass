@@ -39,6 +39,8 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSFaceIDUsageDescription</key>
+		<string>Use Face ID to securely unlock your ToroPass wallet.</string>
 		<key>FlutterDeepLinkingEnabled</key>
 		<true/>
 		<key>UIApplicationSceneManifest</key>

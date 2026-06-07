@@ -23,23 +23,20 @@ class ToroPassClient {
     ToroPassWalletLauncher? walletLauncher,
     ToroPassCallbackListener? callbackListener,
     ToroPassHttpClient? httpClient,
-  }) : _walletLauncher =
-           walletLauncher ?? const UrlLauncherToroPassWalletLauncher(),
-       _callbackListener =
-           callbackListener ?? AppLinksToroPassCallbackListener(),
-       _httpClient = httpClient ?? HttpToroPassClient();
+  })  : _walletLauncher =
+            walletLauncher ?? const UrlLauncherToroPassWalletLauncher(),
+        _callbackListener =
+            callbackListener ?? AppLinksToroPassCallbackListener(),
+        _httpClient = httpClient ?? HttpToroPassClient();
 
-  ToroPassAuthorizationRequest createAuthorizationRequest({
-    String? appName,
-    String? state,
-  }) {
+  ToroPassAuthorizationRequest createAuthorizationRequest({String? state}) {
     final requestState = _requireState(state ?? _generateState());
     final query = <String, String>{
       'client_id': config.clientId,
       'redirect_uri': config.redirectUri.toString(),
       'scopes': config.scopeValues.join(','),
       'state': requestState,
-      if (appName?.trim().isNotEmpty == true) 'app_name': appName!.trim(),
+      'app_name': config.appName,
     };
 
     return ToroPassAuthorizationRequest(
@@ -48,7 +45,7 @@ class ToroPassClient {
       clientId: config.clientId,
       redirectUri: config.redirectUri,
       scopes: config.scopes,
-      appName: appName?.trim().isEmpty == true ? null : appName?.trim(),
+      appName: config.appName,
     );
   }
 
@@ -59,10 +56,9 @@ class ToroPassClient {
   }
 
   Future<ToroPassAuthorizationRequest?> launchWallet({
-    String? appName,
     String? state,
   }) async {
-    final request = createAuthorizationRequest(appName: appName, state: state);
+    final request = createAuthorizationRequest(state: state);
     final isAvailable = await _walletLauncher.canLaunch(request.launchUri);
     if (!isAvailable) return null;
 
@@ -125,8 +121,8 @@ class ToroPassClient {
     return const ToroPassAuthCancelled();
   }
 
-  Future<ToroPassAuthResult> verifyIdentity({String? appName}) async {
-    final request = await launchWallet(appName: appName);
+  Future<ToroPassAuthResult> verifyIdentity() async {
+    final request = await launchWallet();
     if (request == null) {
       return const ToroPassAuthTransportError(
         message: 'ToroPass Wallet is not installed or cannot be opened.',

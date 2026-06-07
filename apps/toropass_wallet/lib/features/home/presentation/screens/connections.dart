@@ -13,6 +13,7 @@ import '../../../../generated/fonts.gen.dart';
 import '../../../../shared/app_bar.dart';
 import '../../../../shared/app_inkwell.dart';
 import '../../../../shared/app_svg.dart';
+import '../../../../shared/confirmation_dialog.dart';
 import '../../../../shared/scope_chip.dart';
 import '../../domain/entities/consent_entity.dart';
 import '../../domain/entities/scope_entity.dart';
@@ -204,21 +205,18 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
             ],
           ),
           10.verticalSpacer,
-          _buildRevokeAccess(consent.appId ?? ''),
+          _buildRevokeAccess(consent),
         ],
       ),
     );
   }
 
-  Widget _buildRevokeAccess(String appId) {
+  Widget _buildRevokeAccess(ConsentEntity consent) {
     final appStyles = context.appStyles;
     final appColors = AppColors.of(context);
 
     return AppInkWell(
-      callback: () {
-        if (appId.isEmpty) return;
-        ref.read(userProvider.notifier).revokeConsent(appId);
-      },
+      callback: () => _confirmRevokeAccess(consent),
       child: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(
@@ -239,6 +237,23 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmRevokeAccess(ConsentEntity consent) async {
+    final appId = consent.appId ?? '';
+    if (appId.isEmpty) return;
+
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: 'Revoke Access?',
+      message:
+          'This will remove ${consent.appName ?? 'this app'}\'s access to your ToroPass verification data until you approve it again.',
+      confirmText: 'Revoke',
+      destructive: true,
+    );
+
+    if (!confirmed) return;
+    await ref.read(userProvider.notifier).revokeConsent(appId);
   }
 
   Widget _buildEmptyState() {

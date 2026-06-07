@@ -4,13 +4,13 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.5
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  toropass_client:
-    path: ../
+  toropass_client: ^0.1.1
 
 dev_dependencies:
   flutter_test:

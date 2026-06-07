@@ -1,6 +1,7 @@
 # ToroPass Client Example
 
-This example app exercises the wallet OAuth flow exposed by `toropass_client`.
+This example app exercises the wallet OAuth flow exposed by the published
+`toropass_client` package.
 
 ## Callback URI
 
@@ -32,3 +33,6 @@ flutter run
 ```
 
 Use a real `client_id` and make sure the issuer knows the callback URI `toropassclient://oauth/callback`.
+
+For the full end-to-end simulator and device checklist, see the package
+[`verification-guide.md`](../verification-guide.md).

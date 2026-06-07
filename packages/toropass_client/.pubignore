@@ -1,0 +1,8 @@
+build/
+*.iml
+.idea/
+.dart_tool/
+.flutter-plugins-dependencies
+example/android/app/src/main/kotlin/com/example/example/MainActivity.kt
+tasks.md
+verification-guide.md
