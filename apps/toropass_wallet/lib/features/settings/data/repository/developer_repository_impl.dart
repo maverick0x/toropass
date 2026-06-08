@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/config/resource/response.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/dio_provider.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../domain/entities/developer_app_entity.dart';
 import '../../domain/params/register_oauth_app_params.dart';

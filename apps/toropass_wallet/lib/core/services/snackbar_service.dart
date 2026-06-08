@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../generated/fonts.gen.dart';
 import '../config/router/router.dart';
 import '../config/themes/colors.dart';
 import '../config/themes/styles.dart';
@@ -51,14 +52,11 @@ class TopSnackbarService {
               },
 
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 18.width,
-                  vertical: 16.height,
-                ),
+                padding: .symmetric(horizontal: 12.width, vertical: 12.height),
                 decoration: BoxDecoration(
                   color: appColors.white,
-                  borderRadius: BorderRadius.circular(20.radius),
-                  border: Border.all(
+                  borderRadius: .circular(12.radius),
+                  border: .all(
                     color: appColors.primary.withAlpha(35),
                     width: 1,
                   ),
@@ -72,20 +70,20 @@ class TopSnackbarService {
                   ],
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: .center,
                   children: [
                     Container(
-                      width: 42.width,
-                      height: 42.width,
-                      alignment: Alignment.center,
+                      width: 32.width,
+                      height: 32.width,
+                      alignment: .center,
                       decoration: BoxDecoration(
                         color: appColors.primary.withAlpha(12),
-                        borderRadius: BorderRadius.circular(14.radius),
+                        borderRadius: .circular(14.radius),
                       ),
                       child: Icon(
                         Icons.info_outline_rounded,
                         color: appColors.primary,
-                        size: 22.width,
+                        size: 20.width,
                       ),
                     ),
                     14.horizontalSpacer,
@@ -99,16 +97,16 @@ class TopSnackbarService {
                               title,
                               style: appStyles.body.copyWith(
                                 color: appColors.header,
-                                fontWeight: FontWeight.w700,
+                                fontFamily: FontFamily.interSemiBold,
                               ),
                             ),
                             4.verticalSpacer,
                           ],
                           Text(
                             message,
-                            style: appStyles.body.copyWith(
+                            style: appStyles.caption.copyWith(
                               color: appColors.text.withAlpha(220),
-                              height: 1.35,
+                              height: 1.3,
                             ),
                           ),
                         ],

@@ -49,7 +49,7 @@ class PermissionNotifier extends _$PermissionNotifier {
     if (state.authorizeState is DataFailed) {
       final failedState = state.authorizeState as DataFailed;
       final message =
-          failedState.error ??
+          failedState.message ??
           "An error occurred while approving app permissions.";
       AppLogger.log(
         message,

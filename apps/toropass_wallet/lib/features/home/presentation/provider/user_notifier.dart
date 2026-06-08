@@ -39,14 +39,11 @@ class UserNotifier extends _$UserNotifier {
     if (state.walletState is DataFailed) {
       final failedState = state.walletState as DataFailed;
       final message =
-          failedState.error ?? "An error occurred while fetching wallet data.";
-      AppLogger.log(message, trace: failedState.trace, name: "USERNOTIFIER");
+          failedState.message ??
+          "An error occurred while fetching wallet data.";
+      AppLogger.log(message, name: "USERNOTIFIER");
       snackbar.display(message: message);
     }
-  }
-
-  Future refreshHomeData() async {
-    await getWallet();
   }
 
   Future getConsents({bool silentError = false}) async {
@@ -60,8 +57,8 @@ class UserNotifier extends _$UserNotifier {
     if (!silentError && state.consentState is DataFailed) {
       final failedState = state.consentState as DataFailed;
       final message =
-          failedState.error ?? "An error occurred while fetching consents.";
-      AppLogger.log(message, trace: failedState.trace, name: "USERNOTIFIER");
+          failedState.message ?? "An error occurred while fetching consents.";
+      AppLogger.log(message, name: "USERNOTIFIER");
       snackbar.display(message: message);
     }
   }
@@ -79,8 +76,8 @@ class UserNotifier extends _$UserNotifier {
     if (state.revokeConsentState is DataFailed) {
       final failedState = state.revokeConsentState as DataFailed;
       final message =
-          failedState.error ?? "An error occurred while revoking consent.";
-      AppLogger.log(message, trace: failedState.trace, name: "USERNOTIFIER");
+          failedState.message ?? "An error occurred while revoking consent.";
+      AppLogger.log(message, name: "USERNOTIFIER");
       snackbar.display(message: message);
       return;
     }

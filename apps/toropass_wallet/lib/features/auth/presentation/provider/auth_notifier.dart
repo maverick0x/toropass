@@ -101,8 +101,9 @@ class AuthNotifier extends _$AuthNotifier {
     if (state.tnsState is DataFailed) {
       final failedState = state.tnsState as DataFailed;
       final message =
-          failedState.error ?? "An error occurred while checking the username.";
-      AppLogger.log(message, trace: failedState.trace, name: "AUTHNOTIFIER");
+          failedState.message ??
+          "An error occurred while checking the username.";
+      AppLogger.log(message, name: "AUTHNOTIFIER");
       snackbar.display(message: message);
       return;
     }
@@ -128,8 +129,8 @@ class AuthNotifier extends _$AuthNotifier {
     if (state.createWalletState is DataFailed) {
       final failedState = state.createWalletState as DataFailed;
       final message =
-          failedState.error ?? "An error occurred while creating the wallet.";
-      AppLogger.log(message, trace: failedState.trace, name: "AUTHNOTIFIER");
+          failedState.message ?? "An error occurred while creating the wallet.";
+      AppLogger.log(message, name: "AUTHNOTIFIER");
       snackbar.display(message: message);
     }
   }
@@ -154,8 +155,9 @@ class AuthNotifier extends _$AuthNotifier {
     if (state.validateWalletState is DataFailed) {
       final failedState = state.validateWalletState as DataFailed;
       final message =
-          failedState.error ?? "An error occurred while validating the wallet.";
-      AppLogger.log(message, trace: failedState.trace, name: "AUTHNOTIFIER");
+          failedState.message ??
+          "An error occurred while validating the wallet.";
+      AppLogger.log(message, name: "AUTHNOTIFIER");
       snackbar.display(message: message);
     }
   }

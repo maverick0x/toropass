@@ -121,8 +121,9 @@ class SettingsNotifier extends Notifier<SettingsStateModel> {
     if (state.changePasswordState is DataFailed) {
       final failedState = state.changePasswordState as DataFailed;
       final message =
-          failedState.error ?? 'An error occurred while changing the password.';
-      AppLogger.log(message, trace: failedState.trace, name: 'SETTINGS');
+          failedState.message ??
+          'An error occurred while changing the password.';
+      AppLogger.log(message, name: 'SETTINGS');
       snackbar.display(message: message);
       return false;
     }

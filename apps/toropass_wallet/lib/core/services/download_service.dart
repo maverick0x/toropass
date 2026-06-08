@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../config/resource/exception.dart';
-import '../network/api_client.dart';
+import '../network/dio_provider.dart';
 import '../utilities/global.dart';
 import '../utilities/logger.dart';
 
@@ -61,7 +61,7 @@ class DownloadService {
       _handleDownloadError(error);
     } catch (e, stackTrace) {
       AppLogger.log(e.toString(), error: e, trace: stackTrace);
-      throw ApiServiceException(message: 'Failed to save downloaded file.');
+      throw ApiException(message: 'Failed to save downloaded file.');
     }
   }
 
@@ -120,10 +120,10 @@ class DownloadService {
 
   Never _handleDownloadError(DioException error) {
     if (error.type == DioExceptionType.cancel) {
-      throw ApiServiceException(message: 'Download was cancelled by user');
+      throw ApiException(message: 'Download was cancelled by user');
     }
 
     AppLogger.log(error.message ?? 'Unknown Dio Download Error', error: error);
-    throw ApiServiceException(message: 'Failed to download file from server');
+    throw ApiException(message: 'Failed to download file from server');
   }
 }
