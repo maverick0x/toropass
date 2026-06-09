@@ -25,7 +25,7 @@ class ChangePasswordUseCase
       final result = await _repo.changePassword(params);
       return DataSuccess(data: result);
     } catch (error, trace) {
-      return AppFailureMapper.toDataFailed(error, trace);
+      return FailureMapper.toDataFailed(error, trace);
     }
   }
 }

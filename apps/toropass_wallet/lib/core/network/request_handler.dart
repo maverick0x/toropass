@@ -4,7 +4,7 @@ import '../config/resource/exception.dart';
 import '../config/resource/response.dart';
 import '../utilities/enum/http_request_type.dart';
 import '../utilities/logger.dart';
-import 'api_body_builder.dart';
+import 'api_body.dart';
 import 'error_handler.dart';
 import 'response_parser.dart';
 
@@ -23,7 +23,7 @@ class RequestHandler {
     CancelToken? cancelToken,
   }) async {
     try {
-      final body = ApiBodyBuilder.build(data);
+      final body = ApiBody.build(data);
 
       final options = Options(
         method: type.name,

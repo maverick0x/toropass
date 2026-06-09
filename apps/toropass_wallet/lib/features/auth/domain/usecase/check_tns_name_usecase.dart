@@ -23,7 +23,7 @@ class CheckTNSNameUseCase extends UseCase<DataState<TnsEntity>, String> {
       final result = await repository.checkTNSName(username);
       return DataSuccess(data: result);
     } catch (e, stackTrace) {
-      return AppFailureMapper.toDataFailed(e, stackTrace);
+      return FailureMapper.toDataFailed(e, stackTrace);
     }
   }
 }

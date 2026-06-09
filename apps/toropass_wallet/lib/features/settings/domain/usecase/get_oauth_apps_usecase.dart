@@ -24,7 +24,7 @@ class GetOAuthAppsUseCase
       final result = await _repo.getApps();
       return DataSuccess(data: result);
     } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+      return FailureMapper.toDataFailed(e, st);
     }
   }
 }

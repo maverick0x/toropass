@@ -27,7 +27,7 @@ class RegisterOAuthAppUseCase
       final result = await _repo.registerApp(params);
       return DataSuccess(data: result);
     } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+      return FailureMapper.toDataFailed(e, st);
     }
   }
 }
