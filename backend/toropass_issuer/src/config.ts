@@ -1,6 +1,5 @@
-// src/config.ts
 import 'dotenv/config';
-import { getAddr, getSDKConfig, initializeSDK, isTNSAvailable } from 'torosdk';
+import { getAddr, getSDKConfig, initializeSDK, isTNSAvailable, verifyWalletPassword } from 'torosdk';
 
 const configuredNetwork = process.env.BLOCKCHAIN_NETWORK?.toLowerCase() || 'testnet';
 const network = configuredNetwork === 'testnet' ? 'testnet' : 'mainnet';
@@ -57,4 +56,25 @@ async function testSDKConnection() {
   }
 }
 
-testSDKConnection();
+// Verify the password of an existing Toronet Wallet
+async function verifyPassword() {
+  try {
+    const address = process.env[network === 'testnet' ? 'TESTNET_ADMIN_ADDRESS' : 'MAINNET_ADMIN_ADDRESS'] || '';
+    const password = process.env[network === 'testnet' ? 'TESTNET_ADMIN_PASSWORD' : 'MAINNET_ADMIN_PASSWORD'] || '';
+
+    if (!address || !password) {
+      console.log('[SDK] No admin wallet address or password found in environment variables.');
+      return;
+    }
+
+    console.log(`[SDK] Verifying password for wallet address`);
+    const isValid = await verifyWalletPassword({ address, password });
+    console.log(`[SDK] Wallet password verification: ${isValid}`);
+  } catch (error) {
+    console.error(`[SDK] Error verifying wallet password:`, error);
+  }
+}
+
+verifyPassword();
+
+// testSDKConnection();
