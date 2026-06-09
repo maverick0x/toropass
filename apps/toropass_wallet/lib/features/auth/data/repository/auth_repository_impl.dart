@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/dio_provider.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../domain/entities/tns_entity.dart';
 import '../../domain/entities/wallet_entity.dart';
@@ -53,5 +54,4 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return WalletModel.fromJson(response.data);
   }
-
 }

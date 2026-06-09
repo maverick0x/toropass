@@ -46,11 +46,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final profile = walletState is DataSuccess ? walletState.data : null;
     final consentCount = consentState.data?.length ?? 0;
     final showSkeleton =
-        walletState is DataLoading ||
-        walletState is DataFailed ||
-        consentState is DataLoading ||
-        consentState is DataFailed;
-    final showRefresh = walletState is DataFailed || consentState is DataFailed;
+        walletState is DataLoading || walletState is DataFailed;
 
     return PopScope(
       canPop: false,
@@ -84,9 +80,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       mainAxisSize: .min,
                       crossAxisAlignment: .center,
                       children: [
-                        15.verticalSpacer,
-                        _buildRefresh(showRefresh),
-                        IdentityCard(),
+                        10.verticalSpacer,
+                        Skeleton.ignore(child: IdentityCard()),
                         _secureAction(profile),
                         _buildVerificationLevel(profile),
                         _buildConnectionCard(consentCount),
@@ -97,50 +92,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRefresh(bool showRefresh) {
-    final appColors = AppColors.of(context);
-
-    return AnimatedSize(
-      duration: Animations.shortDuration,
-      child: Visibility(
-        visible: showRefresh,
-        child: Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 16.height,
-              bottom: 10.height,
-              right: AppDimens.horizontalPadding,
-            ),
-            child: AppInkWell(
-              callback: ref.read(userProvider.notifier).refreshHomeData,
-              child: Container(
-                padding: EdgeInsets.all(10.radius),
-                decoration: BoxDecoration(
-                  color: appColors.white,
-                  borderRadius: BorderRadius.circular(AppDimens.borderRadius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: appColors.shadow.withAlpha(10),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.refresh_rounded,
-                  size: 22.width,
-                  color: appColors.primary,
-                ),
-              ),
-            ),
           ),
         ),
       ),

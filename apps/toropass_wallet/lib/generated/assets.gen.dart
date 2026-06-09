@@ -104,6 +104,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/privacy.svg
   String get privacy => 'assets/icons/privacy.svg';
 
+  /// File path: assets/icons/refresh.svg
+  String get refresh => 'assets/icons/refresh.svg';
+
   /// File path: assets/icons/settings.svg
   String get settings => 'assets/icons/settings.svg';
 
@@ -134,6 +137,7 @@ class $AssetsIconsGen {
     marketplace,
     plus,
     privacy,
+    refresh,
     settings,
     universal,
     verified,

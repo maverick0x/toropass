@@ -100,8 +100,8 @@ class KycNotifier extends _$KycNotifier {
     if (state.verifyKycState is DataFailed) {
       final failedState = state.verifyKycState as DataFailed;
       final message =
-          failedState.error ?? "An error occurred while verifying identity.";
-      AppLogger.log(message, trace: failedState.trace, name: "KYCNOTIFIER");
+          failedState.message ?? "An error occurred while verifying identity.";
+      AppLogger.log(message, name: "KYCNOTIFIER");
       snackbar.display(message: message);
       return false;
     }

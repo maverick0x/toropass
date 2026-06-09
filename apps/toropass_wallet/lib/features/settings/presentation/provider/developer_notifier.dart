@@ -58,7 +58,7 @@ class DeveloperNotifier extends _$DeveloperNotifier {
       final failedState = state.appsState as DataFailed;
       if (!silentError) {
         final message =
-            failedState.error ??
+            failedState.message ??
             "An error occurred while loading your applications.";
         AppLogger.log(
           message,

@@ -41,7 +41,7 @@ final class DeveloperNotifierProvider
   }
 }
 
-String _$developerNotifierHash() => r'9ee0a44a4a88f949bccc657605cffd9ab2714b57';
+String _$developerNotifierHash() => r'ba61435fc02d86c7d3926ebbe7d4e05ba798e83c';
 
 abstract class _$DeveloperNotifier extends $Notifier<DeveloperStateModel> {
   DeveloperStateModel build();

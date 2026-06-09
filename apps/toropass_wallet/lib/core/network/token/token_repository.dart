@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
+import '../dio_provider.dart';
 import 'token_entity.dart';
 import 'token_model.dart';
 

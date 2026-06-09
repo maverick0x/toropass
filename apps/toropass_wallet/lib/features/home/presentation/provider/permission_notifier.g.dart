@@ -42,7 +42,7 @@ final class PermissionNotifierProvider
 }
 
 String _$permissionNotifierHash() =>
-    r'fd1fac7c677cd766d05d96ef4d120aa89fbc807a';
+    r'897f6b6603924aa2ffc349feb98e182767564cdc';
 
 abstract class _$PermissionNotifier extends $Notifier<PermissionStateModel> {
   PermissionStateModel build();

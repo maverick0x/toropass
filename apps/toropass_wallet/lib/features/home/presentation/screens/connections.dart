@@ -32,12 +32,6 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final notifier = ref.read(userProvider.notifier);
-      final walletState = ref.read(userProvider).walletState;
-
-      if (walletState is! DataSuccess) {
-        await notifier.getWallet();
-      }
-
       await notifier.getConsents();
     });
   }
@@ -74,7 +68,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                       children: [
                         20.verticalSpacer,
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 25.width),
+                          padding: .symmetric(horizontal: 25.width),
                           child: Column(
                             mainAxisSize: .min,
                             crossAxisAlignment: .start,
