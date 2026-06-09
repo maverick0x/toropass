@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../config/resource/exception.dart';
 import '../utilities/logger.dart';
-import 'api_body.dart';
+import 'body_handler.dart';
 import 'response_parser.dart';
 
 class ErrorHandler {
@@ -19,8 +19,8 @@ class ErrorHandler {
       ..write(statusCode != null ? ' [$statusCode]' : '')
       ..write(': $method $path');
 
-    if (ApiBody.hasBody(body)) {
-      buffer.write('\nBody: ${ApiBody.formatBody(body)}');
+    if (BodyHandler.hasBody(body)) {
+      buffer.write('\nBody: ${BodyHandler.formatBody(body)}');
     }
 
     AppLogger.log(buffer.toString(), name: 'API-ERROR');
