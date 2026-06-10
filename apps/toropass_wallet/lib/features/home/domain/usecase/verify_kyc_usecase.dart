@@ -25,7 +25,7 @@ class VerifyKycUseCase
       final result = await _repo.verifyKyc(params);
       return DataSuccess(data: result);
     } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+      return FailureMapper.toDataFailed(e, st);
     }
   }
 }

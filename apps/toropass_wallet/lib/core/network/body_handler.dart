@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-class ApiBodyBuilder {
+class BodyHandler {
   static Object? build(Object? data) {
     if (data is! Map<String, dynamic>) {
       return data;

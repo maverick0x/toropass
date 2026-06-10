@@ -23,7 +23,7 @@ class FetchTokenUseCase extends UseCase<DataState<TokenEntity>, String> {
 
       return DataSuccess(data: result);
     } catch (e, stackTrace) {
-      return AppFailureMapper.toDataFailed(e, stackTrace);
+      return FailureMapper.toDataFailed(e, stackTrace);
     }
   }
 }

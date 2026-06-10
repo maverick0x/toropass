@@ -23,7 +23,7 @@ class GetConsentsUseCase extends UseCase<DataState<List<ConsentEntity>>, void> {
       final result = await _repo.getConsents();
       return DataSuccess(data: result);
     } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+      return FailureMapper.toDataFailed(e, st);
     }
   }
 }

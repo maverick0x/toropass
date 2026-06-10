@@ -23,7 +23,7 @@ class GetWalletUseCase extends UseCase<DataState<ProfileEntity>, void> {
       final result = await _repo.getWallet();
       return DataSuccess(data: result);
     } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+      return FailureMapper.toDataFailed(e, st);
     }
   }
 }

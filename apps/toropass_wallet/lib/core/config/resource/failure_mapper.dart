@@ -1,15 +1,15 @@
 import 'data_state.dart';
 import 'exception.dart';
 
-enum AppFailureType { api, server, unknown }
+enum FailureType { api, server, unknown }
 
-class AppFailure {
-  final AppFailureType type;
+class Failure {
+  final FailureType type;
   final String message;
   final int? code;
   final String? path;
 
-  const AppFailure({
+  const Failure({
     required this.type,
     required this.message,
     this.code,
@@ -17,7 +17,7 @@ class AppFailure {
   });
 }
 
-class AppFailureMapper {
+class FailureMapper {
   static DataFailed<T> toDataFailed<T>(Object error, StackTrace trace) {
     final failure = map(error);
 
@@ -29,25 +29,25 @@ class AppFailureMapper {
     );
   }
 
-  static AppFailure map(Object error) {
+  static Failure map(Object error) {
     if (error is ApiException) {
       return _mapApiException(error);
     }
 
     final message = _clean(error.toString());
 
-    return AppFailure(
-      type: AppFailureType.unknown,
+    return Failure(
+      type: FailureType.unknown,
       message: message.isEmpty ? 'An unexpected error occurred.' : message,
     );
   }
 
-  static AppFailure _mapApiException(ApiException error) {
+  static Failure _mapApiException(ApiException error) {
     final message = _clean(error.message);
 
     if (_isServerError(error.code)) {
-      return AppFailure(
-        type: AppFailureType.server,
+      return Failure(
+        type: FailureType.server,
         code: error.code,
         path: error.path,
         message: message.isNotEmpty
@@ -56,8 +56,8 @@ class AppFailureMapper {
       );
     }
 
-    return AppFailure(
-      type: AppFailureType.api,
+    return Failure(
+      type: FailureType.api,
       code: error.code,
       path: error.path,
       message: message.isNotEmpty

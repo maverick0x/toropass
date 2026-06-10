@@ -23,7 +23,7 @@ class RevokeConsentUseCase extends UseCase<DataState<SuccessResponse>, String> {
       final result = await _repo.revokeConsent(appId);
       return DataSuccess(data: result);
     } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+      return FailureMapper.toDataFailed(e, st);
     }
   }
 }

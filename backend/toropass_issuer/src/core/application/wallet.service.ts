@@ -8,13 +8,13 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
-import { WalletAuthTokens } from './types/wallet-auth-tokens.type';
-import { WalletProfile } from './types/wallet-profile.type';
 import {
   BLOCKCHAIN_PORT,
   IBlockchainPort,
 } from '../ports/blockchain.interface';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
+import { WalletAuthTokens } from './types/wallet-auth-tokens.type';
+import { WalletProfile } from './types/wallet-profile.type';
 
 @Injectable()
 export class WalletService {
@@ -23,7 +23,7 @@ export class WalletService {
     private jwtService: JwtService,
     @Inject(BLOCKCHAIN_PORT) private blockchain: IBlockchainPort,
     @Inject(LOGGER_PORT) private logger: ILogger,
-  ) {}
+  ) { }
 
   async checkTnsAvailability(username: string): Promise<boolean> {
     try {
@@ -147,6 +147,14 @@ export class WalletService {
           data: { address },
         });
       }
+
+      const isVerified = await this.blockchain.isWalletVerified(address);
+      if (isVerified && !existingWallet.user.kycVerified) {
+        await this.prisma.user.update({
+          where: { id: existingWallet.userId },
+          data: { kycVerified: true },
+        });
+      }
     } else {
       let isValid = false;
       try {
@@ -155,7 +163,7 @@ export class WalletService {
         );
       } catch {
         throw new InternalServerErrorException(
-          'Toronet SDK verification failed.',
+          'Toronet SDK wallet validation failed.',
         );
       }
 
@@ -198,10 +206,10 @@ export class WalletService {
       kycAnchorHash: user.kycAnchorHash,
       wallet: activeWallet
         ? {
-            address: activeWallet.address,
-            tnsName: activeWallet.tnsName,
-            network: activeWallet.network,
-          }
+          address: activeWallet.address,
+          tnsName: activeWallet.tnsName,
+          network: activeWallet.network,
+        }
         : null,
     };
   }

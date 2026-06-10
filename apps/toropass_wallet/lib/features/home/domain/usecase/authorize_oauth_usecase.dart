@@ -28,7 +28,7 @@ class AuthorizeOAuthUseCase
       final result = await _repo.authorize(params);
       return DataSuccess(data: result);
     } catch (e, st) {
-      return AppFailureMapper.toDataFailed(e, st);
+      return FailureMapper.toDataFailed(e, st);
     }
   }
 }
