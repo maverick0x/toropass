@@ -147,6 +147,14 @@ export class WalletService {
           data: { address },
         });
       }
+
+      const isVerified = await this.blockchain.isWalletVerified(address);
+      if (isVerified && !existingWallet.user.kycVerified) {
+        await this.prisma.user.update({
+          where: { id: existingWallet.userId },
+          data: { kycVerified: true },
+        });
+      }
     } else {
       let isValid = false;
       try {
@@ -155,7 +163,7 @@ export class WalletService {
         );
       } catch {
         throw new InternalServerErrorException(
-          'Toronet SDK verification failed.',
+          'Toronet SDK wallet validation failed.',
         );
       }
 

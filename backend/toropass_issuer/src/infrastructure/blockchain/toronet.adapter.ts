@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createWallet, getAddr, getSDKConfig, initializeSDK, isTNSAvailable, performKYCForCustomer, updatePassword, verifyWalletPassword } from 'torosdk';
+import { createWallet, getAddr, getSDKConfig, initializeSDK, isAddressKYCVerified, isTNSAvailable, performKYCForCustomer, updatePassword, verifyWalletPassword } from 'torosdk';
 import {
   IBlockchainPort,
   IKycPayload,
@@ -56,6 +56,18 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
 
   getNetwork(): 'mainnet' | 'testnet' {
     return this.network;
+  }
+
+  async isWalletVerified(address: string): Promise<boolean> {
+    try {
+      const status = await isAddressKYCVerified({ address });
+
+      return status.verified;
+    } catch (error) {
+      const message = `Failed to check KYC status for address: ${address}`;
+      this.logger.logAlert({ message, error, slack: true });
+      return false;
+    }
   }
 
   async verifyAndAnchorKyc(payload: IKycPayload): Promise<boolean> {
@@ -126,3 +138,5 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
     }
   }
 }
+
+

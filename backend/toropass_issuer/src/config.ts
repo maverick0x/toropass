@@ -145,8 +145,8 @@ async function performKYC() {
 }
 
 // performKYC();
-// isAdminVerified();
+isAdminVerified();
 
-verifyAdminRole();
+// verifyAdminRole();
 // verifyPassword();
 // testSDKConnection();

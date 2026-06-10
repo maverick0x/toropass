@@ -14,6 +14,7 @@ export interface IKycPayload {
 export interface IBlockchainPort {
   getNetwork(): 'mainnet' | 'testnet';
   verifyAndAnchorKyc(payload: IKycPayload): Promise<boolean>;
+  isWalletVerified(address: string): Promise<boolean>;
   checkTnsAvailability(username: string): Promise<boolean>;
   provisionWallet(username: string, password: string): Promise<string>;
   resolveAddress(username: string): Promise<string | null>;
