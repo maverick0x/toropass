@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { createWallet, getAddr, getSDKConfig, initializeSDK, isAdmin, isTNSAvailable, verifyWalletPassword } from 'torosdk';
+import { getAddr, getSDKConfig, initializeSDK, isAddressKYCVerified, isAdmin, isTNSAvailable, performKYCForCustomer, verifyWalletPassword } from 'torosdk';
 
 const configuredNetwork = process.env.BLOCKCHAIN_NETWORK?.toLowerCase() || 'testnet';
 const network = configuredNetwork === 'testnet' ? 'testnet' : 'mainnet';
@@ -34,7 +34,7 @@ async function resolveAddress(username: string): Promise<string | null> {
 
 async function testSDKConnection() {
   try {
-    const username = "maverick"; // process.env[network === 'testnet' ? 'TESTNET_TNS_NAME' : 'MAINNET_TNS_NAME'] || '';
+    const username = "maveroid"; // process.env[network === 'testnet' ? 'TESTNET_TNS_NAME' : 'MAINNET_TNS_NAME'] || '';
 
     if (!username) {
       console.log('[SDK] No TNS username found in environment variables.');
@@ -49,8 +49,6 @@ async function testSDKConnection() {
       console.log(`[SDK] Admin Wallet Address: ${address}`);
     } else {
       console.log(`[SDK] TNS name "${username}" is available (no wallet exists yet).`);
-      const wallet = await createWallet({ username, password: 'Password123' });
-      console.log(`[SDK] Provisioned new wallet with address:`, wallet);
     }
   } catch (error) {
     // Updated log message to reflect what the block is actually doing
@@ -95,6 +93,59 @@ async function verifyAdminRole() {
     console.error(`[SDK] Error verifying wallet admin role:`, error);
   }
 }
+
+// Verify the address is an admin
+async function isAdminVerified() {
+  try {
+    const address = process.env[network === 'testnet' ? 'TESTNET_ADMIN_ADDRESS' : 'MAINNET_ADMIN_ADDRESS'] || '';
+
+    if (!address) {
+      console.log('[SDK] No wallet address found in environment variables.');
+      return;
+    }
+
+    console.log(`[SDK] Verifying admin kyc verification status`);
+    const isKYCVerified = await isAddressKYCVerified({ address });
+    console.log(`[SDK] Admin KYC status`, isKYCVerified);
+
+  } catch (error) {
+    console.error(`[SDK] Error fetching admin kyc verification status:`, error);
+  }
+}
+
+async function performKYC() {
+  try {
+    const adminAddress = process.env[network === 'testnet' ? 'TESTNET_ADMIN_ADDRESS' : 'MAINNET_ADMIN_ADDRESS'] || '';
+    const adminPassword = process.env[network === 'testnet' ? 'TESTNET_ADMIN_PASSWORD' : 'MAINNET_ADMIN_PASSWORD'] || '';
+
+    if (!adminAddress || !adminPassword) {
+      console.log('[SDK] No wallet address or password found in environment variables.');
+      return;
+    }
+
+    console.log(`[SDK] Performing KYC for wallet address`);
+    const kycParams = {
+      firstName: "John",
+      middleName: "James",
+      lastName: "Doe",
+      bvn: "1234567890",
+      currency: "NGN",
+      phoneNumber: "09033833650",
+      dob: "2001-05-06",
+      address: "0xaf451b811385dfd7cab02b9bb39fe5fc43469211",
+      admin: adminAddress,
+      adminpwd: adminPassword,
+    };
+    const isKYCSuccessful = await performKYCForCustomer(kycParams);
+    console.log(`[SDK] KYC status`, isKYCSuccessful);
+
+  } catch (error) {
+    console.error(`[SDK] Error performing KYC:`, error);
+  }
+}
+
+// performKYC();
+// isAdminVerified();
 
 verifyAdminRole();
 // verifyPassword();
