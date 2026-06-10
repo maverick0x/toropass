@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { getAddr, getSDKConfig, initializeSDK, isTNSAvailable, verifyWalletPassword } from 'torosdk';
+import { createWallet, getAddr, getSDKConfig, initializeSDK, isAdmin, isTNSAvailable, verifyWalletPassword } from 'torosdk';
 
 const configuredNetwork = process.env.BLOCKCHAIN_NETWORK?.toLowerCase() || 'testnet';
 const network = configuredNetwork === 'testnet' ? 'testnet' : 'mainnet';
@@ -34,7 +34,7 @@ async function resolveAddress(username: string): Promise<string | null> {
 
 async function testSDKConnection() {
   try {
-    const username = process.env[network === 'testnet' ? 'TESTNET_TNS_NAME' : 'MAINNET_TNS_NAME'] || '';
+    const username = "maverick"; // process.env[network === 'testnet' ? 'TESTNET_TNS_NAME' : 'MAINNET_TNS_NAME'] || '';
 
     if (!username) {
       console.log('[SDK] No TNS username found in environment variables.');
@@ -49,6 +49,8 @@ async function testSDKConnection() {
       console.log(`[SDK] Admin Wallet Address: ${address}`);
     } else {
       console.log(`[SDK] TNS name "${username}" is available (no wallet exists yet).`);
+      const wallet = await createWallet({ username, password: 'Password123' });
+      console.log(`[SDK] Provisioned new wallet with address:`, wallet);
     }
   } catch (error) {
     // Updated log message to reflect what the block is actually doing
@@ -75,6 +77,25 @@ async function verifyPassword() {
   }
 }
 
-verifyPassword();
+// Verify the address is an admin
+async function verifyAdminRole() {
+  try {
+    const address = process.env[network === 'testnet' ? 'TESTNET_ADMIN_ADDRESS' : 'MAINNET_ADMIN_ADDRESS'] || '';
 
+    if (!address) {
+      console.log('[SDK] No wallet address found in environment variables.');
+      return;
+    }
+
+    console.log(`[SDK] Verifying admin role for wallet address`);
+    const isAddrAdmin = await isAdmin({ address });
+    console.log(`[SDK] Wallet admin status`, isAddrAdmin);
+
+  } catch (error) {
+    console.error(`[SDK] Error verifying wallet admin role:`, error);
+  }
+}
+
+verifyAdminRole();
+// verifyPassword();
 // testSDKConnection();
