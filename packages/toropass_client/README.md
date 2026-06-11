@@ -38,6 +38,16 @@ flutter pub get
 
 ## Quick Start
 
+Before configuring `ToroPassClient`, create an OAuth app inside ToroPass Wallet and copy your app credentials:
+
+- `client_id`
+- app name
+- callback / redirect URI
+
+In ToroPass Wallet, open settings and tap the build number five times to unlock the Developer Dashboard, then create a new app.
+
+Treat `client_secret` as sensitive. Do not ship it in client-side sample code or expose it publicly.
+
 ```dart
 final client = ToroPassClient(
   config: ToroPassClientConfig(

@@ -15,7 +15,7 @@ If your goal is to understand or use ToroPass, do **not** start by cloning this 
 The most useful path is:
 1. Install the published [`toropass_client`](https://pub.dev/packages/toropass_client) package in your Flutter app.
 2. Install the ToroPass Wallet APK from the GitHub Releases page.
-3. Register an OAuth app through ToroPass Wallet.
+3. Create an OAuth app through ToroPass Wallet.
 4. Launch the verification flow from your own Flutter app.
 
 That is the primary value of this project: a deployed, usable identity reference that Flutter developers can integrate against without rebuilding the whole infrastructure locally.
@@ -79,6 +79,30 @@ If you are building a Flutter app on Toronet, this is the path ToroPass is optim
 5. Receive the approved identity result back in your app.
 
 This is the fastest way to adopt ToroPass, and it is the main reason this repository exists.
+
+## Create Your ToroPass OAuth App
+
+Before you configure `ToroPassClient` in your Flutter app, you need to create an OAuth app inside ToroPass Wallet.
+
+Open ToroPass Wallet and go to the settings screen. Tap the build number five times to unlock the Developer Dashboard.
+
+From the Developer Dashboard:
+
+1. Choose **Create New App**.
+2. Enter your app name.
+3. Enter your callback URI, for example `myapp://oauth/callback`.
+4. Save the app.
+5. Copy the generated app credentials.
+
+You should keep track of:
+- `client_id`
+- `client_secret`
+- app name
+- callback URI
+
+Your Flutter app uses the app name, `client_id`, and callback URI when configuring `ToroPassClient`.
+
+Treat `client_secret` as a sensitive credential. Do not expose it in public repositories, screenshots, or client-side sample code. If your architecture uses a backend token exchange, keep the secret on your backend instead of hard-coding it into a mobile app.
 
 ## Repository Overview
 

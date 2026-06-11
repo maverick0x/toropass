@@ -34,7 +34,7 @@ async function resolveAddress(username: string): Promise<string | null> {
 
 async function testSDKConnection() {
   try {
-    const username = "maveroid"; // process.env[network === 'testnet' ? 'TESTNET_TNS_NAME' : 'MAINNET_TNS_NAME'] || '';
+    const username = process.env[network === 'testnet' ? 'TESTNET_TNS_NAME' : 'MAINNET_TNS_NAME'] || '';
 
     if (!username) {
       console.log('[SDK] No TNS username found in environment variables.');
@@ -126,13 +126,13 @@ async function performKYC() {
     console.log(`[SDK] Performing KYC for wallet address`);
     const kycParams = {
       firstName: "John",
-      middleName: "James",
+      middleName: "David",
       lastName: "Doe",
-      bvn: "1234567890",
+      bvn: "12345678901",
       currency: "NGN",
-      phoneNumber: "09033833650",
-      dob: "2001-05-06",
-      address: "0xaf451b811385dfd7cab02b9bb39fe5fc43469211",
+      phoneNumber: "091389263680",
+      dob: "1891-01-01",
+      address: "0x7fsrda6",
       admin: adminAddress,
       adminpwd: adminPassword,
     };
@@ -145,7 +145,7 @@ async function performKYC() {
 }
 
 // performKYC();
-isAdminVerified();
+// isAdminVerified();
 
 // verifyAdminRole();
 // verifyPassword();

@@ -86,9 +86,34 @@ myapp://oauth/callback
 
 You will register this in your app and use the same redirect URI when creating your ToroPass OAuth app.
 
+## Create Your ToroPass OAuth App
+
+Before you create a `ToroPassClient` in your Flutter app, you need to create an OAuth app inside ToroPass Wallet.
+
+Open ToroPass Wallet and go to the app settings screen. In settings, tap the build number five times. This unlocks the Developer Dashboard.
+
+From the Developer Dashboard:
+
+1. choose **Create New App**
+2. enter your app name
+3. enter your callback URI, for example `myapp://oauth/callback`
+4. save the app
+5. copy the generated app credentials
+
+You should copy:
+
+- `client_id`
+- `client_secret`
+- app name
+- callback URI
+
+The app name, `client_id`, and callback URI are the values your Flutter app uses when configuring `ToroPassClient`. The callback URI must match the redirect URI you registered in your native Android or iOS deep-link setup.
+
+Treat `client_secret` as a sensitive credential. Do not publish it in screenshots, public repositories, or client-side sample code. If your integration uses a backend token exchange, keep the secret on your backend instead of hard-coding it into a mobile app.
+
 ## Quick Start in Flutter
 
-Create a `ToroPassClient`:
+Create a `ToroPassClient` using the app values you just copied from ToroPass Wallet:
 
 ```dart
 final client = ToroPassClient(
