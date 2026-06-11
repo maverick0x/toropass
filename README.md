@@ -2,6 +2,8 @@
 
 ToroPass is a full-stack Toronet identity reference project.
 
+License: [Apache-2.0](LICENSE)
+
 It gives Flutter developers a working identity flow they can use today:
 - a published Flutter SDK package for third-party apps on pub.dev
 - a deployable ToroPass Wallet APK for end users
