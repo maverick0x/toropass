@@ -55,11 +55,27 @@ ToroPass Wallet uses that callback to return:
 
 ### 3. Create an OAuth App in ToroPass Wallet
 
-ToroPass Wallet includes a developer dashboard for registering third-party apps.
+Before you create a `ToroPassClient` in your Flutter app, you need to create an OAuth app inside ToroPass Wallet.
 
-That gives you the credentials needed by your Flutter app, such as:
-- client identifier
+Open ToroPass Wallet and go to the settings screen. Tap the build number five times to unlock the Developer Dashboard.
+
+From the Developer Dashboard:
+
+1. Choose **Create New App**.
+2. Enter your app name.
+3. Enter your callback URI, for example `yourapp://oauth/callback`.
+4. Save the app.
+5. Copy the generated app credentials.
+
+You should keep track of:
+- `client_id`
+- `client_secret`
+- app name
 - callback / redirect URI
+
+Your Flutter app uses the app name, `client_id`, and callback URI when configuring `ToroPassClient`.
+
+Treat `client_secret` as a sensitive credential. Do not expose it in screenshots, public repositories, or client-side sample code. If your integration uses a backend token exchange, keep the secret on your backend instead of hard-coding it into a mobile app.
 
 ### 4. Launch the Verification Flow
 
@@ -137,7 +153,7 @@ The easiest way to test the integration is:
 
 Wallet APK:
 
-- [Download ToroPass Wallet APK](https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
+- [Download ToroPass Wallet APK](https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
 
 ## Who This Guide Is For
 

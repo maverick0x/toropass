@@ -28,7 +28,7 @@ Start with:
 
 Download and install the released Android wallet:
 
-- [ToroPass Wallet APK](https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
+- [ToroPass Wallet APK](https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
 
 This is the intended path for testing the holder-side experience.
 
@@ -60,11 +60,12 @@ The primary end-to-end flow is:
 1. Install ToroPass Wallet.
 2. Create or validate a Toro identity in the wallet.
 3. Complete the KYC flow in the wallet.
-4. Register an OAuth app from the wallet developer dashboard.
-5. Configure the third-party Flutter app with those credentials.
-6. Trigger the ToroPass verification flow from the client app.
-7. Approve or deny the request in ToroPass Wallet.
-8. Confirm that the client app receives the expected callback result.
+4. Open settings and tap the build number five times to unlock the Developer Dashboard.
+5. Create an OAuth app from the Developer Dashboard and copy the generated credentials.
+6. Configure the third-party Flutter app with those credentials.
+7. Trigger the ToroPass verification flow from the client app.
+8. Approve or deny the request in ToroPass Wallet.
+9. Confirm that the client app receives the expected callback result.
 
 ### 6. Inspect Privacy and Consent Controls
 

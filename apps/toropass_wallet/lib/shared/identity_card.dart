@@ -27,6 +27,7 @@ class IdentityCard extends ConsumerWidget {
         ? '${profile!.wallet!.tnsName}.toro'
         : 'ToroPass Identity';
     final isVerified = profile?.kycVerified == true;
+    final verifiedColor = isVerified ? appColors.primary : appColors.error;
     final walletAddress = _formatWalletAddress(profile);
     final network = _formatNetwork(profile?.wallet?.network);
     final showSkeleton =
@@ -77,10 +78,8 @@ class IdentityCard extends ConsumerWidget {
                         vertical: 2.height,
                       ),
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: appColors.error.withAlpha(60),
-                        ),
-                        color: appColors.error.withAlpha(15),
+                        border: Border.all(color: verifiedColor.withAlpha(60)),
+                        color: verifiedColor.withAlpha(15),
                         borderRadius: BorderRadius.circular(
                           AppDimens.miniRadius,
                         ),
@@ -88,9 +87,7 @@ class IdentityCard extends ConsumerWidget {
                       child: Text(
                         isVerified ? "VERIFIED" : "UNVERIFIED",
                         style: appStyles.caption.copyWith(
-                          color: isVerified
-                              ? appColors.success.withAlpha(180)
-                              : appColors.error.withAlpha(150),
+                          color: verifiedColor.withAlpha(160),
                         ),
                       ),
                     ),
