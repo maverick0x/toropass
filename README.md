@@ -66,7 +66,7 @@ For most testers and Flutter developers, the released APK is the correct way to 
 
 The released Android wallet can be downloaded directly here:
 
-[Download ToroPass Wallet APK](https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
+[Download ToroPass Wallet APK](https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
 
 This is the recommended way to test the live holder-side experience without rebuilding the mobile app locally.
 

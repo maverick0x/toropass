@@ -1,9 +1,9 @@
 name: toropass_client
 description: "Flutter client package for launching ToroPass Wallet OAuth identity verification flows."
 version: 0.1.1
-homepage: https://github.com/maverick0x/toropass/tree/main/packages/toropass_client
-repository: https://github.com/maverick0x/toropass
-issue_tracker: https://github.com/maverick0x/toropass/issues
+homepage: https://github.com/mav3rickx/toropass/tree/main/packages/toropass_client
+repository: https://github.com/mav3rickx/toropass
+issue_tracker: https://github.com/mav3rickx/toropass/issues
 topics:
   - oauth
   - identity

@@ -28,7 +28,7 @@ Start with:
 
 Download and install the released Android wallet:
 
-- [ToroPass Wallet APK](https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
+- [ToroPass Wallet APK](https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
 
 This is the intended path for testing the holder-side experience.
 

@@ -4,15 +4,15 @@ ToroPass is a deployed full-stack Toronet identity reference project: a producti
 
 ## 🔗 Final Submission Resource Links
 
-- **Main GitHub repository:** https://github.com/maverick0x/toropass
+- **Main GitHub repository:** https://github.com/mav3rickx/toropass
 - **Published Flutter SDK package:** https://pub.dev/packages/toropass_client
 - **Developer article / Dev.to post:** https://dev.to/maverick_3_0/add-sign-in-with-toropass-to-your-flutter-app-on-toronet-50eh
 - **Demo walkthrough video:** https://youtu.be/tLzgTVgMZBE
 - **X / Twitter thread:** https://x.com/i/status/2065161305883910292
-- **ToroPass Wallet APK:** https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk
-- **Root README:** https://github.com/maverick0x/toropass/blob/main/README.md
-- **Review Guide:** https://github.com/maverick0x/toropass/blob/main/REVIEW_GUIDE.md
-- **SDK Integration Guide:** https://github.com/maverick0x/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md
+- **ToroPass Wallet APK:** https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk
+- **Root README:** https://github.com/mav3rickx/toropass/blob/main/README.md
+- **Review Guide:** https://github.com/mav3rickx/toropass/blob/main/REVIEW_GUIDE.md
+- **SDK Integration Guide:** https://github.com/mav3rickx/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md
 
 These links are the recommended review path: start with the repository and review guide, install the released wallet APK, inspect the published SDK package, read the Dev.to integration article, and watch the demo video for the end-to-end flow.
 
@@ -108,15 +108,15 @@ ToroPass is already substantially implemented:
 
 ### Relevant Documentation / Prior Work
 
-- Monorepo source code: `https://github.com/maverick0x/toropass`
+- Monorepo source code: `https://github.com/mav3rickx/toropass`
 - Published SDK package: `https://pub.dev/packages/toropass_client`
 - Developer article: `https://dev.to/maverick_3_0/add-sign-in-with-toropass-to-your-flutter-app-on-toronet-50eh`
 - Demo walkthrough video: `https://youtu.be/tLzgTVgMZBE`
 - X / Twitter thread: `https://x.com/i/status/2065161305883910292`
-- ToroPass Wallet APK: `https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk`
-- Root README: `https://github.com/maverick0x/toropass/blob/main/README.md`
-- Review Guide: `https://github.com/maverick0x/toropass/blob/main/REVIEW_GUIDE.md`
-- SDK Integration Guide: `https://github.com/maverick0x/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md`
+- ToroPass Wallet APK: `https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk`
+- Root README: `https://github.com/mav3rickx/toropass/blob/main/README.md`
+- Review Guide: `https://github.com/mav3rickx/toropass/blob/main/REVIEW_GUIDE.md`
+- SDK Integration Guide: `https://github.com/mav3rickx/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md`
 - `packages/toropass_client/README.md`: integration instructions for Flutter developers
 - `packages/toropass_client/example/README.md`: runnable example integration app
 - `context/project.md`: architecture overview
@@ -199,7 +199,7 @@ If there are related identity or onboarding efforts, ToroPass is differentiated 
 - **Team Name:** ToroPass
 - **Contact Name:** `ToroPass`
 - **Contact Email:** `faroukk.bello@gmail.com`
-- **Website:** `https://github.com/maverick0x`,
+- **Website:** `https://github.com/mav3rickx`,
 
 _NB: the main public project entry point for review is the GitHub repository. The API health check is available at `https://api.toropass.app/api`._
 
@@ -217,11 +217,11 @@ _NB: the main public project entry point for review is the GitHub repository. Th
 
 ## Team Code Repositories
 
-- `https://github.com/maverick0x/toropass`
+- `https://github.com/mav3rickx/toropass`
 
 Please also provide the GitHub accounts of all team members:
 
-- `https://github.com/maverick0x`
+- `https://github.com/mav3rickx`
 
 ---
 
@@ -251,9 +251,9 @@ Development has already started and the project is substantially implemented.
 
 ### Repository Links
 
-- Main monorepo: `https://github.com/maverick0x/toropass`
+- Main monorepo: `https://github.com/mav3rickx/toropass`
 - Published SDK package: `https://pub.dev/packages/toropass_client`
-- Wallet APK release: `https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk`
+- Wallet APK release: `https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk`
 - Dev.to technical article: `https://dev.to/maverick_3_0/add-sign-in-with-toropass-to-your-flutter-app-on-toronet-50eh`
 - YouTube demo: `https://youtu.be/tLzgTVgMZBE`
 - X / Twitter thread: `https://x.com/i/status/2065161305883910292`
@@ -294,8 +294,8 @@ The project is already in an advanced implementation state. The roadmap below is
 | Number | Deliverable | Specification |
 | -----: | ----------- | ------------- |
 | 0a. | License | Apache-2.0 |
-| 0b. | Documentation | Available at the [Root README](https://github.com/maverick0x/toropass/blob/main/README.md), [Review Guide](https://github.com/maverick0x/toropass/blob/main/REVIEW_GUIDE.md), and [SDK Integration Guide](https://github.com/maverick0x/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md) |
-| 0c. | Testing and Testing Guide | Available at the [Review Guide](https://github.com/maverick0x/toropass/blob/main/REVIEW_GUIDE.md), [SDK Integration Guide](https://github.com/maverick0x/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md), and [Dev.to article](https://dev.to/maverick_3_0/add-sign-in-with-toropass-to-your-flutter-app-on-toronet-50eh) |
+| 0b. | Documentation | Available at the [Root README](https://github.com/mav3rickx/toropass/blob/main/README.md), [Review Guide](https://github.com/mav3rickx/toropass/blob/main/REVIEW_GUIDE.md), and [SDK Integration Guide](https://github.com/mav3rickx/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md) |
+| 0c. | Testing and Testing Guide | Available at the [Review Guide](https://github.com/mav3rickx/toropass/blob/main/REVIEW_GUIDE.md), [SDK Integration Guide](https://github.com/mav3rickx/toropass/blob/main/TOROPASS_SDK_INTEGRATION.md), and [Dev.to article](https://dev.to/maverick_3_0/add-sign-in-with-toropass-to-your-flutter-app-on-toronet-50eh) |
 | 1. | ToroPass Wallet Reference Delivery | Deliver the mobile wallet with onboarding, KYC, consent management, biometric protection, and Android release packaging |
 | 2. | ToroPass Client Package Delivery | Deliver the published Flutter package, example app, callback handling, authorization flow, and profile retrieval path |
 | 3. | Issuer Backend Reference Delivery | Deliver the secure issuer backend reference implementation with wallet, token, KYC, and OAuth consent endpoints plus backend documentation |

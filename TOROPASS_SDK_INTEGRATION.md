@@ -153,7 +153,7 @@ The easiest way to test the integration is:
 
 Wallet APK:
 
-- [Download ToroPass Wallet APK](https://github.com/maverick0x/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
+- [Download ToroPass Wallet APK](https://github.com/mav3rickx/toropass/releases/download/wallet-v1.0.1/toropass-wallet-v1.0.1.apk)
 
 ## Who This Guide Is For
 

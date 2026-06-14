@@ -50,7 +50,6 @@ class TopSnackbarService {
                   child: child,
                 );
               },
-
               child: Container(
                 padding: .symmetric(horizontal: 12.width, vertical: 12.height),
                 decoration: BoxDecoration(
