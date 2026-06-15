@@ -1,7 +1,7 @@
 class AppKeys {
   static String token = 'TOKEN';
   static String refreshToken = 'REFRESH-TOKEN';
-  static String biometricsEnabled = 'BIOMETRICS-ENABLED';
+  static String biometrics = 'BIOMETRICS';
 
   static String firstLaunch = 'FIRST-LAUNCH';
 }
