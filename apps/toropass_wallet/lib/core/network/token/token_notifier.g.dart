@@ -39,7 +39,7 @@ abstract class _$TokenNotifier extends $AsyncNotifier<TokenStateModel> {
   FutureOr<TokenStateModel> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<TokenStateModel>, TokenStateModel>;
     final element =
         ref.element
@@ -49,6 +49,6 @@ abstract class _$TokenNotifier extends $AsyncNotifier<TokenStateModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

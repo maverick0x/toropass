@@ -41,13 +41,13 @@ final class UserNotifierProvider
   }
 }
 
-String _$userNotifierHash() => r'57466d779d2b1df8d1cbd1faedbe9d340f4ed43b';
+String _$userNotifierHash() => r'38f3d37c0117ec63ce0f5ba43ecad17ee2611e71';
 
 abstract class _$UserNotifier extends $Notifier<UserStateModel> {
   UserStateModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<UserStateModel, UserStateModel>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$UserNotifier extends $Notifier<UserStateModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

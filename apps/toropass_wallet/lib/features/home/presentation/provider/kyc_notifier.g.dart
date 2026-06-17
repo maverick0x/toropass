@@ -41,13 +41,13 @@ final class KycNotifierProvider
   }
 }
 
-String _$kycNotifierHash() => r'0cd459e3af4455426a313b69ec70f81f29e68e6f';
+String _$kycNotifierHash() => r'df43636df2e71202089cee452c1ddb417172867c';
 
 abstract class _$KycNotifier extends $Notifier<KycStateModel> {
   KycStateModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<KycStateModel, KycStateModel>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$KycNotifier extends $Notifier<KycStateModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
