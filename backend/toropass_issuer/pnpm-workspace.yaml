@@ -4,3 +4,5 @@ allowBuilds:
   bcrypt: true
   prisma: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - torosdk@0.3.0

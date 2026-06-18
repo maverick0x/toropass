@@ -42,13 +42,13 @@ final class PermissionNotifierProvider
 }
 
 String _$permissionNotifierHash() =>
-    r'897f6b6603924aa2ffc349feb98e182767564cdc';
+    r'9b37ff695a27411851f405c0b12742812756e005';
 
 abstract class _$PermissionNotifier extends $Notifier<PermissionStateModel> {
   PermissionStateModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<PermissionStateModel, PermissionStateModel>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$PermissionNotifier extends $Notifier<PermissionStateModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -27,7 +27,7 @@ class SettingsNotifier extends Notifier<SettingsStateModel> {
     final biometricService = ref.read(biometricServiceProvider);
     final biometricsAvailable = await biometricService.isBiometricAvailable();
     final biometricsEnabled =
-        storage.getDataFromDisk(AppKeys.biometricsEnabled) as bool? ?? false;
+        storage.getDataFromDisk(AppKeys.biometrics) as bool? ?? false;
 
     state = state.copyWith(
       loaded: true,
@@ -58,7 +58,7 @@ class SettingsNotifier extends Notifier<SettingsStateModel> {
       }
     }
 
-    await storage.saveDataToDisk(AppKeys.biometricsEnabled, enabled);
+    await storage.saveDataToDisk(AppKeys.biometrics, enabled);
     state = state.copyWith(biometricsEnabled: enabled);
   }
 

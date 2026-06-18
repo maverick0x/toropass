@@ -41,13 +41,13 @@ final class AuthNotifierProvider
   }
 }
 
-String _$authNotifierHash() => r'274ada97dfec45a4154a6f800dcd94fc1aa158d2';
+String _$authNotifierHash() => r'90bf18c026482d6a589e051e67ce057d1d94c5e4';
 
 abstract class _$AuthNotifier extends $Notifier<AuthStateModel> {
   AuthStateModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AuthStateModel, AuthStateModel>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$AuthNotifier extends $Notifier<AuthStateModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

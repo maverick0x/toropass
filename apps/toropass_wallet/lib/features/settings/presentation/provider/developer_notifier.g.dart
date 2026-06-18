@@ -41,13 +41,13 @@ final class DeveloperNotifierProvider
   }
 }
 
-String _$developerNotifierHash() => r'ba61435fc02d86c7d3926ebbe7d4e05ba798e83c';
+String _$developerNotifierHash() => r'e651302bb0087e2855efdd59a65a9084c67c2cea';
 
 abstract class _$DeveloperNotifier extends $Notifier<DeveloperStateModel> {
   DeveloperStateModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DeveloperStateModel, DeveloperStateModel>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$DeveloperNotifier extends $Notifier<DeveloperStateModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

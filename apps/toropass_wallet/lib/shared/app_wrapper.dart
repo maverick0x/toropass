@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,7 +102,7 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
   Future<bool> _shouldRequireBiometricUnlock() async {
     final storage = ref.read(storageServiceProvider);
     final biometricsEnabled =
-        storage.getDataFromDisk(AppKeys.biometricsEnabled) as bool? ?? false;
+        storage.getDataFromDisk(AppKeys.biometrics) as bool? ?? false;
     if (!biometricsEnabled) return false;
 
     final refreshToken = await storage.getRefreshTokenFromDisk();
@@ -193,7 +195,9 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.fingerprint_rounded,
+                    Platform.isIOS
+                        ? CupertinoIcons.viewfinder
+                        : Icons.fingerprint_rounded,
                     size: 48.width,
                     color: appColors.primary,
                   ),
@@ -224,7 +228,7 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
                 ),
                 20.verticalSpacer,
                 Text(
-                  'Biometric unlock is enabled for this device.',
+                  'If you are having trouble unlocking, please make sure your biometrics are set up correctly in your device settings.',
                   style: appStyles.caption.copyWith(
                     color: appColors.text.withAlpha(150),
                     fontFamily: FontFamily.interRegular,
