@@ -59,8 +59,8 @@ importers:
         specifier: ^7.8.1
         version: 7.8.2
       torosdk:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.3.0
+        version: 0.3.0
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -3346,8 +3346,8 @@ packages:
     resolution: {integrity: sha512-dRXchy+C0IgK8WPC6xvCHFRIWYUbqqdEIKPaKo/AcTUNzwLTK6AH7RjdLWsEZcAN/TBdtfUw3PYEgPr5VPr6ww==}
     engines: {node: '>=14.16'}
 
-  torosdk@0.2.0:
-    resolution: {integrity: sha512-ycF1ARJfqpv7PkI1OkuZlt0U6BOKAv/nacF/mBlNc+NZcZtMoUskHJ2J1CwcdlhYYEvZ9CYdlnBZLkGkBXZQNg==}
+  torosdk@0.3.0:
+    resolution: {integrity: sha512-wQHSB8vFIAMew2fD9EJ3SBSz8b2lVtXegrIM3urp881B2QebAZRhzlFiD5/55jnJ1I++En0rILdaZu0tbkNrxA==}
     engines: {node: '>=14.0.0'}
 
   ts-api-utils@2.5.0:
@@ -7186,7 +7186,7 @@ snapshots:
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
 
-  torosdk@0.2.0:
+  torosdk@0.3.0:
     dependencies:
       axios: 1.16.1
     transitivePeerDependencies:
