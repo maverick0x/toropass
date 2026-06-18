@@ -169,13 +169,24 @@ export class WalletService {
 
       if (!isValid) throw new UnauthorizedException('Invalid wallet password.');
 
+      let isVerified = false;
+      try {
+        isVerified = await this.blockchain.isWalletVerified(address);
+      } catch (error) {
+        void this.logger.logAlert({
+          message: `Failed to verify wallet for username: ${username}`,
+          error,
+          slack: true,
+        });
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.prisma.user.create({
         data: {
           password: hashedPassword,
-          bvnHash: 'PENDING_' + username,
+          bvnHash: isVerified ? 'VERIFIED_' + username : 'PENDING_' + username,
           dateOfBirth: new Date(),
-          kycVerified: false,
+          kycVerified: isVerified,
           wallets: {
             create: { address, tnsName: username, network },
           },
