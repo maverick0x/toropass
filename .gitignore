@@ -22,3 +22,6 @@ pubspec.lock
 
 # Project
 toro_market
+
+# Local-only issuer SDK scratchpad
+backend/toropass_issuer/src/config.ts
