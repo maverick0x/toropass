@@ -121,7 +121,7 @@ The current code depends on these values:
 Install dependencies:
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 Start the backend in watch mode:
@@ -158,6 +158,10 @@ pnpm run config
   existing wallet sessions and OAuth app tokens, so all clients must
   authenticate again.
 - Do not change or lose `BVN_HASH_PEPPER` without a versioned rotation plan.
+- The repository root lockfile is canonical. Local development, CI, and the
+  production VM use pnpm `11.13.0` with frozen dependency resolution.
+- Pull requests and protected branches run backend lint, build, unit tests, and
+  HTTP integration tests before deployment can begin.
 - All wallet routes now require HMAC signing in addition to the shared API key.
 - The consent route path is currently spelled `/conscents/...` in code. The docs preserve that exact live path to avoid integration mistakes.
 - Consent routes now use the authenticated wallet user from the bearer token and no longer require `userId` in the path.

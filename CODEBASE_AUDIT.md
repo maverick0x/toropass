@@ -40,6 +40,18 @@ The Phase 3 migration invalidates existing wallet sessions and OAuth app tokens.
 Legacy BVN hashes are tagged and checked for duplicates because they cannot be
 converted without receiving the original BVN again.
 
+Phase 4 was completed on July 18, 2026:
+
+- Android release builds now fail instead of falling back to debug signing.
+- Backend production code passes lint and uses a dedicated Jest TypeScript
+  configuration.
+- Backend unit and HTTP integration tests, wallet tests, and client tests pass.
+- Pull requests and protected branches run backend, wallet, and client quality
+  gates.
+- GitHub Actions, Node, pnpm, Flutter, and deployment dependencies are pinned.
+- The production deployment uses the canonical root lockfile and pnpm rather
+  than switching to npm on the server.
+
 ## Priority Summary
 
 | Priority | Issue |
@@ -374,6 +386,8 @@ successful identity verification.
 
 **Severity:** Medium
 
+**Status:** Resolved in Phase 4.
+
 ### Evidence
 
 The release build selects the debug signing configuration when
@@ -410,6 +424,10 @@ different environments to distribute incompatible APKs.
 ## 7. Tests, Linting, and CI Quality Gates Are Incomplete
 
 **Severity:** Medium
+
+**Status:** Resolved in Phase 4 for the current backend, wallet, and client
+contracts. Additional feature-level wallet coverage remains an ongoing quality
+improvement rather than a release blocker.
 
 ### Evidence
 
@@ -501,6 +519,10 @@ Deploy only after every required check succeeds.
 ## 8. Deployment Is Not Fully Reproducible
 
 **Severity:** Medium
+
+**Status:** Resolved in Phase 4 for the archive-based deployment. Action
+versions are immutable, the toolchain is pinned, and both CI and production use
+the root frozen pnpm lockfile.
 
 ### Evidence
 
@@ -662,11 +684,11 @@ Log identifiers and outcomes, but never:
 
 ### Phase 4: Release Reliability
 
-1. Make missing release signing configuration fatal.
-2. Repair backend and client tests.
-3. Add wallet tests.
-4. Add lint, analyze, and test gates to CI.
-5. Pin deployment dependencies and actions.
+1. [Complete] Make missing release signing configuration fatal.
+2. [Complete] Repair backend and client tests.
+3. [Complete] Add wallet tests.
+4. [Complete] Add lint, analyze, and test gates to CI.
+5. [Complete] Pin deployment dependencies and actions.
 
 ### Phase 5: Cleanup
 
@@ -680,15 +702,16 @@ Log identifiers and outcomes, but never:
 | Check | Result |
 | --- | --- |
 | Wallet `flutter analyze` | Passed |
-| Wallet tests | No test directory |
+| Wallet tests | Passed, 5 tests |
 | Client `flutter analyze` | Passed |
 | Client tests | Passed, 23 tests |
 | Backend build | Passed |
 | Backend unit tests | Passed, 5 suites and 14 tests |
-| Backend e2e tests | Not rerun; requires a configured integration environment |
-| Backend lint | Phase 1 and Phase 3 files pass; existing repository-wide backlog remains |
+| Backend HTTP integration tests | Passed, 1 suite and 1 test |
+| Backend lint | Passed for production application code |
 | Tracked `.env` files | None found |
 | Tracked keystores or `key.properties` | None found |
 
-Phase 1 application changes were implemented after the initial audit and are
-tracked in the remediation status above.
+Phases 1, 3, and 4 were implemented after the initial audit and are tracked in
+the remediation status above. Phase 2 remains deferred until store-backed
+application attestation is available.

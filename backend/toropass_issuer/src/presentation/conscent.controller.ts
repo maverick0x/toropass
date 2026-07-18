@@ -11,7 +11,7 @@ import { ApiGuard } from '../core/guards/api.guard';
 @UseGuards(AuthGuard)
 @UseGuards(HmacAuthGuard)
 export class ConsentController {
-  constructor(private oauthService: OAuthService) { }
+  constructor(private oauthService: OAuthService) {}
 
   @Get()
   async getConsents(@CurrentUser() user: User) {

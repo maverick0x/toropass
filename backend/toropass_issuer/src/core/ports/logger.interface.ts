@@ -4,7 +4,7 @@ export interface ILogger {
   logInfo(options: { message: string; slack?: boolean }): Promise<void>;
   logAlert(options: {
     message: string;
-    error?: any;
+    error?: unknown;
     slack?: boolean;
   }): Promise<void>;
 }

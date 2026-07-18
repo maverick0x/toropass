@@ -1,6 +1,16 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createWallet, getAddr, getSDKConfig, initializeSDK, isAddressKYCVerified, isTNSAvailable, performKYCForCustomer, updatePassword, verifyWalletPassword } from 'torosdk';
+import {
+  createWallet,
+  getAddr,
+  getSDKConfig,
+  initializeSDK,
+  isAddressKYCVerified,
+  isTNSAvailable,
+  performKYCForCustomer,
+  updatePassword,
+  verifyWalletPassword,
+} from 'torosdk';
 import {
   IBlockchainPort,
   IKycPayload,
@@ -35,21 +45,21 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
     this.adminPwd = this.configService.get<string>(adminPasswordKey) || '';
   }
 
-  async onModuleInit() {
+  onModuleInit(): void {
     if (!this.adminAddress || !this.adminPwd) {
-      this.logger.logAlert({
+      void this.logger.logAlert({
         message: `Toronet ${this.network} admin credentials are missing from .env.`,
         slack: true,
       });
     } else {
-      this.logger.logInfo({
+      void this.logger.logInfo({
         message: `Toronet SDK Adapter initialized successfully for ${this.network}.`,
       });
     }
 
     initializeSDK({ network: this.network });
     const config = getSDKConfig();
-    this.logger.logInfo({
+    void this.logger.logInfo({
       message: `SDK initialized with network: ${config.getNetwork().toUpperCase()} and base URL: ${config.getBaseURL()}`,
     });
   }
@@ -62,10 +72,10 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
     try {
       const status = await isAddressKYCVerified({ address });
 
-      return status.verified;
+      return Boolean(status.verified);
     } catch (error) {
       const message = `Failed to check KYC status for address: ${address}`;
-      this.logger.logAlert({ message, error, slack: true });
+      void this.logger.logAlert({ message, error, slack: true });
       return false;
     }
   }
@@ -82,7 +92,7 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
       return isSuccessful;
     } catch (error) {
       const message = `Toronet SDK KYC verification failed for wallet: ${payload.address}`;
-      this.logger.logAlert({ message, error, slack: true, });
+      void this.logger.logAlert({ message, error, slack: true });
       return false;
     }
   }
@@ -96,7 +106,7 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
   }
 
   async resolveAddress(username: string): Promise<string | null> {
-    const rawAddress = await getAddr({ name: username });
+    const rawAddress: unknown = await getAddr({ name: username });
 
     if (typeof rawAddress === 'string') return rawAddress;
     if (
@@ -113,8 +123,8 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
   async validateCredentials(
     address: string,
     password: string,
-  ): Promise<Boolean> {
-    return await verifyWalletPassword({ address, password });
+  ): Promise<boolean> {
+    return Boolean(await verifyWalletPassword({ address, password }));
   }
 
   async updateWalletPassword(
@@ -131,12 +141,11 @@ export class ToronetAdapter implements IBlockchainPort, OnModuleInit {
 
       return true;
     } catch (error) {
-      const message = 'Toronet Health Check Failed. Network might be unreachable.';
-      this.logger.logAlert({ message, error, slack: true });
+      const message =
+        'Toronet Health Check Failed. Network might be unreachable.';
+      void this.logger.logAlert({ message, error, slack: true });
 
       return false;
     }
   }
 }
-
-

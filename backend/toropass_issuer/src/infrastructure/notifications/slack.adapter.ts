@@ -15,7 +15,7 @@ export class SlackLoggerAdapter implements ILogger {
       this.configService.get<string>('NODE_ENV') || 'development';
   }
 
-  async logInfo({
+  logInfo({
     message,
     slack = false,
   }: {
@@ -26,11 +26,13 @@ export class SlackLoggerAdapter implements ILogger {
 
     if (slack) {
       const log = `🟢 *[INFO]*\n\`${this.environment}\`\n*Message:* ${message}`;
-      void this.sendToSlack(log).catch(() => { });
+      void this.sendToSlack(log).catch(() => {});
     }
+
+    return Promise.resolve();
   }
 
-  async logAlert({
+  logAlert({
     message,
     error,
     slack = true,
@@ -48,8 +50,10 @@ export class SlackLoggerAdapter implements ILogger {
 
     if (slack) {
       const log = `🚨 *[ALERT]*\n\`${this.environment}\`\n*Message:* ${message}\n*Error:* \`${errorDetail}\``;
-      void this.sendToSlack(log).catch(() => { });
+      void this.sendToSlack(log).catch(() => {});
     }
+
+    return Promise.resolve();
   }
 
   private async sendToSlack(payloadText: string): Promise<void> {
@@ -65,8 +69,19 @@ export class SlackLoggerAdapter implements ILogger {
         body: JSON.stringify({ text: payloadText }),
       });
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.stack : String(error);
+      const errorMessage = this.formatError(error);
       this.nestLogger.error('Failed to send payload to Slack', errorMessage);
+    }
+  }
+
+  private formatError(error: unknown): string {
+    if (error instanceof Error) return error.stack || error.message;
+    if (typeof error === 'string') return error;
+
+    try {
+      return JSON.stringify(error) || 'Unknown Slack delivery error';
+    } catch {
+      return 'Unknown Slack delivery error';
     }
   }
 }

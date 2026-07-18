@@ -7,7 +7,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { Request } from 'express';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
+
+type AuthenticatedDeviceRequest = Request & {
+  deviceId?: string;
+};
 
 @Injectable()
 export class HmacAuthGuard implements CanActivate {
@@ -15,23 +20,25 @@ export class HmacAuthGuard implements CanActivate {
 
   constructor(
     private configService: ConfigService,
-    @Inject(LOGGER_PORT) private logger: ILogger
-  ) { }
+    @Inject(LOGGER_PORT) private logger: ILogger,
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const headers = request.headers;
-
-    const deviceId = headers['x-device-id'];
-    const timestampStr = headers['x-timestamp'];
-    const clientSignature = headers['x-signature'];
+    const request = context
+      .switchToHttp()
+      .getRequest<AuthenticatedDeviceRequest>();
+    const deviceId = request.get('x-device-id');
+    const timestampStr = request.get('x-timestamp');
+    const clientSignature = request.get('x-signature');
 
     if (!deviceId || !timestampStr || !clientSignature) {
-      this.logger.logAlert({
+      void this.logger.logAlert({
         message: 'Missing required HMAC authentication headers.',
         slack: true,
       });
-      throw new UnauthorizedException('Unauthorized: Missing authentication headers.');
+      throw new UnauthorizedException(
+        'Unauthorized: Missing authentication headers.',
+      );
     }
 
     const requestTimestamp = parseInt(timestampStr, 10);
@@ -42,7 +49,7 @@ export class HmacAuthGuard implements CanActivate {
       Math.abs(currentTimestamp - requestTimestamp) >
       this.MAX_REQUEST_AGE_SECONDS
     ) {
-      this.logger.logAlert({
+      void this.logger.logAlert({
         message: `Request timestamp is invalid. Device ID: ${deviceId}, Timestamp: ${timestampStr}`,
         slack: true,
       });
@@ -62,20 +69,17 @@ export class HmacAuthGuard implements CanActivate {
       .digest('hex');
 
     // Use timingSafeEqual to prevent against timing attacks
-    try {
-      const isMatch = crypto.timingSafeEqual(
-        Buffer.from(expectedSignature),
-        Buffer.from(clientSignature),
-      );
-
-      if (!isMatch)
-        throw new UnauthorizedException('Invalid request signature.');
-    } catch (e) {
-      this.logger.logAlert({
+    const expectedBuffer = Buffer.from(expectedSignature);
+    const providedBuffer = Buffer.from(clientSignature);
+    if (
+      expectedBuffer.length !== providedBuffer.length ||
+      !crypto.timingSafeEqual(expectedBuffer, providedBuffer)
+    ) {
+      void this.logger.logAlert({
         message: `HMAC signature validation failed. Device ID: ${deviceId}`,
         slack: true,
       });
-      throw new UnauthorizedException('Malformed signature.');
+      throw new UnauthorizedException('Invalid request signature.');
     }
 
     request.deviceId = deviceId;

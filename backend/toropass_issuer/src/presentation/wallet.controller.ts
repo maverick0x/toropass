@@ -22,7 +22,7 @@ import { ValidateWalletDto } from './dto/validate-wallet.dto';
 @UseGuards(ApiGuard)
 @UseGuards(HmacAuthGuard)
 export class WalletController {
-  constructor(private readonly walletService: WalletService) { }
+  constructor(private readonly walletService: WalletService) {}
 
   @Get('tns')
   async checkTnsAvailability(@Query('username') username: string) {

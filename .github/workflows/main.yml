@@ -5,73 +5,97 @@ on:
     branches:
       - main
     paths:
-      - 'backend/toropass_issuer/**' # Only trigger if backend changes
+      - 'backend/toropass_issuer/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.nvmrc'
+      - '.github/workflows/main.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: toropass-issuer-production
+  cancel-in-progress: false
 
 jobs:
-  # ==========================================
-  # BUILD ON GITHUB RUNNER
-  # ==========================================
   build:
-    runs-on: ubuntu-latest
+    name: Verify and package issuer
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v3
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
-          version: 8
+          version: 11.13.0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '20' # NestJS standard
-          cache: 'pnpm'
+          node-version-file: .nvmrc
+          cache: pnpm
 
-      - name: Install Monorepo Dependencies
-        run: pnpm install
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client (Local)
-        run: pnpm --filter toropass_issuer exec prisma generate
+      - name: Validate Prisma schema
+        run: pnpm --filter toropass_issuer exec prisma validate
 
-      - name: Build Application
+      - name: Lint issuer
+        run: pnpm --filter toropass_issuer lint
+
+      - name: Test issuer
+        run: |
+          pnpm --filter toropass_issuer exec jest --runInBand
+          pnpm --filter toropass_issuer exec jest --config ./test/jest-e2e.json --runInBand
+
+      - name: Build issuer
         run: pnpm --filter toropass_issuer build
 
-      - name: Compress Build Files
+      - name: Package locked deployment
         run: |
-          cd backend/toropass_issuer
-          tar -czf deploy.tar.gz dist package.json prisma prisma.config.ts
+          tar -czf backend/toropass_issuer/deploy.tar.gz \
+            package.json \
+            pnpm-lock.yaml \
+            pnpm-workspace.yaml \
+            backend/toropass_issuer/package.json \
+            backend/toropass_issuer/prisma \
+            backend/toropass_issuer/prisma.config.ts \
+            backend/toropass_issuer/dist
 
-      - name: Temporarily Save Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: deploy-package
           path: backend/toropass_issuer/deploy.tar.gz
           retention-days: 1
+          if-no-files-found: error
 
-  # ==========================================
-  # DEPLOY TO GCP COMPUTE ENGINE VM
-  # ==========================================
   deploy:
+    name: Deploy issuer
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    environment: production
     steps:
-      - name: Retrieve Artifact
-        uses: actions/download-artifact@v4
+      - name: Download deployment artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: deploy-package
 
-      - name: Secure Copy (SCP) to GCP VM
-        uses: appleboy/scp-action@master
+      - name: Copy artifact to GCP VM
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
         with:
           host: ${{ secrets.GCP_VM_IP }}
           username: ${{ secrets.GCP_USERNAME }}
           key: ${{ secrets.GCP_SSH_KEY }}
-          source: "deploy.tar.gz"
-          target: "/home/${{ secrets.GCP_USERNAME }}/server/"
+          source: deploy.tar.gz
+          target: /home/${{ secrets.GCP_USERNAME }}/server/
 
-      - name: Execute Server Setup and Restart
-        uses: appleboy/ssh-action@master
+      - name: Install and restart issuer
+        uses: appleboy/ssh-action@2ead5e36573f08b82fbfce1504f1a4b05a647c6f # v1.2.2
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         with:
@@ -81,20 +105,19 @@ jobs:
           command_timeout: 15m
           envs: DATABASE_URL
           script: |
+            set -eu
             cd /home/${{ secrets.GCP_USERNAME }}/server
-            
-            # Unzip the new code and clean up the archive
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
 
-            # Install production dependencies
-            npm install --omit=dev
+            corepack enable
+            corepack prepare pnpm@11.13.0 --activate
+            pnpm install --prod --frozen-lockfile --filter toropass_issuer...
+            pnpm --filter toropass_issuer exec prisma generate
+            pnpm --filter toropass_issuer exec prisma migrate deploy
 
-            # Generate the Prisma client native to the Ubuntu server architecture
-            npx prisma generate
-            
-            # Run pending migrations against the database
-            npx prisma migrate deploy
+            pm2 delete server 2>/dev/null || true
+            pm2 start backend/toropass_issuer/dist/src/main.js --name server
+            pm2 save
 
-            # Graceful restart (Updated PM2 process name to match the folder)
-            pm2 reload server || pm2 start dist/src/main.js --name server
+            curl --fail --retry 5 --retry-delay 3 http://127.0.0.1:3000/

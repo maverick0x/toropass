@@ -67,6 +67,10 @@ For Android release signing, copy the signing template and fill in local values:
 cp android/key.properties.example android/key.properties
 ```
 
+Release builds fail when the properties file, any required signing value, or
+the referenced keystore is missing. Debug builds do not require release signing
+material.
+
 ## Toronet Integration
 
 The wallet is the user-facing Toronet identity holder. It uses Toronet identity concepts through the issuer-backed flow:

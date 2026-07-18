@@ -20,8 +20,8 @@ async function bootstrap() {
   await app.listen(port);
 
   const logger = app.get<ILogger>(LOGGER_PORT);
-  await logger.logInfo({
+  void logger.logInfo({
     message: `🚀 ToroPass Issuer is live and listening on port ${port}!`,
   });
 }
-bootstrap();
+void bootstrap();

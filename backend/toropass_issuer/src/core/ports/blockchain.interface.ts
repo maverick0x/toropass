@@ -18,7 +18,7 @@ export interface IBlockchainPort {
   checkTnsAvailability(username: string): Promise<boolean>;
   provisionWallet(username: string, password: string): Promise<string>;
   resolveAddress(username: string): Promise<string | null>;
-  validateCredentials(address: string, password: string): Promise<Boolean>;
+  validateCredentials(address: string, password: string): Promise<boolean>;
   updateWalletPassword(
     address: string,
     oldPassword: string,
