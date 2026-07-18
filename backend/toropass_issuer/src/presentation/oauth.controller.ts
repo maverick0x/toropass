@@ -16,10 +16,12 @@ import { User } from 'src/generated/prisma/client';
 import { OAuthService } from '../core/application/oauth.service';
 import { ApiGuard } from '../core/guards/api.guard';
 import { CreateAppDto } from './dto/create-app.dto';
+import { OAuthAuthorizeDto } from './dto/oauth-authorize.dto';
+import { OAuthTokenDto } from './dto/oauth-token.dto';
 
 @Controller({ path: 'oauth', version: '1' })
 export class OAuthController {
-  constructor(private oauthService: OAuthService) { }
+  constructor(private oauthService: OAuthService) {}
 
   @Post('apps/register')
   @UseGuards(ApiGuard)
@@ -66,31 +68,27 @@ export class OAuthController {
   @UseGuards(HmacAuthGuard)
   async authorize(
     @CurrentUser() user: User,
-    @Body('client_id') clientId: string,
-    @Body('redirect_uri') redirectUri: string,
-    @Body('scopes') scopes: string[],
+    @Body() payload: OAuthAuthorizeDto,
   ) {
     const code = await this.oauthService.generateAuthorizationCode(
-      clientId,
+      payload.client_id,
       user.id,
-      redirectUri,
-      scopes,
+      payload.redirect_uri,
+      payload.scopes,
+      payload.code_challenge,
+      payload.code_challenge_method,
     );
     return { status: 'success', data: { code } };
   }
 
   @Post('token')
-  async exchangeToken(
-    @Body('client_id') clientId: string,
-    @Body('code') code: string,
-    @Body('redirect_uri') redirectUri: string,
-    @Body('client_secret') clientSecret?: string,
-  ) {
+  async exchangeToken(@Body() payload: OAuthTokenDto) {
     return await this.oauthService.exchangeCodeForUserProfile(
-      clientId,
-      code,
-      redirectUri,
-      clientSecret,
+      payload.client_id,
+      payload.code,
+      payload.redirect_uri,
+      payload.code_verifier,
+      payload.client_secret,
     );
   }
 

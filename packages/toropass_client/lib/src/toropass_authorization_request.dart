@@ -6,6 +6,9 @@ class ToroPassAuthorizationRequest {
   final String clientId;
   final Uri redirectUri;
   final Set<ToroPassScope> scopes;
+  final String codeVerifier;
+  final String codeChallenge;
+  final String codeChallengeMethod;
   final String? appName;
 
   const ToroPassAuthorizationRequest({
@@ -14,6 +17,9 @@ class ToroPassAuthorizationRequest {
     required this.clientId,
     required this.redirectUri,
     required this.scopes,
+    required this.codeVerifier,
+    required this.codeChallenge,
+    required this.codeChallengeMethod,
     this.appName,
   });
 }

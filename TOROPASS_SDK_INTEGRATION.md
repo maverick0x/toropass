@@ -10,8 +10,9 @@ It handles:
 - launching ToroPass Wallet
 - passing the authorization request
 - listening for the callback
+- generating and preserving an S256 PKCE verifier
 - exchanging the returned authorization code
-- retrieving the approved user profile
+- retrieving only the user profile fields covered by approved scopes
 
 In other words, this is the practical "Sign in with ToroPass" SDK for Flutter apps.
 
@@ -90,11 +91,33 @@ The package abstracts the deep-link handoff so your app does not need to manuall
 
 After the user approves the request in ToroPass Wallet, your app receives an authorization code.
 
-That code is then exchanged through the ToroPass flow so your app can fetch the approved user profile.
+That code is then exchanged with the PKCE verifier generated for the original
+request. The one-call `verifyIdentity()` flow handles this automatically.
+
+For a manual flow, keep the returned authorization request and pass its verifier:
+
+```dart
+final request = await client.launchWallet();
+if (request == null) return;
+
+final callback = await client.waitForCallback(request);
+if (callback case ToroPassAuthorizationCodeReceived(:final code)) {
+  final session = await client.exchangeAuthorizationCode(
+    code: code,
+    codeVerifier: request.codeVerifier,
+  );
+}
+```
 
 ### 6. Read the Approved Profile
 
-After a successful code exchange, your app receives the approved ToroPass identity data that the user consented to share.
+After a successful code exchange, your app receives only the ToroPass identity
+data that the user consented to share:
+
+- `kyc_status` grants KYC status and anchor hash
+- `wallet` grants the wallet address, TNS name, and network
+
+Fields outside the granted scopes are nullable in `ToroPassProfile`.
 
 ## End-to-End Flow
 

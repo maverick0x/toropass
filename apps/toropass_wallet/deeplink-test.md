@@ -5,7 +5,7 @@ Use this checklist to verify that third-party apps can open the wallet OAuth con
 ## Test URL
 
 ```text
-toropass:/permission?client_id=toro_client_test&redirect_uri=myapp%3A%2F%2Ftoropass%2Fcallback&scopes=kyc_status,wallet&state=test-state-123&app_name=Example%20App
+toropass:/permission?client_id=toro_client_test&redirect_uri=myapp%3A%2F%2Ftoropass%2Fcallback&scopes=kyc_status,wallet&state=test-state-123&app_name=Example%20App&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256
 ```
 
 Decoded payload:
@@ -15,6 +15,8 @@ Decoded payload:
 - `scopes`: `kyc_status,wallet`
 - `state`: `test-state-123`
 - `app_name`: `Example App`
+- `code_challenge`: `E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM`
+- `code_challenge_method`: `S256`
 
 ## Android
 
@@ -24,7 +26,7 @@ Make sure the wallet app is installed on the emulator or device, then run:
 adb shell am start \
   -a android.intent.action.VIEW \
   -c android.intent.category.BROWSABLE \
-  -d "toropass:/permission?client_id=toro_client_test&redirect_uri=myapp%3A%2F%2Ftoropass%2Fcallback&scopes=kyc_status,wallet&state=test-state-123&app_name=Example%20App"
+  -d "toropass:/permission?client_id=toro_client_test&redirect_uri=myapp%3A%2F%2Ftoropass%2Fcallback&scopes=kyc_status,wallet&state=test-state-123&app_name=Example%20App&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
 ```
 
 ## iOS Simulator
@@ -32,7 +34,7 @@ adb shell am start \
 Make sure the wallet app is installed on the simulator, then run:
 
 ```sh
-xcrun simctl openurl booted "toropass:/permission?client_id=toro_client_test&redirect_uri=myapp%3A%2F%2Ftoropass%2Fcallback&scopes=kyc_status,wallet&state=test-state-123&app_name=Example%20App"
+xcrun simctl openurl booted "toropass:/permission?client_id=toro_client_test&redirect_uri=myapp%3A%2F%2Ftoropass%2Fcallback&scopes=kyc_status,wallet&state=test-state-123&app_name=Example%20App&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
 ```
 
 ## Expected Behavior
@@ -47,4 +49,5 @@ xcrun simctl openurl booted "toropass:/permission?client_id=toro_client_test&red
 
 - The callback app must register the `myapp` scheme for the callback launch to succeed.
 - The `state` query param is included for client-side correlation and should be echoed back in success and denial callbacks.
+- The test challenge uses the RFC 7636 example verifier. A full token exchange must send `dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk` as `code_verifier`.
 - Replace `client_id` and `redirect_uri` with a real developer app registration for full end-to-end testing.

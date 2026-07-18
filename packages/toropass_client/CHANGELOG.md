@@ -1,3 +1,10 @@
+## 0.2.0
+
+- Require S256 PKCE for authorization-code exchange.
+- Preserve PKCE verifiers inside authorization request objects for manual flows.
+- Make scoped profile fields nullable when the user did not grant access.
+- Document scope-to-profile mappings and secure manual code exchange.
+
 ## 0.1.1
 
 - Refresh package metadata for the next published release.

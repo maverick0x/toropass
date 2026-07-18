@@ -30,6 +30,8 @@ export type OAuthCodeMinAggregateOutputType = {
   appId: string | null
   userId: string | null
   redirectUri: string | null
+  codeChallenge: string | null
+  codeChallengeMethod: string | null
   expiresAt: Date | null
   createdAt: Date | null
 }
@@ -40,6 +42,8 @@ export type OAuthCodeMaxAggregateOutputType = {
   appId: string | null
   userId: string | null
   redirectUri: string | null
+  codeChallenge: string | null
+  codeChallengeMethod: string | null
   expiresAt: Date | null
   createdAt: Date | null
 }
@@ -50,6 +54,9 @@ export type OAuthCodeCountAggregateOutputType = {
   appId: number
   userId: number
   redirectUri: number
+  scopes: number
+  codeChallenge: number
+  codeChallengeMethod: number
   expiresAt: number
   createdAt: number
   _all: number
@@ -62,6 +69,8 @@ export type OAuthCodeMinAggregateInputType = {
   appId?: true
   userId?: true
   redirectUri?: true
+  codeChallenge?: true
+  codeChallengeMethod?: true
   expiresAt?: true
   createdAt?: true
 }
@@ -72,6 +81,8 @@ export type OAuthCodeMaxAggregateInputType = {
   appId?: true
   userId?: true
   redirectUri?: true
+  codeChallenge?: true
+  codeChallengeMethod?: true
   expiresAt?: true
   createdAt?: true
 }
@@ -82,6 +93,9 @@ export type OAuthCodeCountAggregateInputType = {
   appId?: true
   userId?: true
   redirectUri?: true
+  scopes?: true
+  codeChallenge?: true
+  codeChallengeMethod?: true
   expiresAt?: true
   createdAt?: true
   _all?: true
@@ -165,6 +179,9 @@ export type OAuthCodeGroupByOutputType = {
   appId: string
   userId: string
   redirectUri: string
+  scopes: string[]
+  codeChallenge: string
+  codeChallengeMethod: string
   expiresAt: Date
   createdAt: Date
   _count: OAuthCodeCountAggregateOutputType | null
@@ -196,6 +213,9 @@ export type OAuthCodeWhereInput = {
   appId?: Prisma.StringFilter<"OAuthCode"> | string
   userId?: Prisma.StringFilter<"OAuthCode"> | string
   redirectUri?: Prisma.StringFilter<"OAuthCode"> | string
+  scopes?: Prisma.StringNullableListFilter<"OAuthCode">
+  codeChallenge?: Prisma.StringFilter<"OAuthCode"> | string
+  codeChallengeMethod?: Prisma.StringFilter<"OAuthCode"> | string
   expiresAt?: Prisma.DateTimeFilter<"OAuthCode"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"OAuthCode"> | Date | string
   app?: Prisma.XOR<Prisma.OAuthAppScalarRelationFilter, Prisma.OAuthAppWhereInput>
@@ -208,6 +228,9 @@ export type OAuthCodeOrderByWithRelationInput = {
   appId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   redirectUri?: Prisma.SortOrder
+  scopes?: Prisma.SortOrder
+  codeChallenge?: Prisma.SortOrder
+  codeChallengeMethod?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   app?: Prisma.OAuthAppOrderByWithRelationInput
@@ -223,6 +246,9 @@ export type OAuthCodeWhereUniqueInput = Prisma.AtLeast<{
   appId?: Prisma.StringFilter<"OAuthCode"> | string
   userId?: Prisma.StringFilter<"OAuthCode"> | string
   redirectUri?: Prisma.StringFilter<"OAuthCode"> | string
+  scopes?: Prisma.StringNullableListFilter<"OAuthCode">
+  codeChallenge?: Prisma.StringFilter<"OAuthCode"> | string
+  codeChallengeMethod?: Prisma.StringFilter<"OAuthCode"> | string
   expiresAt?: Prisma.DateTimeFilter<"OAuthCode"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"OAuthCode"> | Date | string
   app?: Prisma.XOR<Prisma.OAuthAppScalarRelationFilter, Prisma.OAuthAppWhereInput>
@@ -235,6 +261,9 @@ export type OAuthCodeOrderByWithAggregationInput = {
   appId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   redirectUri?: Prisma.SortOrder
+  scopes?: Prisma.SortOrder
+  codeChallenge?: Prisma.SortOrder
+  codeChallengeMethod?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.OAuthCodeCountOrderByAggregateInput
@@ -251,6 +280,9 @@ export type OAuthCodeScalarWhereWithAggregatesInput = {
   appId?: Prisma.StringWithAggregatesFilter<"OAuthCode"> | string
   userId?: Prisma.StringWithAggregatesFilter<"OAuthCode"> | string
   redirectUri?: Prisma.StringWithAggregatesFilter<"OAuthCode"> | string
+  scopes?: Prisma.StringNullableListFilter<"OAuthCode">
+  codeChallenge?: Prisma.StringWithAggregatesFilter<"OAuthCode"> | string
+  codeChallengeMethod?: Prisma.StringWithAggregatesFilter<"OAuthCode"> | string
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"OAuthCode"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OAuthCode"> | Date | string
 }
@@ -259,6 +291,9 @@ export type OAuthCodeCreateInput = {
   id?: string
   code: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
   app: Prisma.OAuthAppCreateNestedOneWithoutOauthCodesInput
@@ -271,6 +306,9 @@ export type OAuthCodeUncheckedCreateInput = {
   appId: string
   userId: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
 }
@@ -279,6 +317,9 @@ export type OAuthCodeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   app?: Prisma.OAuthAppUpdateOneRequiredWithoutOauthCodesNestedInput
@@ -291,6 +332,9 @@ export type OAuthCodeUncheckedUpdateInput = {
   appId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -301,6 +345,9 @@ export type OAuthCodeCreateManyInput = {
   appId: string
   userId: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
 }
@@ -309,6 +356,9 @@ export type OAuthCodeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -319,6 +369,9 @@ export type OAuthCodeUncheckedUpdateManyInput = {
   appId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -339,6 +392,9 @@ export type OAuthCodeCountOrderByAggregateInput = {
   appId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   redirectUri?: Prisma.SortOrder
+  scopes?: Prisma.SortOrder
+  codeChallenge?: Prisma.SortOrder
+  codeChallengeMethod?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -349,6 +405,8 @@ export type OAuthCodeMaxOrderByAggregateInput = {
   appId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   redirectUri?: Prisma.SortOrder
+  codeChallenge?: Prisma.SortOrder
+  codeChallengeMethod?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -359,6 +417,8 @@ export type OAuthCodeMinOrderByAggregateInput = {
   appId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   redirectUri?: Prisma.SortOrder
+  codeChallenge?: Prisma.SortOrder
+  codeChallengeMethod?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -447,10 +507,22 @@ export type OAuthCodeUncheckedUpdateManyWithoutAppNestedInput = {
   deleteMany?: Prisma.OAuthCodeScalarWhereInput | Prisma.OAuthCodeScalarWhereInput[]
 }
 
+export type OAuthCodeCreatescopesInput = {
+  set: string[]
+}
+
+export type OAuthCodeUpdatescopesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type OAuthCodeCreateWithoutUserInput = {
   id?: string
   code: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
   app: Prisma.OAuthAppCreateNestedOneWithoutOauthCodesInput
@@ -461,6 +533,9 @@ export type OAuthCodeUncheckedCreateWithoutUserInput = {
   code: string
   appId: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
 }
@@ -500,6 +575,9 @@ export type OAuthCodeScalarWhereInput = {
   appId?: Prisma.StringFilter<"OAuthCode"> | string
   userId?: Prisma.StringFilter<"OAuthCode"> | string
   redirectUri?: Prisma.StringFilter<"OAuthCode"> | string
+  scopes?: Prisma.StringNullableListFilter<"OAuthCode">
+  codeChallenge?: Prisma.StringFilter<"OAuthCode"> | string
+  codeChallengeMethod?: Prisma.StringFilter<"OAuthCode"> | string
   expiresAt?: Prisma.DateTimeFilter<"OAuthCode"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"OAuthCode"> | Date | string
 }
@@ -508,6 +586,9 @@ export type OAuthCodeCreateWithoutAppInput = {
   id?: string
   code: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutOauthCodesInput
@@ -518,6 +599,9 @@ export type OAuthCodeUncheckedCreateWithoutAppInput = {
   code: string
   userId: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
 }
@@ -553,6 +637,9 @@ export type OAuthCodeCreateManyUserInput = {
   code: string
   appId: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
 }
@@ -561,6 +648,9 @@ export type OAuthCodeUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   app?: Prisma.OAuthAppUpdateOneRequiredWithoutOauthCodesNestedInput
@@ -571,6 +661,9 @@ export type OAuthCodeUncheckedUpdateWithoutUserInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   appId?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -580,6 +673,9 @@ export type OAuthCodeUncheckedUpdateManyWithoutUserInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   appId?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -589,6 +685,9 @@ export type OAuthCodeCreateManyAppInput = {
   code: string
   userId: string
   redirectUri: string
+  scopes?: Prisma.OAuthCodeCreatescopesInput | string[]
+  codeChallenge: string
+  codeChallengeMethod?: string
   expiresAt: Date | string
   createdAt?: Date | string
 }
@@ -597,6 +696,9 @@ export type OAuthCodeUpdateWithoutAppInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutOauthCodesNestedInput
@@ -607,6 +709,9 @@ export type OAuthCodeUncheckedUpdateWithoutAppInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -616,6 +721,9 @@ export type OAuthCodeUncheckedUpdateManyWithoutAppInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   redirectUri?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.OAuthCodeUpdatescopesInput | string[]
+  codeChallenge?: Prisma.StringFieldUpdateOperationsInput | string
+  codeChallengeMethod?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -628,6 +736,9 @@ export type OAuthCodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   appId?: boolean
   userId?: boolean
   redirectUri?: boolean
+  scopes?: boolean
+  codeChallenge?: boolean
+  codeChallengeMethod?: boolean
   expiresAt?: boolean
   createdAt?: boolean
   app?: boolean | Prisma.OAuthAppDefaultArgs<ExtArgs>
@@ -640,6 +751,9 @@ export type OAuthCodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   appId?: boolean
   userId?: boolean
   redirectUri?: boolean
+  scopes?: boolean
+  codeChallenge?: boolean
+  codeChallengeMethod?: boolean
   expiresAt?: boolean
   createdAt?: boolean
   app?: boolean | Prisma.OAuthAppDefaultArgs<ExtArgs>
@@ -652,6 +766,9 @@ export type OAuthCodeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   appId?: boolean
   userId?: boolean
   redirectUri?: boolean
+  scopes?: boolean
+  codeChallenge?: boolean
+  codeChallengeMethod?: boolean
   expiresAt?: boolean
   createdAt?: boolean
   app?: boolean | Prisma.OAuthAppDefaultArgs<ExtArgs>
@@ -664,11 +781,14 @@ export type OAuthCodeSelectScalar = {
   appId?: boolean
   userId?: boolean
   redirectUri?: boolean
+  scopes?: boolean
+  codeChallenge?: boolean
+  codeChallengeMethod?: boolean
   expiresAt?: boolean
   createdAt?: boolean
 }
 
-export type OAuthCodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "appId" | "userId" | "redirectUri" | "expiresAt" | "createdAt", ExtArgs["result"]["oAuthCode"]>
+export type OAuthCodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "appId" | "userId" | "redirectUri" | "scopes" | "codeChallenge" | "codeChallengeMethod" | "expiresAt" | "createdAt", ExtArgs["result"]["oAuthCode"]>
 export type OAuthCodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   app?: boolean | Prisma.OAuthAppDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -694,6 +814,9 @@ export type $OAuthCodePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     appId: string
     userId: string
     redirectUri: string
+    scopes: string[]
+    codeChallenge: string
+    codeChallengeMethod: string
     expiresAt: Date
     createdAt: Date
   }, ExtArgs["result"]["oAuthCode"]>
@@ -1126,6 +1249,9 @@ export interface OAuthCodeFieldRefs {
   readonly appId: Prisma.FieldRef<"OAuthCode", 'String'>
   readonly userId: Prisma.FieldRef<"OAuthCode", 'String'>
   readonly redirectUri: Prisma.FieldRef<"OAuthCode", 'String'>
+  readonly scopes: Prisma.FieldRef<"OAuthCode", 'String[]'>
+  readonly codeChallenge: Prisma.FieldRef<"OAuthCode", 'String'>
+  readonly codeChallengeMethod: Prisma.FieldRef<"OAuthCode", 'String'>
   readonly expiresAt: Prisma.FieldRef<"OAuthCode", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"OAuthCode", 'DateTime'>
 }

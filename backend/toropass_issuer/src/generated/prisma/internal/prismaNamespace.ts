@@ -1027,6 +1027,9 @@ export const OAuthCodeScalarFieldEnum = {
   appId: 'appId',
   userId: 'userId',
   redirectUri: 'redirectUri',
+  scopes: 'scopes',
+  codeChallenge: 'codeChallenge',
+  codeChallengeMethod: 'codeChallengeMethod',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 } as const
@@ -1039,6 +1042,7 @@ export const OAuthTokenScalarFieldEnum = {
   accessToken: 'accessToken',
   appId: 'appId',
   userId: 'userId',
+  scopes: 'scopes',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 } as const

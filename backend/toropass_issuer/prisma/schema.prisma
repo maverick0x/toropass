@@ -89,11 +89,14 @@ model OAuthConsent {
 
 // The short-lived code sent to the redirect URI (Expires in ~5 mins)
 model OAuthCode {
-  id          String @id @default(uuid())
-  code        String @unique
-  appId       String @map("app_id")
-  userId      String @map("user_id")
-  redirectUri String @map("redirect_uri")
+  id                  String   @id @default(uuid())
+  code                String   @unique
+  appId               String   @map("app_id")
+  userId              String   @map("user_id")
+  redirectUri         String   @map("redirect_uri")
+  scopes              String[]
+  codeChallenge       String   @map("code_challenge")
+  codeChallengeMethod String   @default("S256") @map("code_challenge_method")
 
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
@@ -110,6 +113,7 @@ model OAuthToken {
   accessToken String @unique @map("access_token")
   appId       String @map("app_id")
   userId      String @map("user_id")
+  scopes      String[]
 
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")

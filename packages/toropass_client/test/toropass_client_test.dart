@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:toropass_client/toropass_client.dart';
 
+const _codeVerifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk';
+const _codeChallenge = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
+
 void main() {
   group('ToroPassClientConfig', () {
     test('sets safe defaults for issuer, scopes, and timeout', () {
@@ -89,7 +92,7 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(result.token.accessToken, 'toro_tk_123');
-      expect(result.profile.wallet.tnsName, 'alice');
+      expect(result.profile.wallet?.tnsName, 'alice');
     });
 
     test('non-success states are distinguishable', () {
@@ -103,6 +106,26 @@ void main() {
         const ToroPassAuthTransportError(message: 'Network unavailable'),
         isA<ToroPassAuthTransportError>(),
       );
+    });
+
+    test('omitted scope fields remain unavailable', () {
+      final kycOnlyProfile = ToroPassProfile.fromJson(const {
+        'id': 'user-1',
+        'kycVerified': true,
+      });
+      final walletOnlyProfile = ToroPassProfile.fromJson(const {
+        'id': 'user-1',
+        'wallet': {
+          'address': '0x123',
+          'tnsName': 'alice',
+          'network': 'testnet',
+        },
+      });
+
+      expect(kycOnlyProfile.kycVerified, isTrue);
+      expect(kycOnlyProfile.wallet, isNull);
+      expect(walletOnlyProfile.kycVerified, isNull);
+      expect(walletOnlyProfile.wallet?.address, '0x123');
     });
 
     test('maps denied and transport states into host-friendly messages', () {
@@ -130,6 +153,7 @@ void main() {
 
       final request = client.createAuthorizationRequest(
         state: 'state-123',
+        codeVerifier: _codeVerifier,
       );
 
       expect(request.state, 'state-123');
@@ -143,6 +167,15 @@ void main() {
       expect(request.launchUri.queryParameters['scopes'], 'kyc_status,wallet');
       expect(request.launchUri.queryParameters['state'], 'state-123');
       expect(request.launchUri.queryParameters['app_name'], 'Example App');
+      expect(
+        request.launchUri.queryParameters['code_challenge'],
+        _codeChallenge,
+      );
+      expect(
+        request.launchUri.queryParameters['code_challenge_method'],
+        'S256',
+      );
+      expect(request.codeVerifier, _codeVerifier);
     });
 
     test('launches wallet when available', () async {
@@ -177,6 +210,15 @@ void main() {
 
       expect(request, isNull);
       expect(launcher.launchedUri, isNull);
+    });
+
+    test('rejects invalid PKCE verifiers', () {
+      final client = _buildClient();
+
+      expect(
+        () => client.createAuthorizationRequest(codeVerifier: 'too-short'),
+        throwsArgumentError,
+      );
     });
   });
 
@@ -238,6 +280,7 @@ void main() {
 
     test('waits for the matching redirect URI callback', () async {
       final listener = _FakeCallbackListener();
+      addTearDown(listener.close);
       final client = _buildClient(callbackListener: listener);
       final request = client.createAuthorizationRequest(state: 'state-123');
 
@@ -256,11 +299,11 @@ void main() {
         (result as ToroPassAuthorizationCodeReceived).code,
         'auth-code-123',
       );
-      await listener.close();
     });
 
     test('times out when no callback is received', () async {
       final listener = _FakeCallbackListener();
+      addTearDown(listener.close);
       final client = _buildClient(callbackListener: listener);
       final request = client.createAuthorizationRequest(state: 'state-123');
 
@@ -270,7 +313,6 @@ void main() {
       );
 
       expect(result, isA<ToroPassAuthTimeout>());
-      await listener.close();
     });
   });
 
@@ -281,6 +323,7 @@ void main() {
 
       final session = await client.exchangeAuthorizationCode(
         code: ' auth-code-123 ',
+        codeVerifier: _codeVerifier,
       );
 
       expect(
@@ -291,10 +334,11 @@ void main() {
         'client_id': 'toro_client_123',
         'code': 'auth-code-123',
         'redirect_uri': 'myapp://callback',
+        'code_verifier': _codeVerifier,
       });
       expect(session.token.accessToken, 'toro_tk_123');
       expect(session.profile.id, 'user-1');
-      expect(session.profile.wallet.address, '0x123');
+      expect(session.profile.wallet?.address, '0x123');
     });
 
     test('includes optional client secret for server-side exchange', () async {
@@ -303,10 +347,12 @@ void main() {
 
       await client.exchangeAuthorizationCode(
         code: 'auth-code-123',
+        codeVerifier: _codeVerifier,
         clientSecret: ' toro_sk_123 ',
       );
 
       expect(httpClient.lastPostBody?['client_secret'], 'toro_sk_123');
+      expect(httpClient.lastPostBody?['code_verifier'], _codeVerifier);
     });
 
     test('fetches profile with app-scoped OAuth token', () async {
@@ -323,7 +369,7 @@ void main() {
         'Authorization': 'Bearer toro_tk_123',
       });
       expect(profile.kycVerified, isTrue);
-      expect(profile.wallet.tnsName, 'alice');
+      expect(profile.wallet?.tnsName, 'alice');
     });
 
     test('surfaces expired or revoked OAuth tokens', () async {
@@ -343,6 +389,7 @@ void main() {
       () async {
         final launcher = _FakeWalletLauncher(canLaunchResult: true);
         final listener = _FakeCallbackListener();
+        addTearDown(listener.close);
         final httpClient = _FakeHttpClient();
         final client = _buildClient(
           callbackListener: listener,
@@ -361,8 +408,10 @@ void main() {
         final result = await resultFuture;
 
         expect(result, isA<ToroPassAuthSuccess>());
-        expect((result as ToroPassAuthSuccess).profile.wallet.tnsName, 'alice');
-        await listener.close();
+        expect(
+          (result as ToroPassAuthSuccess).profile.wallet?.tnsName,
+          'alice',
+        );
       },
     );
   });
@@ -371,6 +420,7 @@ void main() {
     testWidgets('runs verifyIdentity and reports the result', (tester) async {
       final launcher = _FakeWalletLauncher(canLaunchResult: true);
       final listener = _FakeCallbackListener();
+      addTearDown(listener.close);
       final httpClient = _FakeHttpClient();
       final client = _buildClient(
         callbackListener: listener,
@@ -408,7 +458,6 @@ void main() {
 
       expect(capturedResult, isA<ToroPassAuthSuccess>());
       expect(find.text('Verify with ToroPass'), findsOneWidget);
-      await listener.close();
     });
   });
 }
@@ -506,7 +555,7 @@ Future<T> _waitFor<T extends Object>(T? Function() read) async {
   for (var i = 0; i < 10; i++) {
     final value = read();
     if (value != null) return value;
-    await Future<void>.delayed(const Duration(milliseconds: 1));
+    await Future<void>.microtask(() {});
   }
   throw StateError('Timed out waiting for value.');
 }

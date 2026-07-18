@@ -10,7 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  toropass_client: ^0.1.1
+  toropass_client:
+    path: ../
 
 dev_dependencies:
   flutter_test:

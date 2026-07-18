@@ -11,8 +11,9 @@ It handles:
 - launching ToroPass Wallet through a native deep link
 - receiving the callback URI in your app
 - validating the OAuth `state`
+- protecting authorization codes with S256 PKCE
 - exchanging the authorization code for an app-scoped access token
-- fetching the approved ToroPass profile
+- fetching only the ToroPass profile fields covered by granted scopes
 
 ## Features
 
@@ -27,7 +28,7 @@ It handles:
 
 ```yaml
 dependencies:
-  toropass_client: ^0.1.1
+  toropass_client: ^0.2.0
 ```
 
 Then run:
@@ -66,7 +67,7 @@ final result = await client.verifyIdentity();
 switch (result) {
   case ToroPassAuthSuccess(:final token, :final profile):
     print(token.accessToken);
-    print(profile.wallet.tnsName);
+    print(profile.wallet?.tnsName);
   case ToroPassAuthDenied():
     print('User denied access.');
   case ToroPassAuthCancelled():
@@ -112,13 +113,25 @@ if (launched == null) {
 final callback = await client.waitForCallback(launched);
 
 if (callback case ToroPassAuthorizationCodeReceived(:final code)) {
-  final session = await client.exchangeAuthorizationCode(code: code);
+  final session = await client.exchangeAuthorizationCode(
+    code: code,
+    codeVerifier: launched.codeVerifier,
+  );
   final profile = await client.fetchProfile(
     accessToken: session.token.accessToken,
   );
-  print(profile.wallet.address);
+  print(profile.wallet?.address);
 }
 ```
+
+`createAuthorizationRequest()` and `launchWallet()` generate an S256 PKCE
+verifier automatically. Keep the returned request object until code exchange;
+the verifier is intentionally never sent through the wallet callback.
+
+Profile fields are nullable when their corresponding scope was not granted:
+
+- `ToroPassScope.kycStatus` exposes `kycVerified` and `kycAnchorHash`
+- `ToroPassScope.wallet` exposes `wallet`
 
 ## Native Setup
 

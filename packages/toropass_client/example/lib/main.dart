@@ -46,12 +46,12 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
   bool _isFetchingProfile = false;
 
   ToroPassClient get _client => ToroPassClient(
-    config: ToroPassClientConfig(
-      appName: _appNameController.text.trim(),
-      clientId: _clientIdController.text,
-      redirectUri: _redirectUri,
-    ),
-  );
+        config: ToroPassClientConfig(
+          appName: _appNameController.text.trim(),
+          clientId: _clientIdController.text,
+          redirectUri: _redirectUri,
+        ),
+      );
 
   @override
   void dispose() {
@@ -370,12 +370,16 @@ class _ToroPassExampleScreenState extends State<ToroPassExampleScreen> {
 
   Future<void> _exchangeStoredCode() async {
     final code = _latestCode;
-    if (code == null) return;
+    final request = _lastRequest;
+    if (code == null || request == null) return;
 
     setState(() => _isExchanging = true);
 
     try {
-      final session = await _client.exchangeAuthorizationCode(code: code);
+      final session = await _client.exchangeAuthorizationCode(
+        code: code,
+        codeVerifier: request.codeVerifier,
+      );
       setState(() => _session = session);
       _setResult(
         ToroPassAuthSuccess(token: session.token, profile: session.profile),

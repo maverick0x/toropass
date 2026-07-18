@@ -86,10 +86,14 @@ Important note:
 
 Current result:
 
-- `ToroPassClient.exchangeAuthorizationCode()` calls `/oauth/token` and returns a `ToroPassOAuthSession`.
+- `ToroPassClient.exchangeAuthorizationCode()` requires the PKCE verifier,
+  calls `/oauth/token`, and returns a `ToroPassOAuthSession`.
 - `ToroPassClient.fetchProfile()` calls `/oauth/profile` with the app-scoped OAuth access token.
 - The package does not persist OAuth app tokens; host apps own storage policy.
 - Expired or revoked OAuth app tokens surface as `ToroPassTokenInvalidException`.
+- S256 PKCE binds authorization codes to the app instance that initiated the
+  wallet handoff.
+- Profile fields are nullable and populated only when their scope was granted.
 
 ## Phase 5: Package UX Helpers
 
