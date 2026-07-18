@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { VerifyKycDto } from '../../presentation/dto/verify-kyc.dto';
 import {
@@ -13,14 +13,23 @@ import {
   IBlockchainPort,
 } from '../ports/blockchain.interface';
 import { ILogger, LOGGER_PORT } from '../ports/logger.interface';
+import { hashBvn, legacyBvnHash } from '../security/credential-hash';
 
 @Injectable()
 export class KycService {
+  private readonly bvnHashPepper: string;
+
   constructor(
     private prisma: PrismaService,
+    configService: ConfigService,
     @Inject(BLOCKCHAIN_PORT) private blockchain: IBlockchainPort,
     @Inject(LOGGER_PORT) private logger: ILogger,
-  ) { }
+  ) {
+    this.bvnHashPepper = configService.getOrThrow<string>('BVN_HASH_PEPPER');
+    if (this.bvnHashPepper.length < 32) {
+      throw new Error('BVN_HASH_PEPPER must contain at least 32 characters.');
+    }
+  }
 
   async processKycVerification(
     userId: string,
@@ -41,6 +50,21 @@ export class KycService {
       throw new BadRequestException('This user has already passed KYC.');
     }
 
+    const bvnHash = hashBvn(payload.bvn, this.bvnHashPepper);
+    const existingIdentity = await this.prisma.user.findFirst({
+      where: {
+        id: { not: userId },
+        bvnHash: { in: [bvnHash, legacyBvnHash(payload.bvn)] },
+      },
+      select: { id: true },
+    });
+
+    if (existingIdentity) {
+      throw new BadRequestException(
+        'This identity is already linked to another ToroPass wallet.',
+      );
+    }
+
     const isVerified = await this.blockchain.verifyAndAnchorKyc({
       firstName: payload.firstName,
       middleName: payload.middleName,
@@ -53,20 +77,15 @@ export class KycService {
     });
 
     if (!isVerified) {
-      this.logger
-        .logAlert({
-          message: `KYC failed for user: ${userId}, wallet: ${walletRecord.address}`,
-          slack: false,
-        });
+      void this.logger.logAlert({
+        message: `KYC failed for user: ${userId}, wallet: ${walletRecord.address}`,
+        slack: false,
+      });
       throw new BadRequestException(
         'Identity verification failed. Please ensure your BVN and details match exactly.',
       );
     }
 
-    const bvnHash = crypto
-      .createHash('sha256')
-      .update(payload.bvn)
-      .digest('hex');
     const parsedDob = new Date(payload.dob);
 
     try {
@@ -79,11 +98,10 @@ export class KycService {
         },
       });
 
-      this.logger
-        .logInfo({
-          message: `User linked to wallet ${walletRecord.address} successfully passed KYC!`,
-          slack: true,
-        });
+      void this.logger.logInfo({
+        message: `User linked to wallet ${walletRecord.address} successfully passed KYC!`,
+        slack: true,
+      });
 
       return {
         success: true,
@@ -91,11 +109,10 @@ export class KycService {
           'Identity verified and securely anchored to the Toronet blockchain.',
       };
     } catch (error) {
-      this.logger
-        .logAlert({
-          message: `Database failure after successful KYC for ${userId}, wallet: ${walletRecord.address}`,
-          error,
-        });
+      void this.logger.logAlert({
+        message: `Database failure after successful KYC for ${userId}, wallet: ${walletRecord.address}`,
+        error,
+      });
       throw new InternalServerErrorException(
         'Verification succeeded, but we failed to save the status.',
       );

@@ -1,6 +1,7 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { digestOpaqueToken } from '../security/credential-hash';
 import { OAuthService } from './oauth.service';
 
 const codeVerifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk';
@@ -147,9 +148,15 @@ describe('OAuthService security boundaries', () => {
     });
     const createToken = prisma.oAuthToken.create as jest.Mock<
       Promise<unknown>,
-      [{ data: { scopes: string[] } }]
+      [{ data: { scopes: string[]; tokenHash: string } }]
     >;
     expect(createToken.mock.calls[0][0].data.scopes).toEqual(['kyc_status']);
+    expect(createToken.mock.calls[0][0].data.tokenHash).toMatch(
+      /^[a-f0-9]{64}$/,
+    );
+    expect(createToken.mock.calls[0][0].data.tokenHash).not.toContain(
+      'toro_tk_',
+    );
 
     await expect(
       service.exchangeCodeForUserProfile(
@@ -165,7 +172,7 @@ describe('OAuthService security boundaries', () => {
     const { prisma, service } = createHarness();
     prisma.oAuthToken.findUnique.mockResolvedValue({
       id: 'token-1',
-      accessToken: 'toro_tk_1',
+      tokenHash: digestOpaqueToken('toro_tk_1'),
       appId: app.id,
       userId: user.id,
       scopes: ['wallet'],
@@ -196,7 +203,7 @@ describe('OAuthService security boundaries', () => {
     const { prisma, service } = createHarness();
     prisma.oAuthToken.findUnique.mockResolvedValue({
       id: 'token-1',
-      accessToken: 'toro_tk_1',
+      tokenHash: digestOpaqueToken('toro_tk_1'),
       appId: app.id,
       userId: user.id,
       scopes: ['wallet'],

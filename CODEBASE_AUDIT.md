@@ -29,6 +29,17 @@ tokens because they have no trustworthy PKCE or scope snapshot. Existing wallet
 login sessions are not affected. The remaining findings are still open unless
 marked otherwise.
 
+Phase 3 was completed on July 18, 2026:
+
+- New BVNs use versioned HMAC-SHA-256 with a server-side pepper.
+- OAuth bearer and wallet refresh tokens are stored only by digest.
+- Access and refresh JWT purposes are enforced independently.
+- Refresh rotation is atomic and token reuse revokes the full session family.
+
+The Phase 3 migration invalidates existing wallet sessions and OAuth app tokens.
+Legacy BVN hashes are tagged and checked for duplicates because they cannot be
+converted without receiving the original BVN again.
+
 ## Priority Summary
 
 | Priority | Issue |
@@ -304,6 +315,9 @@ remain usable.
 ## 5. BVNs Use an Unsalted SHA-256 Hash
 
 **Severity:** Medium
+
+**Status:** Resolved for new and reverified identities in Phase 3. Existing raw
+hashes are tagged as `legacy-sha256` and remain lookup-only until revalidation.
 
 ### Evidence
 
@@ -585,11 +599,15 @@ These were not ranked above but should be included in the remediation roadmap.
 Hash opaque bearer tokens before storage so a database leak does not immediately
 expose active credentials.
 
+**Status:** Resolved in Phase 3. Both values are stored only by SHA-256 digest.
+
 ### Make Token Rotation Atomic
 
 Create the replacement refresh session and revoke the previous session in a
 single transaction. Consider token-family reuse detection so reuse of an old
 rotated refresh token revokes the entire session family.
+
+**Status:** Resolved in Phase 3.
 
 ### Validate Authorization Requests With DTOs
 
@@ -638,9 +656,9 @@ Log identifiers and outcomes, but never:
 
 ### Phase 3: Sensitive Data and Tokens
 
-1. Replace raw BVN hashing with keyed HMAC.
-2. Hash stored access and refresh tokens.
-3. Implement atomic refresh-token rotation and reuse detection.
+1. [Complete] Replace raw BVN hashing with keyed HMAC.
+2. [Complete] Hash stored access and refresh tokens.
+3. [Complete] Implement atomic refresh-token rotation and reuse detection.
 
 ### Phase 4: Release Reliability
 
@@ -666,9 +684,9 @@ Log identifiers and outcomes, but never:
 | Client `flutter analyze` | Passed |
 | Client tests | Passed, 23 tests |
 | Backend build | Passed |
-| Backend unit tests | Passed, 2 suites and 6 tests |
+| Backend unit tests | Passed, 5 suites and 14 tests |
 | Backend e2e tests | Not rerun; requires a configured integration environment |
-| Backend lint | Phase 1 OAuth files pass; existing repository-wide backlog remains |
+| Backend lint | Phase 1 and Phase 3 files pass; existing repository-wide backlog remains |
 | Tracked `.env` files | None found |
 | Tracked keystores or `key.properties` | None found |
 

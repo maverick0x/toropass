@@ -299,7 +299,10 @@ Success response:
 
 Important behavior:
 
-- Current session record is deleted after refresh
+- Refresh tokens carry distinct `tokenUse=refresh`, session, and family claims
+- The stored session contains only a SHA-256 token digest
+- Rotation revokes the current session and creates its replacement atomically
+- Reuse of a revoked token invalidates the entire token family
 - Invalid, expired, or revoked refresh tokens return `401`
 
 ## KYC Endpoint
@@ -347,7 +350,10 @@ Important behavior:
 
 - Wallet address must already exist locally
 - Re-verifying an already verified user is rejected
-- `bvn` is stored as a SHA-256 hash, not in plaintext
+- `bvn` must contain exactly `11` digits
+- New BVNs are stored as `v1:HMAC-SHA-256(BVN_HASH_PEPPER, bvn)`
+- Legacy SHA-256 values remain tagged for duplicate detection until users can
+  be reverified
 - `dob` is stored as a `Date`
 
 ## OAuth Developer App Endpoints
@@ -548,6 +554,7 @@ Important behavior:
 - The returned profile contains only fields covered by the granted scopes
 - Authorization code is burned after successful exchange
 - App token lifetime is `30` days
+- Only a SHA-256 digest of the random OAuth bearer token is stored
 
 ### `GET /api/v1/oauth/profile`
 
@@ -580,6 +587,7 @@ Success response:
 Important behavior:
 
 - Profiles are filtered using the scopes stored with the app token
+- Presented OAuth bearer tokens are hashed before database lookup
 - Expired, changed, or revoked consent causes the token to be deleted
 - Inactive OAuth apps cannot use existing tokens
 - Expired app tokens return `401`

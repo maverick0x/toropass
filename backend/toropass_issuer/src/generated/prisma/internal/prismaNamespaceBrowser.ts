@@ -148,7 +148,7 @@ export type OAuthCodeScalarFieldEnum = (typeof OAuthCodeScalarFieldEnum)[keyof t
 
 export const OAuthTokenScalarFieldEnum = {
   id: 'id',
-  accessToken: 'accessToken',
+  tokenHash: 'tokenHash',
   appId: 'appId',
   userId: 'userId',
   scopes: 'scopes',
@@ -162,7 +162,12 @@ export type OAuthTokenScalarFieldEnum = (typeof OAuthTokenScalarFieldEnum)[keyof
 export const UserSessionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  refreshToken: 'refreshToken',
+  tokenHash: 'tokenHash',
+  familyId: 'familyId',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  replacedById: 'replacedById',
+  reuseDetectedAt: 'reuseDetectedAt',
   createdAt: 'createdAt'
 } as const
 

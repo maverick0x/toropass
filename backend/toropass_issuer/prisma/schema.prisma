@@ -109,11 +109,11 @@ model OAuthCode {
 
 // The actual token the 3rd-party app uses to call your API
 model OAuthToken {
-  id          String @id @default(uuid())
-  accessToken String @unique @map("access_token")
-  appId       String @map("app_id")
-  userId      String @map("user_id")
-  scopes      String[]
+  id        String @id @default(uuid())
+  tokenHash String @unique @map("token_hash")
+  appId     String @map("app_id")
+  userId    String @map("user_id")
+  scopes    String[]
 
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
@@ -126,13 +126,19 @@ model OAuthToken {
 
 // User Session
 model UserSession {
-  id           String   @id @default(uuid())
-  userId       String   @map("user_id")
-  refreshToken String   @unique @map("refresh_token")
-  createdAt    DateTime @default(now()) @map("created_at")
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  tokenHash       String    @unique @map("token_hash")
+  familyId        String    @map("family_id")
+  expiresAt       DateTime  @map("expires_at")
+  revokedAt       DateTime? @map("revoked_at")
+  replacedById    String?   @map("replaced_by_id")
+  reuseDetectedAt DateTime? @map("reuse_detected_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([familyId])
   @@map("user_sessions")
 }

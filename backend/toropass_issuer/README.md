@@ -107,6 +107,8 @@ The current code depends on these values:
 - `APP_API_KEY`: required by `ApiGuard`
 - `APP_SECRET`: required by `HmacAuthGuard`
 - `JWT_SECRET`: used for first-party wallet JWTs
+- `BVN_HASH_PEPPER`: secret of at least 32 characters used for versioned BVN
+  HMACs; back it up in the deployment secret manager
 - `BLOCKCHAIN_NETWORK`: Toronet SDK network, supported values are `mainnet` and `testnet`
 - `MAINNET_ADMIN_ADDRESS`: Toronet admin wallet for KYC when `BLOCKCHAIN_NETWORK=mainnet`
 - `MAINNET_ADMIN_PASSWORD`: Toronet admin wallet password for KYC when `BLOCKCHAIN_NETWORK=mainnet`
@@ -147,6 +149,15 @@ pnpm run config
 - `Wallet.network` is persisted from the active Toronet adapter network during wallet creation and first-time wallet linking.
 - `pnpm run config` initializes the SDK with the configured network and attempts a test wallet creation for quick connectivity verification.
 - Newly created or newly linked users are stored with placeholder `bvnHash` and `dateOfBirth` until KYC completes.
+- Verified BVNs are stored as versioned keyed HMACs rather than raw SHA-256.
+- OAuth bearer tokens and wallet refresh tokens are stored only as SHA-256
+  digests; plaintext values are returned to clients once.
+- Refresh tokens rotate atomically. Reuse of a revoked token invalidates its
+  entire session family.
+- Applying migration `20260718010000_harden_sensitive_credentials` invalidates
+  existing wallet sessions and OAuth app tokens, so all clients must
+  authenticate again.
+- Do not change or lose `BVN_HASH_PEPPER` without a versioned rotation plan.
 - All wallet routes now require HMAC signing in addition to the shared API key.
 - The consent route path is currently spelled `/conscents/...` in code. The docs preserve that exact live path to avoid integration mistakes.
 - Consent routes now use the authenticated wallet user from the bearer token and no longer require `userId` in the path.

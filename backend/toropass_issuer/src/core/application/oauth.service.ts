@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { User } from 'src/generated/prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { digestOpaqueToken } from '../security/credential-hash';
 import {
   normalizeOAuthScopes,
   OAuthScope,
@@ -216,12 +217,13 @@ export class OAuthService {
     }
 
     const accessToken = 'toro_tk_' + crypto.randomBytes(32).toString('hex');
+    const tokenHash = digestOpaqueToken(accessToken);
     const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     await this.prisma.$transaction([
       this.prisma.oAuthToken.create({
         data: {
-          accessToken,
+          tokenHash,
           appId: app.id,
           userId: oauthCode.userId,
           scopes: oauthCode.scopes,
@@ -237,7 +239,7 @@ export class OAuthService {
     return {
       status: 'success',
       data: {
-        accessToken, // <--- The SDK will save this!
+        accessToken,
         profile,
       },
     };
@@ -246,10 +248,11 @@ export class OAuthService {
   // New Method: Verify the silent background request
   async verifyAccessToken(token: string) {
     const cleanedToken = token.replace('Bearer ', '').trim();
+    const tokenHash = digestOpaqueToken(cleanedToken);
 
     // Find the token, make sure the consent wasn't revoked, and get the user
     const tokenRecord = await this.prisma.oAuthToken.findUnique({
-      where: { accessToken: cleanedToken },
+      where: { tokenHash },
       include: {
         app: true,
         user: {

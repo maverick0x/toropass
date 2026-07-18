@@ -14,7 +14,9 @@ export class VerifyKycDto {
   lastName!: string;
 
   @IsString()
-  @IsNotEmpty()
+  @Matches(/^\d{11}$/, {
+    message: 'bvn must contain exactly 11 digits',
+  })
   bvn!: string;
 
   @IsString()

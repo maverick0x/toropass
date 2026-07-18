@@ -38,6 +38,7 @@ Authorization: Bearer <wallet_access_token>
 Behavior:
 
 - Verifies the JWT with `JWT_SECRET`
+- Requires `tokenUse=access`; refresh JWTs cannot authorize API requests
 - Loads the user from Postgres using `payload.sub`
 - Rejects missing, expired, malformed, or stale tokens
 
@@ -46,6 +47,16 @@ Issued by:
 - `POST /api/v1/wallets/create`
 - `POST /api/v1/wallets/validate`
 - `POST /api/v1/wallets/refresh`
+
+Refresh-token behavior:
+
+- Only a SHA-256 digest is stored in `UserSession`.
+- Every refresh token contains a unique session ID and a token-family ID.
+- Rotation revokes the presented session and creates its replacement in one
+  transaction.
+- Reusing a revoked token marks every session in that family as compromised.
+- Revoked rows are retained through the detection window rather than deleted
+  immediately.
 
 Used by:
 
@@ -146,6 +157,7 @@ Third-party package exception:
 
 - The third-party client package endpoints are `POST /api/v1/oauth/token` and `GET /api/v1/oauth/profile`.
 - Those two routes remain outside the HMAC layer so external clients can exchange authorization codes and fetch profiles with OAuth tokens alone.
+- OAuth bearer tokens are random 256-bit values stored only by SHA-256 digest.
 
 ## Integration Advice For The Wallet App
 
