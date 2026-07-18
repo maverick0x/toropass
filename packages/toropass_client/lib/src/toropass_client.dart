@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
-
 import 'toropass_authorization_request.dart';
 import 'toropass_callback_listener.dart';
 import 'toropass_client_config.dart';
@@ -31,23 +29,14 @@ class ToroPassClient {
             callbackListener ?? AppLinksToroPassCallbackListener(),
         _httpClient = httpClient ?? HttpToroPassClient();
 
-  ToroPassAuthorizationRequest createAuthorizationRequest({
-    String? state,
-    String? codeVerifier,
-  }) {
+  ToroPassAuthorizationRequest createAuthorizationRequest({String? state}) {
     final requestState = _requireState(state ?? _generateState());
-    final requestCodeVerifier = _requireCodeVerifier(
-      codeVerifier ?? _generateCodeVerifier(),
-    );
-    final codeChallenge = _createCodeChallenge(requestCodeVerifier);
     final query = <String, String>{
       'client_id': config.clientId,
       'redirect_uri': config.redirectUri.toString(),
       'scopes': config.scopeValues.join(','),
       'state': requestState,
       'app_name': config.appName,
-      'code_challenge': codeChallenge,
-      'code_challenge_method': 'S256',
     };
 
     return ToroPassAuthorizationRequest(
@@ -56,9 +45,6 @@ class ToroPassClient {
       clientId: config.clientId,
       redirectUri: config.redirectUri,
       scopes: config.scopes,
-      codeVerifier: requestCodeVerifier,
-      codeChallenge: codeChallenge,
-      codeChallengeMethod: 'S256',
       appName: config.appName,
     );
   }
@@ -71,12 +57,8 @@ class ToroPassClient {
 
   Future<ToroPassAuthorizationRequest?> launchWallet({
     String? state,
-    String? codeVerifier,
   }) async {
-    final request = createAuthorizationRequest(
-      state: state,
-      codeVerifier: codeVerifier,
-    );
+    final request = createAuthorizationRequest(state: state);
     final isAvailable = await _walletLauncher.canLaunch(request.launchUri);
     if (!isAvailable) return null;
 
@@ -155,7 +137,6 @@ class ToroPassClient {
     try {
       final session = await exchangeAuthorizationCode(
         code: callbackResult.code,
-        codeVerifier: request.codeVerifier,
       );
       return ToroPassAuthSuccess(
         token: session.token,
@@ -168,14 +149,12 @@ class ToroPassClient {
 
   Future<ToroPassOAuthSession> exchangeAuthorizationCode({
     required String code,
-    required String codeVerifier,
     String? clientSecret,
   }) async {
     final body = <String, dynamic>{
       'client_id': config.clientId,
       'code': _requireCode(code),
       'redirect_uri': config.redirectUri.toString(),
-      'code_verifier': _requireCodeVerifier(codeVerifier),
       if (clientSecret?.trim().isNotEmpty == true)
         'client_secret': clientSecret!.trim(),
     };
@@ -259,34 +238,6 @@ class ToroPassClient {
       bytes[i] = random.nextInt(256);
     }
     return base64UrlEncode(bytes).replaceAll('=', '');
-  }
-
-  static String _generateCodeVerifier() {
-    final bytes = Uint8List(32);
-    final random = Random.secure();
-    for (var i = 0; i < bytes.length; i++) {
-      bytes[i] = random.nextInt(256);
-    }
-    return base64UrlEncode(bytes).replaceAll('=', '');
-  }
-
-  static String _createCodeChallenge(String codeVerifier) {
-    return base64UrlEncode(
-      sha256.convert(utf8.encode(codeVerifier)).bytes,
-    ).replaceAll('=', '');
-  }
-
-  static String _requireCodeVerifier(String value) {
-    final trimmed = value.trim();
-    final validVerifier = RegExp(r'^[A-Za-z0-9\-._~]{43,128}$');
-    if (!validVerifier.hasMatch(trimmed)) {
-      throw ArgumentError.value(
-        value,
-        'codeVerifier',
-        'PKCE code verifier must contain 43-128 unreserved characters.',
-      );
-    }
-    return trimmed;
   }
 
   static String _requireState(String value) {

@@ -27,7 +27,7 @@ Primary source docs:
 | `POST /api/v1/oauth/apps/register` | Register developer app | `x-api-key` + JWT + HMAC | Implemented |
 | `GET /api/v1/oauth/apps` | List developer apps | `x-api-key` + JWT + HMAC | Implemented |
 | `DELETE /api/v1/oauth/apps/:appId` | Delete developer app | `x-api-key` + JWT + HMAC | Implemented |
-| `POST /api/v1/oauth/authorize` | Approve scoped app consent and issue a PKCE-bound code | `x-api-key` + JWT + HMAC | Implemented |
+| `POST /api/v1/oauth/authorize` | Approve app consent and issue code | `x-api-key` + JWT + HMAC | Implemented |
 
 ### Third-Party Client Package Routes
 
@@ -35,8 +35,8 @@ These are not wallet-app routes and should stay logically separate in the Flutte
 
 | Route | Purpose | Auth |
 | --- | --- | --- |
-| `POST /api/v1/oauth/token` | Exchange code and PKCE verifier for an OAuth access token | Public at route level |
-| `GET /api/v1/oauth/profile` | Fetch fields allowed by the token's current scopes | OAuth access token |
+| `POST /api/v1/oauth/token` | Exchange code for OAuth access token | Public at route level |
+| `GET /api/v1/oauth/profile` | Fetch profile using OAuth access token | OAuth access token |
 
 ## Current App Foundation
 

@@ -20,9 +20,9 @@ class ToroPassWalletProfile {
 
 class ToroPassProfile {
   final String id;
-  final bool? kycVerified;
+  final bool kycVerified;
   final String? kycAnchorHash;
-  final ToroPassWalletProfile? wallet;
+  final ToroPassWalletProfile wallet;
 
   const ToroPassProfile({
     required this.id,
@@ -34,14 +34,11 @@ class ToroPassProfile {
   factory ToroPassProfile.fromJson(Map<String, dynamic> json) {
     return ToroPassProfile(
       id: json['id']?.toString() ?? '',
-      kycVerified:
-          json.containsKey('kycVerified') ? json['kycVerified'] == true : null,
+      kycVerified: json['kycVerified'] == true,
       kycAnchorHash: json['kycAnchorHash']?.toString(),
-      wallet: json['wallet'] is Map<String, dynamic>
-          ? ToroPassWalletProfile.fromJson(
-              json['wallet'] as Map<String, dynamic>,
-            )
-          : null,
+      wallet: ToroPassWalletProfile.fromJson(
+        json['wallet'] as Map<String, dynamic>? ?? const {},
+      ),
     );
   }
 }

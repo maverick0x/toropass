@@ -54,9 +54,8 @@ Use it to:
 - launch ToroPass Wallet
 - request user consent
 - receive the OAuth callback
-- protect the authorization code with S256 PKCE
 - exchange the authorization code
-- fetch only the ToroPass profile fields covered by approved scopes
+- fetch the approved ToroPass profile
 
 See:
 - [`toropass_client` on pub.dev](https://pub.dev/packages/toropass_client)
@@ -95,10 +94,6 @@ If you are building a Flutter app on Toronet, this is the path ToroPass is optim
 5. Receive the approved identity result back in your app.
 
 This is the fastest way to adopt ToroPass, and it is the main reason this repository exists.
-
-The SDK generates and preserves the PKCE verifier automatically. Developers
-using the manual flow must keep the returned authorization request and pass its
-`codeVerifier` during code exchange.
 
 ## Create Your ToroPass OAuth App
 
@@ -259,7 +254,7 @@ Add the published package to your Flutter app:
 
 ```yaml
 dependencies:
-  toropass_client: ^0.2.0
+  toropass_client: ^0.1.1
 ```
 
 Then run:

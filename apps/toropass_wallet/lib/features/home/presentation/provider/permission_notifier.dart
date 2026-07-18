@@ -41,8 +41,6 @@ class PermissionNotifier extends _$PermissionNotifier {
           clientId: request.clientId,
           redirectUri: request.redirectUri,
           scopes: request.scopes,
-          codeChallenge: request.codeChallenge,
-          codeChallengeMethod: request.codeChallengeMethod,
         ),
       );
       state = state.copyWith(authorizeState: response);

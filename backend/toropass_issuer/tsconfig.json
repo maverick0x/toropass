@@ -18,8 +18,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "types": [
-      "node",
-      "jest"
+      "node"
     ]
   }
 }

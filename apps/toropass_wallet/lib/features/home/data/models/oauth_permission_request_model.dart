@@ -5,8 +5,6 @@ class OAuthPermissionRequestModel extends OAuthPermissionRequestEntity {
     required super.clientId,
     required super.redirectUri,
     required super.appName,
-    required super.codeChallenge,
-    required super.codeChallengeMethod,
     super.state,
     super.scopes,
   });
@@ -37,8 +35,6 @@ class OAuthPermissionRequestModel extends OAuthPermissionRequestEntity {
           'Connected App',
       state: query['state']?.trim(),
       scopes: scopes,
-      codeChallenge: query['code_challenge']?.trim() ?? '',
-      codeChallengeMethod: query['code_challenge_method']?.trim() ?? '',
     );
   }
 }

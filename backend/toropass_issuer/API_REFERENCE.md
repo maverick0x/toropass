@@ -470,9 +470,7 @@ Body:
 {
   "client_id": "toro_client_...",
   "redirect_uri": "https://example.com/callback",
-  "scopes": ["kyc_status", "wallet"],
-  "code_challenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
-  "code_challenge_method": "S256"
+  "scopes": ["kyc_status", "wallet"]
 }
 ```
 
@@ -491,10 +489,7 @@ Important behavior:
 
 - Validates client existence and active status
 - Validates exact redirect URI match
-- Rejects unknown scopes
-- Requires an S256 PKCE challenge
 - Upserts consent for `30` days
-- Invalidates older app tokens and pending codes for the same user/app grant
 - Issues authorization code valid for `5` minutes
 
 ### `POST /api/v1/oauth/token`
@@ -514,7 +509,6 @@ Body:
   "client_id": "toro_client_...",
   "code": "hex-authorization-code",
   "redirect_uri": "https://example.com/callback",
-  "code_verifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
   "client_secret": "toro_sk_optional_for_server_flow"
 }
 ```
@@ -542,10 +536,8 @@ Success response:
 
 Important behavior:
 
-- `code_verifier` is required and must match the S256 challenge
-- `client_secret` is optional additional authentication for confidential clients
+- `client_secret` is optional at the controller level
 - If provided, it must match the stored hash
-- The returned profile contains only fields covered by the granted scopes
 - Authorization code is burned after successful exchange
 - App token lifetime is `30` days
 
@@ -579,9 +571,7 @@ Success response:
 
 Important behavior:
 
-- Profiles are filtered using the scopes stored with the app token
-- Expired, changed, or revoked consent causes the token to be deleted
-- Inactive OAuth apps cannot use existing tokens
+- Revoked consent causes the stored token to be deleted and request to fail
 - Expired app tokens return `401`
 
 ## Consent Management Endpoints
@@ -648,7 +638,6 @@ Success response:
 Important behavior:
 
 - Revocation is performed for the authenticated wallet user from the bearer token
-- Consent, pending authorization codes, and access tokens are invalidated in one transaction
 
 ## Suggested Wallet-App Integration Order
 

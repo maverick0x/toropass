@@ -29,8 +29,6 @@ toropassclient://oauth/callback
    - success status
    - access token
    - authorized profile
-7. Confirm the token exchange succeeds only with the verifier generated for the
-   original authorization request.
 
 ## Logged-Out Wallet Path
 
@@ -61,8 +59,6 @@ toropassclient://oauth/callback
 1. Complete either `Verify Identity` or `Authorize Only` + `Exchange Stored Code`.
 2. Tap `Fetch Profile`.
 3. Confirm profile data returns with the expected wallet and KYC values.
-4. Repeat with only one requested scope and confirm fields outside that scope
-   are not returned.
 
 ## Revoked Consent
 
